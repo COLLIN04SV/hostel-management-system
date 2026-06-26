@@ -1,0 +1,56 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Notice;
+use Illuminate\Http\Request;
+
+class NoticeController extends Controller
+{
+    public function index()
+    {
+        $notices = Notice::latest()->get();
+
+        return view('admin.notices.index', compact('notices'));
+    }
+
+    public function create()
+    {
+        return view('admin.notices.create');
+    }
+
+    public function store(Request $request)
+    {
+        Notice::create([
+            'title' => $request->title,
+            'message' => $request->message,
+            'published_by' =>1, // Assuming the admin user ID is 1
+            'publish_date' => $request->publish_date,
+            'status' => $request->status
+        ]);
+
+        return redirect()->route('notices.index')
+            ->with('success','Notice created successfully');
+    }
+
+    public function edit(Notice $notice)
+    {
+        return view('admin.notices.edit', compact('notice'));
+    }
+
+    public function update(Request $request, Notice $notice)
+    {
+        $notice->update($request->all());
+
+        return redirect()->route('notices.index')
+            ->with('success','Notice updated');
+    }
+
+    public function destroy(Notice $notice)
+    {
+        $notice->delete();
+
+        return redirect()->route('notices.index')
+            ->with('success','Notice deleted');
+    }
+}
