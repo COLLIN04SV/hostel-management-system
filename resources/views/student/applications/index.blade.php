@@ -50,23 +50,29 @@
 
                 @if($application->status == 'Pending')
 
-                    <span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full">
-                        Pending
-                    </span>
+    <span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full">
+                  Pending
+    </span>
 
-                @elseif($application->status == 'Approved')
+@elseif($application->status == 'Approved')
 
-                    <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full">
-                        Approved
-                    </span>
+    <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full">
+        Approved
+    </span>
 
-                @else
+@elseif($application->status == 'Allocated')
 
-                    <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full">
-                        Rejected
-                    </span>
+    <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full">
+        Allocated
+    </span>
 
-                @endif
+@else
+
+    <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full">
+        Rejected
+    </span>
+
+@endif
 
             </td>
 

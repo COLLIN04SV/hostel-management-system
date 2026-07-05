@@ -6,6 +6,8 @@ use App\Models\Student;
 use App\Models\Room;
 use App\Models\Allocation;
 use App\Models\Payment;
+use App\Models\Application;
+use App\Models\Hostel;
 
 class ReportController extends Controller
 {
@@ -30,6 +32,25 @@ class ReportController extends Controller
 
         $totalCollected = Payment::sum('amount');
 
+        $totalHostels = Hostel::count();
+
+$totalApplications = Application::count();
+
+$pendingApplications = Application::where(
+    'status',
+    'Pending'
+)->count();
+
+$approvedApplications = Application::where(
+    'status',
+    'Approved'
+)->count();
+
+$recentPayments = Payment::with('student.user')
+    ->latest()
+    ->take(5)
+    ->get();
+
         return view('admin.reports.index', compact(
             'totalStudents',
             'allocatedStudents',
@@ -38,7 +59,12 @@ class ReportController extends Controller
             'occupiedRooms',
             'vacantRooms',
             'totalPayments',
-            'totalCollected'
+            'totalCollected',
+            'totalHostels',
+            'totalApplications',
+            'pendingApplications',
+            'approvedApplications',
+            'recentPayments'
         ));
     }
 }

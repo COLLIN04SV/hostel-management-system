@@ -6,16 +6,49 @@
     Add Room
 </h1>
 
+<a href="{{ route('rooms.index') }}"
+   class="inline-flex items-center text-blue-600 hover:text-blue-800 mb-6">
+
+    <i class="bi bi-arrow-left me-2"></i>
+
+    Back to Rooms
+
+</a>
+
 <div class="bg-white p-6 rounded-2xl shadow-sm">
 
-<form method="POST" action="{{ route('rooms.store') }}">
+@if ($errors->any())
+
+<div class="bg-red-100 border border-red-300 text-red-700 rounded-xl p-4 mb-6">
+
+    <strong>Please fix the following errors:</strong>
+
+    <ul class="list-disc ml-6 mt-2">
+
+        @foreach ($errors->all() as $error)
+
+            <li>{{ $error }}</li>
+
+        @endforeach
+
+    </ul>
+
+</div>
+
+@endif
+
+<form method="POST"
+      action="{{ route('rooms.store') }}"
+      class="space-y-6">
 
 @csrf
 
 <div class="grid grid-cols-2 gap-6">
 
     <div>
-        <label>Hostel</label>
+        <label class="block mb-2 font-medium text-gray-700">
+           Hostel
+        </label>
 
         <select
             name="hostel_id"
@@ -33,7 +66,9 @@
     </div>
 
     <div>
-        <label>Room Number</label>
+        <label class="block mb-2 font-medium text-gray-700">
+           Room Number
+        </label>
 
         <input
             type="text"
@@ -42,7 +77,9 @@
     </div>
 
     <div>
-        <label>Floor</label>
+        <label class="block mb-2 font-medium text-gray-700">
+           Floor
+        </label>
 
         <input
             type="number"
@@ -52,7 +89,9 @@
     </div>
 
     <div>
-        <label>Capacity</label>
+        <label class="block mb-2 font-medium text-gray-700">
+           Capacity
+        </label>
 
         <input
             type="number"
@@ -61,7 +100,9 @@
     </div>
 
     <div>
-        <label>Price</label>
+        <label class="block mb-2 font-medium text-gray-700">
+           Price
+        </label>
 
         <input
             type="number"

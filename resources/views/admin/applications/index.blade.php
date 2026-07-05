@@ -1,122 +1,301 @@
 @extends('layouts.admin')
 
+@section('page-title','Applications')
+
 @section('content')
 
-<div class="bg-white p-6 rounded-xl shadow">
+<x-admin.page-header
+    title="Applications"
+    subtitle="Manage hostel applications">
 
-    <div class="flex justify-between mb-6">
+    <a href="{{ route('applications.create') }}">
 
-        <h2 class="text-2xl font-bold">
-            Applications
-        </h2>
+        <x-admin.button color="blue">
 
-        <a href="{{ route('applications.create') }}"
-           class="bg-blue-600 text-white px-4 py-2 rounded">
+            <i class="bi bi-plus-lg mr-2"></i>
 
             New Application
 
-        </a>
+        </x-admin.button>
+
+    </a>
+
+</x-admin.page-header>
+
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-6 mb-6">
+
+    <x-admin.stat-card
+        title="Total Applications"
+        :value="$totalApplications"
+        icon="bi-file-earmark-text"
+        color="blue"/>
+
+    <x-admin.stat-card
+        title="Pending"
+        :value="$pendingApplications"
+        icon="bi-hourglass-split"
+        color="yellow"/>
+
+    <x-admin.stat-card
+        title="Approved"
+        :value="$approvedApplications"
+        icon="bi-check-circle"
+        color="green"/>
+
+    <x-admin.stat-card
+        title="Allocated"
+        :value="$allocatedApplications"
+        icon="bi-house-check"
+        color="info"/>    
+
+    <x-admin.stat-card
+        title="Rejected"
+        :value="$rejectedApplications"
+        icon="bi-x-circle"
+        color="red"/>
+
+</div>
+
+<x-admin.card>
+
+<form
+    method="GET"
+    action="{{ route('applications.index') }}"
+    class="mb-6">
+
+    <div class="flex gap-3">
+
+        <input
+            type="text"
+            name="search"
+            value="{{ $search }}"
+            placeholder="Search student, hostel or status..."
+            class="flex-1 border rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500">
+
+        <x-admin.button color="blue">
+
+            Search
+
+        </x-admin.button>
 
     </div>
 
-    <table class="w-full">
+</form>
 
-        <thead>
+<div class="flex justify-between items-center mb-4">
 
-        <tr>
-            <th>Student</th>
-            <th>Hostel</th>
-            <th>Date</th>
-            <th>Status</th>
-            <th>Actions</th>
-        </tr>
+    <p class="text-gray-500">
 
-        </thead>
+        Showing
 
-        <tbody>
+        <strong>{{ $applications->firstItem() ?? 0 }}</strong>
 
-        @foreach($applications as $application)
+        -
 
-        <tr class="border-b">
+        <strong>{{ $applications->lastItem() ?? 0 }}</strong>
 
-            <td>
-                {{ $application->student->user->name }}
-            </td>
+        of
 
-            <td>
-                {{ $application->hostel->name }}
-            </td>
+        <strong>{{ $applications->total() }}</strong>
 
-            <td>
-                {{ $application->application_date }}
-            </td>
+        applications
 
-            <td>
-
-                @if($application->status=='Approved')
-
-                <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full">
-                    Approved
-                </span>
-
-                @elseif($application->status=='Rejected')
-
-                <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full">
-                    Rejected
-                </span>
-
-                @else
-
-                <span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full">
-                    Pending
-                </span>
-
-                @endif
-
-            </td>
-
-            <td>
-
-                @if($application->status=='Pending')
-
-                <form
-                    action="{{ route('applications.approve',$application->id) }}"
-                    method="POST"
-                    style="display:inline;">
-
-                    @csrf
-
-                    <button class="bg-green-500 text-white px-3 py-1 rounded">
-                        Approve
-                    </button>
-
-                </form>
-
-                <form
-                    action="{{ route('applications.reject',$application->id) }}"
-                    method="POST"
-                    style="display:inline;">
-
-                    @csrf
-
-                    <button class="bg-red-500 text-white px-3 py-1 rounded">
-                        Reject
-                    </button>
-
-                </form>
-
-                @endif
-
-            </td>
-
-        </tr>
-
-        @endforeach
-
-        </tbody>
-
-    </table>
+    </p>
 
 </div>
+
+<div class="overflow-x-auto">
+
+<table class="w-full">
+
+<thead>
+
+<tr class="bg-gray-100 text-gray-600 uppercase text-xs">
+
+    <th class="p-4 text-left">Student</th>
+
+    <th class="p-4 text-left">Hostel</th>
+
+    <th class="p-4 text-left">Date</th>
+
+    <th class="p-4 text-center">Status</th>
+
+    <th class="p-4 text-center">Actions</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+@forelse($applications as $application)
+
+<tr class="border-b hover:bg-gray-50 transition">
+
+    <td class="p-4">
+
+        <div class="flex items-center gap-3">
+
+            <div class="w-10 h-10 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold">
+
+                {{ strtoupper(substr($application->student->user->name,0,1)) }}
+
+            </div>
+
+            <div>
+
+                <p class="font-semibold">
+
+                    {{ $application->student->user->name }}
+
+                </p>
+
+                <p class="text-sm text-gray-500">
+
+                    {{ $application->student->registration_number }}
+
+                </p>
+
+            </div>
+
+        </div>
+
+    </td>
+
+    <td class="p-4">
+
+        {{ $application->hostel->name }}
+
+    </td>
+
+    <td class="p-4">
+
+        {{ \Carbon\Carbon::parse($application->application_date)->format('d M Y') }}
+
+    </td>
+
+    <td class="p-4 text-center">
+
+        @if($application->status == 'Approved')
+
+    <x-admin.badge
+        type="success"
+        text="Approved"/>
+
+@elseif($application->status == 'Allocated')
+
+    <x-admin.badge
+        type="info"
+        text="Allocated"/>
+
+@elseif($application->status == 'Rejected')
+
+    <x-admin.badge
+        type="danger"
+        text="Rejected"/>
+
+@else
+
+    <x-admin.badge
+        type="warning"
+        text="Pending"/>
+
+@endif
+
+    </td>
+
+    <td class="p-4">
+
+        <div class="flex justify-center gap-2">
+
+            @if($application->status == 'Pending')
+
+                <form
+                    method="POST"
+                    action="{{ route('applications.approve',$application->id) }}">
+
+                    @csrf
+
+                    <x-admin.action-button
+                        type="submit"
+                        color="green"
+                        icon="bi-check-lg"
+                        title="Approve"/>
+
+                </form>
+
+                <form
+                    method="POST"
+                    action="{{ route('applications.reject',$application->id) }}">
+
+                    @csrf
+
+                    <x-admin.action-button
+                        type="submit"
+                        color="red"
+                        icon="bi-x-lg"
+                        title="Reject"/>
+
+                </form>
+
+            @else
+
+                <span class="text-gray-400 text-sm">
+
+                    No Actions
+
+                </span>
+
+            @endif
+
+        </div>
+
+    </td>
+
+</tr>
+
+@empty
+
+<tr>
+
+    <td colspan="5">
+
+        <div class="text-center py-12">
+
+            <i class="bi bi-file-earmark-text text-5xl text-gray-300"></i>
+
+            <h3 class="mt-4 text-xl font-semibold">
+
+                No Applications Found
+
+            </h3>
+
+            <p class="text-gray-500 mt-2">
+
+                No hostel applications match your search.
+
+            </p>
+
+        </div>
+
+    </td>
+
+</tr>
+
+@endforelse
+
+</tbody>
+
+</table>
+
+</div>
+
+<div class="mt-6">
+
+    {{ $applications->links() }}
+
+</div>
+
+</x-admin.card>
 
 @endsection

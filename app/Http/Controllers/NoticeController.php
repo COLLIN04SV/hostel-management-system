@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Notice;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class NoticeController extends Controller
 {
@@ -24,7 +25,7 @@ class NoticeController extends Controller
         Notice::create([
             'title' => $request->title,
             'message' => $request->message,
-            'published_by' =>1, // Assuming the admin user ID is 1
+            'published_by' => auth()->id(),
             'publish_date' => $request->publish_date,
             'status' => $request->status
         ]);

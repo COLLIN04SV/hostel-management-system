@@ -9,34 +9,42 @@ use Illuminate\Http\Request;
 class StudentController extends Controller
 {
     public function index(Request $request)
- {
+{
     $search = $request->search;
 
     $students = Student::with([
-        'user',
-        'allocation.room'
-    ])
+            'user',
+            'allocation.room'
+        ])
+        ->when($search, function ($query) use ($search) {
 
-    ->when($search, function ($query) use ($search) {
+            $query->where('registration_number', 'like', "%{$search}%")
+                ->orWhere('department', 'like', "%{$search}%")
+                ->orWhereHas('user', function ($q) use ($search) {
 
-        $query->where('registration_number', 'like', "%{$search}%")
-              ->orWhere('department', 'like', "%{$search}%")
-              ->orWhereHas('user', function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                      ->orWhere('email', 'like', "%{$search}%");
 
-                  $q->where('name', 'like', "%{$search}%");
+                });
 
-              });
+        })
+        ->latest()
+        ->paginate(10)
+        ->withQueryString();
 
-    })
+        $totalStudents = Student::count();
 
-    ->latest()
-    ->get();
+        $totalMale = Student::where('gender', 'Male')->count();
+
+        $totalFemale = Student::where('gender', 'Female')->count();
+
+        $totalAllocated = Student::has('allocation')->count();
 
     return view(
         'admin.students.index',
-        compact('students', 'search')
+        compact('students', 'search', 'totalStudents', 'totalMale', 'totalFemale', 'totalAllocated')
     );
- }
+}
 
     public function create()
     {
@@ -123,6 +131,8 @@ public function update(Request $request, Student $student)
 
 public function destroy(Student $student)
 {
+    $student->user()->delete();
+
     $student->delete();
 
     return redirect()

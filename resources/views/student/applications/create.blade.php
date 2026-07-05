@@ -28,7 +28,13 @@
                 @foreach($hostels as $hostel)
 
                     <option value="{{ $hostel->id }}">
-                        {{ $hostel->name }}
+
+                      {{ $hostel->name }}
+                        •
+                      {{ ucfirst($hostel->gender) }}
+                        • 
+                      KES {{ number_format($hostel->fee) }}
+
                     </option>
 
                 @endforeach

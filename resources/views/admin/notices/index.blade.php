@@ -1,73 +1,170 @@
 @extends('layouts.admin')
 
+@section('page-title','Notices')
+
 @section('content')
 
-<div class="container">
+<x-admin.page-header
+    title="Notices"
+    subtitle="Create and manage announcements">
 
-    <div class="d-flex justify-content-between mb-3">
-        <h2>Notices</h2>
-
-        <a href="{{ route('notices.create') }}"
-           class="btn btn-primary">
+    <a href="{{ route('notices.create') }}">
+        <x-admin.button color="blue">
+            <i class="bi bi-plus-lg mr-2"></i>
             Create Notice
-        </a>
-    </div>
+        </x-admin.button>
+    </a>
 
-    <table class="table">
+</x-admin.page-header>
 
-        <thead>
-            <tr>
-                <th>Title</th>
-                <th>Publish Date</th>
-                <th>Status</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
+<x-admin.card>
 
-        <tbody>
+@if(session('success'))
 
-        @foreach($notices as $notice)
+<div class="mb-6 rounded-xl bg-green-100 text-green-700 px-4 py-3">
 
-            <tr>
-
-                <td>{{ $notice->title }}</td>
-
-                <td>{{ $notice->publish_date }}</td>
-
-                <td>
-                    {{ $notice->status ? 'Published' : 'Draft' }}
-                </td>
-
-                <td>
-
-                    <a href="{{ route('notices.edit',$notice->id) }}"
-                       class="btn btn-warning btn-sm">
-                       Edit
-                    </a>
-
-                    <form action="{{ route('notices.destroy',$notice->id) }}"
-                          method="POST"
-                          style="display:inline">
-
-                        @csrf
-                        @method('DELETE')
-
-                        <button class="btn btn-danger btn-sm">
-                            Delete
-                        </button>
-
-                    </form>
-
-                </td>
-
-            </tr>
-
-        @endforeach
-
-        </tbody>
-
-    </table>
+    {{ session('success') }}
 
 </div>
+
+@endif
+
+<div class="overflow-x-auto">
+
+<table class="w-full">
+
+<thead>
+
+<tr class="border-b bg-gray-50">
+
+    <th class="px-6 py-4 text-left">Title</th>
+
+    <th class="px-6 py-4 text-left">Published By</th>
+
+    <th class="px-6 py-4 text-center">Date</th>
+
+    <th class="px-6 py-4 text-center">Status</th>
+
+    <th class="px-6 py-4 text-center">Actions</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+@forelse($notices as $notice)
+
+<tr class="border-b hover:bg-gray-50">
+
+    <td class="px-6 py-4">
+
+        <div>
+
+            <h3 class="font-semibold">
+
+                {{ $notice->title }}
+
+            </h3>
+
+            <p class="text-gray-500 text-sm mt-1">
+
+                {{ Str::limit($notice->message,70) }}
+
+            </p>
+
+        </div>
+
+    </td>
+
+    <td class="px-6 py-4">
+
+        {{ $notice->publisher->name ?? '-' }}
+
+    </td>
+
+    <td class="px-6 py-4 text-center">
+
+        {{ \Carbon\Carbon::parse($notice->publish_date)->format('d M Y') }}
+
+    </td>
+
+    <td class="px-6 py-4 text-center">
+
+        @if($notice->status)
+
+            <x-admin.badge
+                type="success"
+                text="Published"/>
+
+        @else
+
+            <x-admin.badge
+                type="warning"
+                text="Draft"/>
+
+        @endif
+
+    </td>
+
+    <td class="px-6 py-4">
+
+        <div class="flex justify-center gap-2">
+
+            <a href="{{ route('notices.edit',$notice) }}">
+
+                <x-admin.button color="blue">
+
+                    <i class="bi bi-pencil"></i>
+
+                </x-admin.button>
+
+            </a>
+
+            <form
+                method="POST"
+                action="{{ route('notices.destroy',$notice) }}">
+
+                @csrf
+                @method('DELETE')
+
+                <x-admin.button
+                    color="red"
+                    type="submit"
+                    onclick="return confirm('Delete this notice?')">
+
+                    <i class="bi bi-trash"></i>
+
+                </x-admin.button>
+
+            </form>
+
+        </div>
+
+    </td>
+
+</tr>
+
+@empty
+
+<tr>
+
+<td colspan="5" class="text-center py-12 text-gray-500">
+
+No notices available.
+
+</td>
+
+</tr>
+
+@endforelse
+
+</tbody>
+
+</table>
+
+</div>
+
+</x-admin.card>
 
 @endsection

@@ -2,19 +2,21 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 
 class AdminUserSeeder extends Seeder
 {
     public function run(): void
     {
-        User::create([
-            'name' => 'System Administrator',
-            'email' => 'admin@hostel.com',
-            'password' => bcrypt('password'),
-            'role' => 'admin'
-        ]);
+        User::updateOrCreate(
+            ['email' => 'admin@hostel.com'],
+            [
+                'name' => 'System Administrator',
+                'password' => Hash::make('password'),
+                'role' => 'admin',
+            ]
+        );
     }
 }

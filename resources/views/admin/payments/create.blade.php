@@ -1,80 +1,176 @@
 @extends('layouts.admin')
 
+@section('page-title','Record Payment')
+
 @section('content')
 
-<div class="container">
+<x-admin.page-header
+    title="Record Payment"
+    subtitle="Record a student's hostel payment"/>
 
-    <h2 class="mb-4">Record Payment</h2>
+<x-admin.card>
 
-    <form action="/payments/store" method="POST">
-        @csrf
+<form
+    method="POST"
+    action="{{ route('payments.store') }}">
 
-        <div class="mb-3">
-            <label>Student</label>
+@csrf
 
-            <select name="student_id" required>
-               <option value="">Select Student</option>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-               @foreach($students as $student)
-               <option value="{{ $student->id }}">
-                  {{ $student->user->name }}
-                 ({{ $student->registration_number }})
-               </option>
-                 @endforeach
-           </select>
-        </div>
+    <div>
 
-        <div class="mb-3">
-            <label>Amount</label>
+        <label class="block mb-2 font-semibold">
 
-            <input
-                type="number"
-                name="amount"
-                class="form-control"
-                required>
-        </div>
+            Student
 
-        <div class="mb-3">
-            <label>Payment Method</label>
+        </label>
 
-            <select
-                name="payment_method"
-                class="form-control">
+        <select
+            name="student_id"
+            class="w-full border rounded-xl px-4 py-3"
+            required>
 
-                <option>Cash</option>
-                <option>Bank</option>
-                <option>M-Pesa</option>
-                <option>Card</option>
+            <option value="">
 
-            </select>
-        </div>
+                Select Student
 
-        <div class="mb-3">
-            <label>Reference</label>
+            </option>
 
-            <input
-                type="text"
-                name="transaction_reference"
-                class="form-control"
-                required>
-        </div>
+            @foreach($students as $student)
 
-        <div class="mb-3">
-            <label>Date</label>
+            @php
 
-            <input
-                type="date"
-                name="payment_date"
-                class="form-control"
-                required>
-        </div>
+            $payment = $student->payments
+             ->where('status','Pending')
+             ->first();
 
-        <button class="btn btn-primary">
-            Save Payment
-        </button>
+            @endphp
 
-    </form>
+            @if($payment)
+
+           <option value="{{ $student->id }}">
+
+              {{ $student->user->name }}
+              ({{ $student->registration_number }})
+
+           </option>
+
+         @endif
+
+         @endforeach
+
+        </select>
+
+         <p class="text-sm text-gray-500 mt-2">
+
+             Only students with pending payments are displayed.
+
+         </p>
+
+    </div>
+
+    <div>
+
+        <label class="block mb-2 font-semibold">
+
+            Amount
+
+        </label>
+
+        <input
+            type="number"
+            name="amount"
+            class="w-full border rounded-xl px-4 py-3"
+            required>
+
+    </div>
+
+    <div>
+
+        <label class="block mb-2 font-semibold">
+
+            Payment Method
+
+        </label>
+
+        <select
+            name="payment_method"
+            class="w-full border rounded-xl px-4 py-3">
+
+            <option value="Cash">Cash</option>
+
+            <option value="Bank">Bank</option>
+
+            <option value="M-Pesa">M-Pesa</option>
+
+            <option value="Card">Card</option>
+
+        </select>
+
+    </div>
+
+    <div>
+
+        <label class="block mb-2 font-semibold">
+
+            Transaction Reference
+
+        </label>
+
+        <input
+            type="text"
+            name="transaction_reference"
+            class="w-full border rounded-xl px-4 py-3"
+            required>
+
+    </div>
+
+    <div>
+
+        <label class="block mb-2 font-semibold">
+
+            Payment Date
+
+        </label>
+
+        <input
+            type="date"
+            name="payment_date"
+            value="{{ date('Y-m-d') }}"
+            class="w-full border rounded-xl px-4 py-3"
+            required>
+
+    </div>
 
 </div>
+
+<div class="flex justify-end gap-3 mt-8">
+
+    <a href="{{ route('payments.index') }}">
+
+        <x-admin.button color="gray">
+
+            Cancel
+
+        </x-admin.button>
+
+    </a>
+
+    <x-admin.button
+        color="blue"
+        type="submit">
+
+        <i class="bi bi-check-circle mr-2"></i>
+
+        Save Payment
+
+    </x-admin.button>
+
+</div>
+
+</form>
+
+</x-admin.card>
 
 @endsection

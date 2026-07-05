@@ -1,126 +1,221 @@
 @extends('layouts.admin')
 
+@section('page-title', 'Payments')
+
 @section('content')
 
-<div class="bg-white p-6 rounded-xl shadow">
+<x-admin.page-header
+    title="Payments"
+    subtitle="Manage hostel payment records">
 
-    <div class="flex justify-between mb-6">
+    <a href="{{ route('payments.create') }}">
+        <x-admin.button color="blue">
+            <i class="bi bi-plus-lg mr-2"></i>
+            Record Payment
+        </x-admin.button>
+    </a>
 
-        <h2 class="text-2xl font-bold">
-            Payments
-        </h2>
+</x-admin.page-header>
 
-        <a href="/payments/create"
-        class="bg-blue-600 text-white px-4 py-2 rounded">
-           Record Payment
-        </a>
+@if(session('success'))
 
-    </div>
+<div class="mb-6 bg-green-100 border border-green-300 text-green-700 px-4 py-3 rounded-xl">
 
-    @if(session('success'))
-
-    <div class="bg-green-100 text-green-700 p-3 rounded mb-4">
-        {{ session('success') }}
-    </div>
-
-    @endif
-
-    <div class="row mb-4">
-
-    <div class="col-md-4">
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <h6>Total Payments</h6>
-                <h3>{{ $totalPayments }}</h3>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-4">
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <h6>Total Collected</h6>
-                <h3>KSh {{ number_format($totalCollected) }}</h3>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-4">
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <h6>Pending Payments</h6>
-                <h3>{{ $pendingPayments }}</h3>
-            </div>
-        </div>
-    </div>
-
-    </div>
-
-    <table class="w-full">
-
-        <thead>
-            <tr class="border-b">
-                <th class="p-3 text-left">Student</th>
-                <th class="p-3 text-left">Amount</th>
-                <th class="p-3 text-left">Method</th>
-                <th class="p-3 text-left">Reference</th>
-                <th class="p-3 text-left">Date</th>
-                <th class="p-3 text-left">Status</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-
-        <tbody>
-
-        @foreach($payments as $payment)
-
-        <tr>
-
-           <td>{{ $payment->student->user->name ?? 'No Name' }}</td>
-
-           <td>KSh {{ number_format($payment->amount) }}</td>
-
-           <td>{{ $payment->payment_method }}</td>
-
-           <td>{{ $payment->transaction_reference }}</td>
-
-           <td>{{ $payment->payment_date }}</td>
-
-           <td>{{ $payment->status }}</td>
-
-           <td>
-
-             <a href="{{ route('payments.edit',$payment->id) }}"
-               class="btn btn-sm btn-warning">
-
-               Edit
-
-             </a>
-
-             <form action="{{ route('payments.destroy',$payment->id) }}"
-              method="POST"
-              style="display:inline">
-
-               @csrf
-               @method('DELETE')
-
-             <button class="btn btn-sm btn-danger"
-                onclick="return confirm('Delete payment?')">
-
-                Delete
-
-               </button>
-
-             </form>
-
-          </td>
-
-         </tr>
-
-        @endforeach
-
-        </tbody>
+    {{ session('success') }}
 
 </div>
+
+@endif
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+
+    <x-admin.stat-card
+        title="Total Payments"
+        :value="$totalPayments"
+        icon="bi-credit-card"
+        color="blue"/>
+
+    <x-admin.stat-card
+        title="Completed"
+        :value="$completedPayments"
+        icon="bi-check-circle"
+        color="green"/>
+
+    <x-admin.stat-card
+        title="Pending"
+        :value="$pendingPayments"
+        icon="bi-clock-history"
+        color="yellow"/>
+
+    <x-admin.stat-card
+        title="Revenue"
+        :value="'KSh '.number_format($totalCollected)"
+        icon="bi-cash-stack"
+        color="blue"/>
+
+</div>
+
+<x-admin.card>
+
+<div class="overflow-x-auto">
+
+<table class="w-full">
+
+<thead>
+
+<tr class="border-b bg-gray-50">
+
+<th class="px-6 py-4 text-left">Student</th>
+
+<th class="px-6 py-4 text-left">Amount</th>
+
+<th class="px-6 py-4 text-left">Method</th>
+
+<th class="px-6 py-4 text-left">Reference</th>
+
+<th class="px-6 py-4 text-left">Date</th>
+
+<th class="px-6 py-4 text-center">Status</th>
+
+<th class="px-6 py-4 text-center">Actions</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+@forelse($payments as $payment)
+
+<tr class="border-b hover:bg-gray-50">
+
+<td class="px-6 py-4">
+
+    <div class="font-semibold">
+
+        {{ $payment->student->user->name ?? 'Unknown Student' }}
+
+    </div>
+
+    <div class="text-sm text-gray-500">
+
+        {{ $payment->student->registration_number ?? '' }}
+
+    </div>
+
+</td>
+
+<td class="px-6 py-4 font-semibold">
+
+    KSh {{ number_format($payment->amount) }}
+
+</td>
+
+<td class="px-6 py-4">
+
+    {{ $payment->payment_method }}
+
+</td>
+
+<td class="px-6 py-4">
+
+    {{ $payment->transaction_reference }}
+
+</td>
+
+<td class="px-6 py-4">
+
+    {{ \Carbon\Carbon::parse($payment->payment_date)->format('d M Y') }}
+
+</td>
+
+<td>
+
+@if($payment->status=='Completed')
+
+    <x-admin.badge
+        type="success"
+        text="Completed"/>
+
+@elseif($payment->status=='Pending')
+
+    <x-admin.badge
+        type="warning"
+        text="Pending"/>
+
+@else
+
+    <x-admin.badge
+        type="danger"
+        text="{{ $payment->status }}"/>
+
+@endif
+
+</td>
+
+<td class="px-6 py-4">
+
+<div class="flex justify-center gap-2">
+
+<a href="{{ route('payments.edit',$payment) }}">
+
+<x-admin.button color="blue">
+
+<i class="bi bi-pencil"></i>
+
+</x-admin.button>
+
+</a>
+
+<form
+method="POST"
+action="{{ route('payments.destroy',$payment) }}">
+
+@csrf
+@method('DELETE')
+
+<x-admin.button
+color="red"
+onclick="return confirm('Delete this payment?')">
+
+<i class="bi bi-trash"></i>
+
+</x-admin.button>
+
+</form>
+
+</div>
+
+</td>
+
+</tr>
+
+@empty
+
+<tr>
+
+<td colspan="7" class="py-10 text-center text-gray-500">
+
+No payment records found.
+
+</td>
+
+</tr>
+
+@endforelse
+
+</tbody>
+
+</table>
+
+</div>
+
+<div class="mt-6">
+
+{{ $payments->links() }}
+
+</div>
+
+</x-admin.card>
 
 @endsection

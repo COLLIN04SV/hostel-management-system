@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Student;
 
 class Payment extends Model
 {
@@ -13,7 +12,7 @@ class Payment extends Model
         'payment_method',
         'transaction_reference',
         'payment_date',
-        'status'
+        'status',
     ];
 
     public function student()

@@ -2,71 +2,74 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Student;
-use App\Models\Room;
-use App\Models\Hostel;
 use App\Models\Allocation;
+use App\Models\Application;
+use App\Models\Hostel;
+use App\Models\Notice;
+use App\Models\Payment;
+use App\Models\Room;
+use App\Models\Student;
 
 class DashboardController extends Controller
 {
-   public function admin()
-{
-    $students = Student::count();
+    public function admin()
+    {
+        $totalStudents = Student::count();
 
-    $hostels = Hostel::count();
+        $totalHostels = Hostel::count();
 
-    $rooms = Room::count();
+        $totalRooms = Room::count();
 
-    $allocatedBeds = Allocation::where(
-        'status',
-        'Active'
-    )->count();
+       $occupiedBeds = Room::sum('occupied');
 
-    $totalBeds = Room::sum('capacity');
+       $totalBeds = Room::sum('capacity');
 
-    $occupancy = $totalBeds > 0
-        ? round(($allocatedBeds / $totalBeds) * 100)
-        : 0;
+       $vacantBeds = $totalBeds - $occupiedBeds;
 
-    $pendingApplications =
-        \App\Models\Application::where(
-            'status',
-            'Pending'
-        )->count();
+       $occupancyRate = $totalBeds > 0
+         ? round(($occupiedBeds / $totalBeds) * 100)
+         : 0;
 
-    $payments =
-        \App\Models\Payment::sum('amount');
+        $totalRevenue = Payment::where('status', 'Paid')
+            ->sum('amount');
 
-    $recentApplications =
-        \App\Models\Application::latest()
+        $pendingPayments = Payment::where('status','Pending')
+            ->sum('amount');
+
+        $recentApplications = Application::with([
+            'student.user',
+            'hostel'
+        ])
+        ->latest()
         ->take(5)
         ->get();
 
-    $recentPayments =
-        \App\Models\Payment::latest()
+        $recentPayments = Payment::with([
+            'student.user'
+        ])
+        ->latest()
         ->take(5)
         ->get();
 
-    $recentNotices =
-        \App\Models\Notice::latest()
-        ->take(5)
-        ->get();
+        $recentNotices = Notice::latest()
+            ->take(5)
+            ->get();
 
-    return view(
-        'admin.dashboard',
-        compact(
-            'students',
-            'hostels',
-            'rooms',
-            'allocatedBeds',
+        return view('admin.dashboard', compact(
+
+            'totalStudents',
+            'totalHostels',
+            'totalRooms',
+            'occupiedBeds',
+            'vacantBeds',
             'totalBeds',
-            'occupancy',
-            'pendingApplications',
-            'payments',
+            'occupancyRate',
+            'totalRevenue',
+            'pendingPayments',
             'recentApplications',
             'recentPayments',
             'recentNotices'
-        )
-    );
-}
+
+        ));
+    }
 }

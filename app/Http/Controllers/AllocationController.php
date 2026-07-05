@@ -5,99 +5,218 @@ namespace App\Http\Controllers;
 use App\Models\Room;
 use App\Models\Student;
 use App\Models\Allocation;
+use App\Models\Payment;
 use Illuminate\Http\Request;
 
 class AllocationController extends Controller
 {
-    public function index()
-    {
-        $allocations = Allocation::with(
-            'student',
-            'room'
-        )->latest()->get();
+    public function index(Request $request)
+{
+    $search = $request->search;
 
-        return view(
-            'admin.allocations.index',
-            compact('allocations')
-        );
-    }
+    $allocations = Allocation::with([
+            'student.user',
+            'room.hostel'
+        ])
+
+        ->when($search, function ($query) use ($search) {
+
+            $query->whereHas('student.user', function ($q) use ($search) {
+
+                $q->where('name', 'like', "%{$search}%");
+
+            })
+
+            ->orWhereHas('student', function ($q) use ($search) {
+
+                $q->where('registration_number', 'like', "%{$search}%");
+
+            })
+
+            ->orWhereHas('room', function ($q) use ($search) {
+
+                $q->where('room_number', 'like', "%{$search}%");
+
+            })
+
+            ->orWhere('status', 'like', "%{$search}%");
+
+        })
+
+        ->latest()
+
+        ->paginate(10)
+
+        ->withQueryString();
+
+    $totalAllocations = Allocation::count();
+
+    $activeAllocations = Allocation::where(
+        'status',
+        'Active'
+    )->count();
+
+    $vacatedAllocations = Allocation::where(
+        'status',
+        'Vacated'
+    )->count();
+
+    $availableRooms = Room::whereColumn(
+        'occupied',
+        '<',
+        'capacity'
+    )->count();
+
+    return view(
+        'admin.allocations.index',
+        compact(
+            'allocations',
+            'search',
+            'totalAllocations',
+            'activeAllocations',
+            'vacatedAllocations',
+            'availableRooms'
+        )
+    );
+}
 
     public function create()
-    {
-        $students = Student::all();
+{
+    $students = Student::whereHas('applications', function ($query) {
 
-        $rooms = Room::all();
+            $query->where('status', 'Approved');
 
-        return view(
-            'admin.allocations.create',
-            compact('students','rooms')
-        );
-    }
+        })
+
+        ->whereDoesntHave('allocation', function ($query) {
+
+            $query->where('status', 'Active');
+
+        })
+
+        ->with([
+            'user',
+            'applications.hostel'
+        ])
+
+        ->get();
+
+    $rooms = Room::with('hostel')
+
+        ->whereColumn('occupied', '<', 'capacity')
+
+        ->get();
+
+    return view(
+        'admin.allocations.create',
+        compact(
+            'students',
+            'rooms'
+        )
+    );
+}
 
     public function store(Request $request)
-    {
-        $room = Room::findOrFail(
-            $request->room_id
+{
+    $request->validate([
+        'student_id' => 'required|exists:students,id',
+        'room_id' => 'required|exists:rooms,id',
+    ]);
+
+    // Student
+    $student = Student::with('applications')->findOrFail(
+        $request->student_id
+    );
+
+    // Student must have an approved application
+    $approvedApplication = $student->applications()
+        ->where('status', 'Approved')
+        ->latest()
+        ->first();
+
+    if (!$approvedApplication) {
+
+        return back()->with(
+            'error',
+            'This student does not have an approved application.'
         );
 
-        if($room->occupied >= $room->capacity)
-        {
-            return back()
-                ->with(
-                    'error',
-                    'Room Full'
-                );
-        }
-        $existingAllocation = Allocation::where(
+    }
+
+    // Student must not already have an active allocation
+    if ($student->allocation) {
+
+        return back()->with(
+            'error',
+            'Student already has an active room allocation.'
+        );
+
+    }
+
+    // Room
+    $room = Room::findOrFail($request->room_id);
+
+    // Check room capacity
+    if ($room->occupied >= $room->capacity) {
+
+        return back()->with(
+            'error',
+            'The selected room is already full.'
+        );
+
+    }
+
+    // Create allocation
+    Allocation::create([
+
+        'student_id'     => $student->id,
+        'room_id'        => $room->id,
+        'allocated_date' => now(),
+        'status'         => 'Active',
+
+    ]);
+
+    // Create a pending payment record for the student
+    $existingPayment = Payment::where(
     'student_id',
     $request->student_id
-)
-->where('status', 'Active')
-->first();
+    )
+    ->where('status', 'Pending')
+    ->first();
 
-if ($existingAllocation) {
-
-    return back()->with(
-        'error',
-        'Student already has an active room allocation.'
-    );
-}
-
-$room = Room::findOrFail($request->room_id);
-
-$occupiedBeds = Allocation::where(
-    'room_id',
-    $room->id
-)
-->where('status', 'Active')
-->count();
-
-if ($occupiedBeds >= $room->capacity) {
-
-    return back()->with(
-        'error',
-        'Room is already full.'
-    );
-
-}
-        Allocation::create([
+   if (!$existingPayment) {
+    Payment::create([
 
     'student_id' => $request->student_id,
-    'room_id' => $request->room_id,
-    'allocated_date' => now(),
-    'status' => 'Active'
+
+    'amount' => 0,
+
+    'payment_method' => null,
+
+    'transaction_reference' => null,
+
+    'payment_date' => now(),
+
+    'status' => 'Pending'
 
   ]);
+   }
 
-        $room->increment('occupied');
+    // Mark the application as allocated
+    $approvedApplication->update([
+    'status' => 'Allocated'
+    ]);
 
-        return redirect()
-            ->route('allocations.index')
-            ->with(
-                'success',
-                'Room Allocated Successfully'
-            );
-    }
+    // Increase occupied beds
+    $room->increment('occupied');
+
+    return redirect()
+        ->route('allocations.index')
+        ->with(
+            'success',
+            'Room allocated successfully.'
+        );
+}
 
     public function vacate(int $id)
     {

@@ -9,53 +9,105 @@ use Illuminate\Http\Request;
 class PaymentController extends Controller
 {
     public function index()
-    {
-        $payments = Payment::with('student.user')->latest()->get();
+{
+    $payments = Payment::with('student.user')
+        ->latest()
+        ->paginate(10);
 
-        $totalPayments = Payment::count();
+    $totalPayments = Payment::count();
 
-        $totalCollected = Payment::sum('amount');
+    $totalCollected = Payment::where(
+        'status',
+        'Completed'
+    )->sum('amount');
 
-        $pendingPayments = Payment::where('status','Pending')->count();
+    $pendingPayments = Payment::where(
+        'status',
+        'Pending'
+    )->count();
 
-      return view('admin.payments.index', compact(
-       'payments',
-       'totalPayments',
-       'totalCollected',
-       'pendingPayments'
-    ));
+    $completedPayments = Payment::where(
+        'status',
+        'Completed'
+    )->count();
 
-    }
+    return view(
+        'admin.payments.index',
+        compact(
+            'payments',
+            'totalPayments',
+            'totalCollected',
+            'pendingPayments',
+            'completedPayments'
+        )
+    );
+}
 
     public function create()
-    {
-        $students = Student::with('user')->get();
+{
+    $students = Student::with([
+            'user',
+            'payments'
+        ])
+        ->whereHas('payments', function ($query) {
 
-        return view('admin.payments.create', compact('students'));
-    }
+            $query->where('status', 'Pending');
+
+        })
+        ->orderBy('registration_number')
+        ->get();
+
+    return view(
+        'admin.payments.create',
+        compact('students')
+    );
+}
 
     public function store(Request $request)
-    {
-        $request->validate([
-            'student_id' => 'required',
-            'amount' => 'required',
-            'payment_method' => 'required',
-            'transaction_reference' => 'required',
-            'payment_date' => 'required'
-        ]);
+{
+    $request->validate([
+        'student_id' => 'required|exists:students,id',
+        'amount' => 'required|numeric|min:0',
+        'payment_method' => 'required',
+        'transaction_reference' => 'required',
+        'payment_date' => 'required|date'
+    ]);
 
-        Payment::create([
-            'student_id' => $request->student_id,
-            'amount' => $request->amount,
-            'payment_method' => $request->payment_method,
-            'transaction_reference' => $request->transaction_reference,
-            'payment_date' => $request->payment_date,
-            'status' => 'Completed'
-        ]);
+    $payment = Payment::where('student_id', $request->student_id)
+        ->where('status', 'Pending')
+        ->latest()
+        ->first();
 
-        return redirect('/payments')
-            ->with('success', 'Payment recorded successfully');
+    if (!$payment || $payment->status === 'Completed') {
+
+        return back()->with(
+            'error',
+            'No pending payment found for the selected student.'
+        );
+
     }
+
+    $payment->update([
+
+        'amount' => $request->amount,
+
+        'payment_method' => $request->payment_method,
+
+        'transaction_reference' => $request->transaction_reference,
+
+        'payment_date' => $request->payment_date,
+
+        'status' => 'Completed'
+
+    ]);
+
+    return redirect()
+        ->route('payments.index')
+        ->with(
+            'success',
+            'Payment recorded successfully.'
+        );
+}
 
     public function edit(Payment $payment)
     {

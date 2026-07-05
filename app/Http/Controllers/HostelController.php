@@ -4,15 +4,42 @@ namespace App\Http\Controllers;
 
 use App\Models\Hostel;
 use Illuminate\Http\Request;
+use App\Models\Room;
 
 class HostelController extends Controller
 {
-    public function index()
-    {
-        $hostels = Hostel::latest()->paginate(10);
+    public function index(Request $request)
+{
+    $search = $request->search;
 
-        return view('admin.hostels.index', compact('hostels'));
-    }
+    $hostels = Hostel::when($search, function ($query) use ($search) {
+
+            $query->where('name', 'like', "%{$search}%")
+                  ->orWhere('location', 'like', "%{$search}%")
+                  ->orWhere('gender', 'like', "%{$search}%");
+
+        })
+        ->latest()
+        ->paginate(10)
+        ->withQueryString();
+
+    $totalHostels = Hostel::count();
+
+    $maleHostels = Hostel::where('gender', 'Male')->count();
+
+    $femaleHostels = Hostel::where('gender', 'Female')->count();
+
+    $totalRooms = Room::count();
+
+    return view('admin.hostels.index', compact(
+        'hostels',
+        'search',
+        'totalHostels',
+        'maleHostels',
+        'femaleHostels',
+        'totalRooms'
+    ));
+}
 
     public function create()
     {

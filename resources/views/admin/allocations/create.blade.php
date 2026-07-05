@@ -1,77 +1,147 @@
 @extends('layouts.admin')
 
+@section('page-title','Allocate Room')
+
 @section('content')
 
-<h1 class="text-3xl font-bold mb-6">
-Allocate Room
-</h1>
+<x-admin.page-header
+    title="Allocate Room"
+    subtitle="Assign approved students to available rooms"/>
 
-<div class="bg-white p-6 rounded-2xl shadow-sm">
+<x-admin.card>
 
-<form method="POST"
-      action="{{ route('allocations.store') }}">
+<form
+    method="POST"
+    action="{{ route('allocations.store') }}">
 
 @csrf
 
-<div class="grid grid-cols-2 gap-6">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-<div>
+    <div>
 
-<label>Student</label>
+        <label class="block mb-2 font-semibold">
 
-<select
-name="student_id"
-class="w-full border p-3 rounded-lg">
+            Student
+
+        </label>
+
+        <select
+            name="student_id"
+            class="w-full border rounded-xl px-4 py-3"
+            required>
+
+            <option value="">
+
+                Select Student
+
+            </option>
 
 @foreach($students as $student)
 
-<option value="{{ $student->id }}">
+    @php
+        $application = $student->applications
+            ->where('status','Approved')
+            ->sortByDesc('created_at')
+            ->first();
+    @endphp
 
-{{ $student->registration_number }}
+    @if($application)
 
-</option>
+        <option value="{{ $student->id }}">
+
+            {{ $student->user->name }}
+            ({{ $student->registration_number }})
+            - {{ $application->hostel->name }}
+
+        </option>
+
+    @endif
 
 @endforeach
 
 </select>
+
+<p class="text-sm text-gray-500 mt-2">
+
+    Only students with approved hostel applications are listed.
+
+</p>
 
 </div>
 
 <div>
 
-<label>Room</label>
+    <label class="block mb-2 font-semibold">
 
-<select
-name="room_id"
-class="w-full border p-3 rounded-lg">
+        Room
 
-@foreach($rooms as $room)
+    </label>
 
-<option value="{{ $room->id }}">
+    <select
+        name="room_id"
+        class="w-full border rounded-xl px-4 py-3"
+        required>
 
-{{ $room->room_number }}
-(Available:
-{{ $room->available_beds }})
+        <option value="">
 
-</option>
+            Select Room
 
-@endforeach
+        </option>
 
-</select>
+        @foreach($rooms as $room)
+
+            <option value="{{ $room->id }}">
+
+                {{ $room->hostel->name }}
+                -
+                Room {{ $room->room_number }}
+                ({{ $room->capacity - $room->occupied }}
+                Free)
+
+            </option>
+
+        @endforeach
+
+    </select>
+
+    <p class="text-sm text-gray-500 mt-2">
+
+        Only rooms with available beds are displayed.
+
+    </p>
 
 </div>
 
 </div>
 
-<button
-class="bg-blue-600 text-white px-6 py-3 rounded-xl mt-6">
+<div class="mt-8 flex justify-end gap-3">
 
-Allocate Room
+    <a
+        href="{{ route('allocations.index') }}">
 
-</button>
+        <x-admin.button color="gray">
+
+            Cancel
+
+        </x-admin.button>
+
+    </a>
+
+    <x-admin.button
+        color="blue"
+        type="submit">
+
+        <i class="bi bi-house-check mr-2"></i>
+
+        Allocate Room
+
+    </x-admin.button>
+
+</div>
 
 </form>
 
-</div>
+</x-admin.card>
 
-@endsection
+@endsection          

@@ -25,7 +25,8 @@ return new class extends Migration
     $table->enum('status', [
         'Pending',
         'Approved',
-        'Rejected'
+        'Rejected',
+        'Allocated'
     ])->default('Pending');
 
     $table->text('remarks')->nullable();
