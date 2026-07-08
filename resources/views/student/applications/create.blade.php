@@ -1,58 +1,50 @@
 @extends('student.layouts.app')
 
-@section('title', 'Apply Hostel')
+@section('title','Apply Hostel')
 
 @section('student-content')
 
-<div class="bg-white p-6 rounded-lg shadow">
+<x-student.page-header
+    title="Apply for Hostel"
+    subtitle="Choose a hostel available for {{ $student->gender }} students" />
 
-    <h2 class="text-2xl font-bold mb-6">
-        Hostel Application
-    </h2>
+@if($hostels->isEmpty())
 
-    <form method="POST"
-          action="{{ route('student.application.store') }}">
+<x-student.card>
 
-        @csrf
+    <div class="text-center py-16">
 
-        <div class="mb-4">
+        <i class="bi bi-house-x text-6xl text-gray-300"></i>
 
-            <label class="block mb-2">
-                Select Hostel
-            </label>
+        <h3 class="text-xl font-semibold mt-4">
 
-            <select
-                name="hostel_id"
-                class="w-full border rounded-lg p-3">
+            No Hostels Available
 
-                @foreach($hostels as $hostel)
+        </h3>
 
-                    <option value="{{ $hostel->id }}">
+        <p class="text-gray-500 mt-2">
 
-                      {{ $hostel->name }}
-                        •
-                      {{ ucfirst($hostel->gender) }}
-                        • 
-                      KES {{ number_format($hostel->fee) }}
+            There are currently no hostels available for your category.
 
-                    </option>
+        </p>
 
-                @endforeach
+    </div>
 
-            </select>
+</x-student.card>
 
-        </div>
+@else
 
-        <button
-            type="submit"
-            class="bg-indigo-600 text-white px-6 py-3 rounded">
+<div class="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
 
-            Submit Application
+@foreach($hostels as $hostel)
 
-        </button>
+    <x-student.hostel-card
+        :hostel="$hostel"/>
 
-    </form>
+@endforeach
 
 </div>
+
+@endif
 
 @endsection

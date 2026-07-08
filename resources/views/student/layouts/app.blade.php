@@ -25,7 +25,7 @@
                 Dashboard
             </a>
 
-            <a href="#"
+            <a href="{{ route('student.profile') }}"
                class="block px-6 py-3 hover:bg-indigo-700">
                 My Profile
             </a>
@@ -40,32 +40,32 @@
                 My Applications
             </a>
 
-            <a href="#"
+            <a href="{{ route('student.room') }}"
                class="block px-6 py-3 hover:bg-indigo-700">
                 My Room
             </a>
 
-            <a href="#"
+            <a href="{{ route('student.payments') }}"
                class="block px-6 py-3 hover:bg-indigo-700">
                 Payments
             </a>
 
-            <a href="#"
+            <a href="{{ route('student.receipts') }}"
                class="block px-6 py-3 hover:bg-indigo-700">
                 Receipts
             </a>
 
-            <a href="#"
+            <a href="{{ route('student.notices') }}"
                class="block px-6 py-3 hover:bg-indigo-700">
                 Notices
             </a>
 
-            <a href="#"
+            <a href="{{ route('student.support') }}"
                class="block px-6 py-3 hover:bg-indigo-700">
                 Support
             </a>
 
-            <a href="#"
+            <a href="{{ route('student.settings') }}"
                class="block px-6 py-3 hover:bg-indigo-700">
                 Settings
             </a>

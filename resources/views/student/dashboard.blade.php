@@ -35,7 +35,7 @@
         value="KES {{ number_format($balance ?? 0) }}"
         icon="bi-credit-card"
         color="red"/>
-
+    
 </div>
 
 <div class="grid lg:grid-cols-3 gap-6">
@@ -188,7 +188,7 @@
                     icon="bi-file-earmark-text"
                     title="My Applications"
                     subtitle="Track application progress"
-                    :route="route('student.applications')"/>
+                    :route="route('student.applications.index')"/>
 
                 <x-student.quick-action
                     icon="bi-credit-card"

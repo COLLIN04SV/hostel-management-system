@@ -46,4 +46,9 @@ public function allocations()
     return $this->hasMany(Allocation::class);
 }
 
+public function supportTickets()
+{
+    return $this->hasMany(SupportTicket::class);
+}
+
 }

@@ -1,34 +1,82 @@
 @extends('student.layouts.app')
 
-@section('title', 'My Applications')
+@section('title','My Applications')
 
 @section('student-content')
 
-<div class="bg-white rounded-lg shadow p-6">
+<x-student.page-header
+    title="My Applications"
+    subtitle="Track the status of your hostel applications" />
 
-    <h2 class="text-2xl font-bold mb-6">
-        My Hostel Applications
-    </h2>
+{{-- Statistics --}}
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+
+    <x-student.stat-card
+        title="Total Applications"
+        :value="$totalApplications"
+        icon="bi-file-earmark-text"
+        color="indigo"/>
+
+    <x-student.stat-card
+        title="Pending"
+        :value="$pendingApplications"
+        icon="bi-hourglass-split"
+        color="yellow"/>
+
+    <x-student.stat-card
+        title="Approved"
+        :value="$approvedApplications"
+        icon="bi-check-circle"
+        color="green"/>
+
+</div>
+
+<x-student.card>
 
     @if($applications->isEmpty())
 
-        <div class="text-gray-500">
-            You have not submitted any hostel applications yet.
+        <div class="text-center py-16">
+
+            <i class="bi bi-file-earmark-x text-6xl text-gray-300"></i>
+
+            <h3 class="text-xl font-semibold mt-4">
+                No Applications Yet
+            </h3>
+
+            <p class="text-gray-500 mt-2">
+                You haven't submitted any hostel applications.
+            </p>
+
+            <a href="{{ route('student.application.create') }}"
+               class="inline-block mt-6 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl">
+
+                Apply for Hostel
+
+            </a>
+
         </div>
 
     @else
 
-    <table class="w-full">
+    <x-student.table>
 
         <thead>
 
-        <tr class="border-b">
+            <tr class="border-b bg-gray-50">
 
-            <th class="text-left p-3">Hostel</th>
-            <th class="text-left p-3">Date</th>
-            <th class="text-left p-3">Status</th>
+                <th class="text-left px-5 py-4">
+                    Hostel
+                </th>
 
-        </tr>
+                <th class="text-left px-5 py-4">
+                    Application Date
+                </th>
+
+                <th class="text-center px-5 py-4">
+                    Status
+                </th>
+
+            </tr>
 
         </thead>
 
@@ -36,56 +84,54 @@
 
         @foreach($applications as $application)
 
-        <tr class="border-b">
+            <tr class="border-b hover:bg-gray-50">
 
-            <td class="p-3">
-                {{ $application->hostel->name }}
-            </td>
+                <td class="px-5 py-4 font-medium">
 
-            <td class="p-3">
-                {{ $application->application_date }}
-            </td>
+                    {{ $application->hostel->name }}
 
-            <td class="p-3">
+                </td>
 
-                @if($application->status == 'Pending')
+                <td class="px-5 py-4">
 
-    <span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full">
-                  Pending
-    </span>
+                    {{ \Carbon\Carbon::parse($application->application_date)->format('d M Y') }}
 
-@elseif($application->status == 'Approved')
+                </td>
 
-    <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full">
-        Approved
-    </span>
+                <td class="px-5 py-4 text-center">
 
-@elseif($application->status == 'Allocated')
+                    @if($application->status == 'Approved')
 
-    <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full">
-        Allocated
-    </span>
+                        <x-student.badge
+                            type="green"
+                            text="Approved"/>
 
-@else
+                    @elseif($application->status == 'Rejected')
 
-    <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full">
-        Rejected
-    </span>
+                        <x-student.badge
+                            type="red"
+                            text="Rejected"/>
 
-@endif
+                    @else
 
-            </td>
+                        <x-student.badge
+                            type="yellow"
+                            text="Pending"/>
 
-        </tr>
+                    @endif
+
+                </td>
+
+            </tr>
 
         @endforeach
 
         </tbody>
 
-    </table>
+    </x-student.table>
 
     @endif
 
-</div>
+</x-student.card>
 
 @endsection

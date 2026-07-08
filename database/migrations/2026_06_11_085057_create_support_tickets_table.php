@@ -20,6 +20,14 @@ return new class extends Migration
 
     $table->string('subject');
 
+    $table->enum('category', [
+    'Maintenance',
+    'Internet',
+    'Room',
+    'Complaint',
+    'General'
+    ]);
+
     $table->text('message');
 
     $table->enum('status', [

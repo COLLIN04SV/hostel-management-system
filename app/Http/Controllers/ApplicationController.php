@@ -160,44 +160,17 @@ class ApplicationController extends Controller
         auth()->id()
     )->first();
 
-    if (!$student) {
-
-        return redirect()
-            ->route('student.dashboard')
-            ->with(
-                'error',
-                'Student profile not found.'
-            );
-
-    }
-
-    $hasActiveApplication = Application::where(
-        'student_id',
-        $student->id
-    )
-    ->whereIn('status', [
-        'Pending',
-        'Approved',
-        'Allocated'
-    ])
-    ->exists();
-
-    if ($hasActiveApplication) {
-
-        return redirect()
-            ->route('student.applications')
-            ->with(
-                'error',
-                'You already have an active hostel application.'
-            );
-
-    }
-
-    $hostels = Hostel::all();
-
+    $hostels = Hostel::with(['rooms'])
+    ->withCount('rooms')
+    ->where('gender', $student->gender)
+    ->get();
+    
     return view(
         'student.applications.create',
-        compact('hostels')
+        compact(
+            'hostels',
+            'student'
+        )
     );
 }
 
@@ -256,25 +229,29 @@ if ($existingApplication) {
 
 public function studentIndex()
 {
-    $student = Student::where(
-        'user_id',
-        auth()->id()
-    )->first();
+    $student = auth()->user()->student;
 
-    if (!$student) {
-        return redirect()
-            ->route('student.dashboard')
-            ->with('error', 'Student profile not found.');
-    }
-
-    $applications = Application::with('hostel')
-        ->where('student_id', $student->id)
+    $applications = $student->applications()
+        ->with('hostel')
         ->latest()
         ->get();
 
     return view(
         'student.applications.index',
-        compact('applications')
+        [
+            'applications' => $applications,
+
+            'totalApplications' => $applications->count(),
+
+            'pendingApplications' =>
+                $applications->where('status','Pending')->count(),
+
+            'approvedApplications' =>
+                $applications->where('status','Approved')->count(),
+
+            'rejectedApplications' =>
+                $applications->where('status','Rejected')->count(),
+        ]
     );
 }
 }

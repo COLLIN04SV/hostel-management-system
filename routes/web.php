@@ -15,6 +15,9 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SettingController;
 
 use App\Http\Controllers\Student\DashboardController as StudentDashboardController;
+use App\Http\Controllers\Student\ProfileController as StudentProfileController;
+use App\Http\Controllers\Student\SupportController;
+use App\Http\Controllers\Student\SettingController as StudentSettingController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -126,5 +129,55 @@ Route::middleware('auth')->group(function () {
         '/student/my-applications',
         [ApplicationController::class, 'studentIndex']
     )->name('student.applications.index');
+
+    Route::get(
+        '/student/my-profile',
+        [StudentProfileController::class, 'index']
+    )->name('student.profile');
+
+    Route::get(
+        '/student/my-room',
+    [StudentDashboardController::class, 'room']
+    )->name('student.room');
+
+    Route::get(
+    '/student/payments',
+    [StudentDashboardController::class, 'payments']
+    )->name('student.payments');
+
+    Route::get(
+    '/student/receipts',
+    [StudentDashboardController::class, 'receipts']
+    )->name('student.receipts');
+
+    Route::get(
+    '/student/notices',
+    [StudentDashboardController::class, 'notices']
+    )->name('student.notices');
+
+    Route::get(
+    '/student/support',
+    [SupportController::class, 'index']
+    )->name('student.support');
+
+    Route::post(
+    '/student/support',
+    [SupportController::class, 'store']
+    )->name('student.support.store');
+
+    Route::get(
+    '/student/support/create',
+    [SupportController::class, 'create']
+    )->name('student.support.create');
+
+    Route::get(
+    '/student/settings',
+    [StudentSettingController::class, 'index']
+    )->name('student.settings');
+
+    Route::post(
+    '/student/settings',
+    [StudentSettingController::class, 'update']
+    )->name('student.settings.update');
 
 });
