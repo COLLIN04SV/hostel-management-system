@@ -51,4 +51,9 @@ public function supportTickets()
     return $this->hasMany(SupportTicket::class);
 }
 
+public function noticeReads()
+{
+    return $this->hasMany(NoticeRead::class);
+}
+
 }

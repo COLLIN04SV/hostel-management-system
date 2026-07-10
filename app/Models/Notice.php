@@ -18,4 +18,9 @@ class Notice extends Model
     {
         return $this->belongsTo(User::class, 'published_by');
     }
+
+    public function reads()
+{
+    return $this->hasMany(NoticeRead::class);
+}
 }

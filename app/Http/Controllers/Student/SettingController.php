@@ -16,7 +16,7 @@ class SettingController extends Controller
         )->with('user')->first();
 
         return view(
-            'student.settings',
+            'student.settings.index',
             compact('student')
         );
     }

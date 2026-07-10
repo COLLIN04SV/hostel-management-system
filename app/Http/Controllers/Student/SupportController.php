@@ -21,7 +21,7 @@ class SupportController extends Controller
             : collect();
 
         return view(
-            'student.support',
+            'student.support.index',
             compact(
                 'tickets'
             )

@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Notice;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\NoticeRead;
+use App\Models\Student;
 
 class NoticeController extends Controller
 {
@@ -54,4 +56,35 @@ class NoticeController extends Controller
         return redirect()->route('notices.index')
             ->with('success','Notice deleted');
     }
+
+   public function studentIndex()
+{
+    $notices = Notice::latest()->paginate(10);
+
+    return view(
+        'student.notices.index',
+        compact('notices')
+    );
+}
+
+public function studentShow(Notice $notice)
+{
+    $student = Student::where(
+        'user_id',
+        auth()->id()
+    )->first();
+
+    NoticeRead::firstOrCreate([
+
+        'student_id' => $student->id,
+
+        'notice_id' => $notice->id
+
+    ]);
+
+    return view(
+        'student.notices.show',
+        compact('notice')
+    );
+}
 }

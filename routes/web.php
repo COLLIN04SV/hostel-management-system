@@ -18,6 +18,8 @@ use App\Http\Controllers\Student\DashboardController as StudentDashboardControll
 use App\Http\Controllers\Student\ProfileController as StudentProfileController;
 use App\Http\Controllers\Student\SupportController;
 use App\Http\Controllers\Student\SettingController as StudentSettingController;
+use App\Http\Controllers\Student\PaymentController as StudentPaymentController;
+use App\Http\Controllers\Student\ReceiptController as StudentReceiptController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -142,7 +144,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get(
     '/student/payments',
-    [StudentDashboardController::class, 'payments']
+    [\App\Http\Controllers\Student\PaymentController::class,'index']
     )->name('student.payments');
 
     Route::get(
@@ -180,4 +182,33 @@ Route::middleware('auth')->group(function () {
     [StudentSettingController::class, 'update']
     )->name('student.settings.update');
 
+    Route::get(
+    '/student/notices',
+    [NoticeController::class, 'studentIndex']
+    )->name('student.notices');
+
+    Route::get(
+    '/student/notices/{notice}',
+    [NoticeController::class, 'studentShow']
+    )->name('student.notices.show');
+
+    Route::get(
+    '/student/payments/{payment}/receipt',
+    [StudentPaymentController::class, 'receipt']
+    )->name('student.payments.receipt');
+
+    Route::get(
+    '/student/receipts',
+    [StudentReceiptController::class, 'index']
+    )->name('student.receipts.index');
+  
+    Route::get(
+    '/student/receipts/{payment}/download',
+    [StudentReceiptController::class, 'download']
+    )->name('student.receipts.download');
+
+    Route::post(
+    '/student/profile/photo',
+    [StudentProfileController::class, 'updatePhoto']
+    )->name('student.profile.photo');
 });

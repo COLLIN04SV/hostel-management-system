@@ -58,78 +58,254 @@
 
     @else
 
-    <x-student.table>
+    <div class="space-y-6">
 
-        <thead>
+@foreach($applications as $application)
 
-            <tr class="border-b bg-gray-50">
+<x-student.card>
 
-                <th class="text-left px-5 py-4">
-                    Hostel
-                </th>
+    <div class="flex justify-between items-start">
 
-                <th class="text-left px-5 py-4">
-                    Application Date
-                </th>
+        <div>
 
-                <th class="text-center px-5 py-4">
-                    Status
-                </th>
+            <h2 class="text-xl font-semibold">
 
-            </tr>
+                {{ $application->hostel->name }}
 
-        </thead>
+            </h2>
 
-        <tbody>
+            <p class="text-gray-500 mt-1">
 
-        @foreach($applications as $application)
+                Applied
+                {{ \Carbon\Carbon::parse($application->application_date)->format('d M Y') }}
 
-            <tr class="border-b hover:bg-gray-50">
+            </p>
 
-                <td class="px-5 py-4 font-medium">
+        </div>
 
-                    {{ $application->hostel->name }}
+        @if($application->status == 'Approved')
 
-                </td>
+            <x-student.badge
+                type="green"
+                text="Approved"/>
 
-                <td class="px-5 py-4">
+        @elseif($application->status == 'Allocated')
 
-                    {{ \Carbon\Carbon::parse($application->application_date)->format('d M Y') }}
+            <x-student.badge
+                type="blue"
+                text="Allocated"/>
 
-                </td>
+        @elseif($application->status == 'Rejected')
 
-                <td class="px-5 py-4 text-center">
+            <x-student.badge
+                type="red"
+                text="Rejected"/>
 
-                    @if($application->status == 'Approved')
+        @else
 
-                        <x-student.badge
-                            type="green"
-                            text="Approved"/>
+            <x-student.badge
+                type="yellow"
+                text="Pending"/>
 
-                    @elseif($application->status == 'Rejected')
+        @endif
 
-                        <x-student.badge
-                            type="red"
-                            text="Rejected"/>
+    </div>
 
-                    @else
+    <hr class="my-6">
 
-                        <x-student.badge
-                            type="yellow"
-                            text="Pending"/>
+    {{-- Timeline goes here --}}
 
-                    @endif
+    <div class="mt-6">
 
-                </td>
+    <div class="flex items-center justify-between">
 
-            </tr>
+        {{-- Submitted --}}
 
-        @endforeach
+        <div class="flex flex-col items-center flex-1">
 
-        </tbody>
+            <div class="w-10 h-10 rounded-full bg-green-500 text-white flex items-center justify-center">
 
-    </x-student.table>
+                <i class="bi bi-check-lg"></i>
 
+            </div>
+
+            <p class="mt-2 text-sm font-medium">
+
+                Submitted
+
+            </p>
+
+        </div>
+
+        <div class="flex-1 h-1 bg-gray-300"></div>
+
+        {{-- Review --}}
+
+        <div class="flex flex-col items-center flex-1">
+
+            @if(in_array($application->status,['Approved','Allocated','Rejected']))
+
+                <div class="w-10 h-10 rounded-full bg-green-500 text-white flex items-center justify-center">
+
+                    <i class="bi bi-check-lg"></i>
+
+                </div>
+
+            @else
+
+                <div class="w-10 h-10 rounded-full bg-yellow-500 text-white flex items-center justify-center">
+
+                    <i class="bi bi-hourglass-split"></i>
+
+                </div>
+
+            @endif
+
+            <p class="mt-2 text-sm">
+
+                Review
+
+            </p>
+
+        </div>
+
+        <div class="flex-1 h-1 bg-gray-300"></div>
+
+        {{-- Approved --}}
+
+        <div class="flex flex-col items-center flex-1">
+
+            @if(in_array($application->status,['Approved','Allocated']))
+
+                <div class="w-10 h-10 rounded-full bg-green-500 text-white flex items-center justify-center">
+
+                    <i class="bi bi-check-lg"></i>
+
+                </div>
+
+            @elseif($application->status=='Rejected')
+
+                <div class="w-10 h-10 rounded-full bg-red-500 text-white flex items-center justify-center">
+
+                    <i class="bi bi-x-lg"></i>
+
+                </div>
+
+            @else
+
+                <div class="w-10 h-10 rounded-full bg-gray-300 text-white flex items-center justify-center">
+
+                    <i class="bi bi-circle"></i>
+
+                </div>
+
+            @endif
+
+            <p class="mt-2 text-sm">
+
+                Approved
+
+            </p>
+
+        </div>
+
+        <div class="flex-1 h-1 bg-gray-300"></div>
+
+        {{-- Allocated --}}
+
+        <div class="flex flex-col items-center flex-1">
+
+            @if($application->status=='Allocated')
+
+                <div class="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center">
+
+                    <i class="bi bi-house-check"></i>
+
+                </div>
+
+            @else
+
+                <div class="w-10 h-10 rounded-full bg-gray-300 text-white flex items-center justify-center">
+
+                    <i class="bi bi-house"></i>
+
+                </div>
+
+            @endif
+
+            <p class="mt-2 text-sm">
+
+                Room
+
+            </p>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div class="mt-8 rounded-xl bg-gray-50 border border-gray-200 p-4">
+
+    @switch($application->status)
+
+        @case('Pending')
+
+            <p class="text-yellow-700">
+
+                <strong>Application Under Review</strong><br>
+
+                Your application has been received and is awaiting review by the hostel administrator.
+
+            </p>
+
+            @break
+
+        @case('Approved')
+
+            <p class="text-green-700">
+
+                <strong>Application Approved</strong><br>
+
+                Congratulations! Your application has been approved. Room allocation will be done shortly.
+
+            </p>
+
+            @break
+
+        @case('Allocated')
+
+            <p class="text-blue-700">
+
+                <strong>Room Allocated</strong><br>
+
+                Your room has been assigned. Visit the <strong>My Room</strong> page to view your allocation details.
+
+            </p>
+
+            @break
+
+        @case('Rejected')
+
+            <p class="text-red-700">
+
+                <strong>Application Rejected</strong><br>
+
+                Unfortunately, your application was not approved. You may submit another application if permitted.
+
+            </p>
+
+            @break
+
+    @endswitch
+
+</div>
+
+</x-student.card>
+
+@endforeach
+
+</div>
     @endif
 
 </x-student.card>

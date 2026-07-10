@@ -31,7 +31,7 @@ class DashboardController extends Controller
         }
 
         return view(
-            'student.dashboard',
+            'student.dashboard.index',
             compact(
                 'user',
                 'student',
@@ -46,7 +46,7 @@ class DashboardController extends Controller
         ->with('allocation.room.hostel')
         ->first();
 
-    return view('student.room', [
+    return view('student.room.index', [
         'allocation' => $student?->allocation
     ]);
 }
