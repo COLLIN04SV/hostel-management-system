@@ -6,13 +6,11 @@
 
 <x-admin.page-header
     title="Reports Dashboard"
-    subtitle="System statistics and performance overview">
+    subtitle="System statistics and performance overview"/>
 
-</x-admin.page-header>
+{{-- Top Statistics --}}
 
-<!-- Statistics -->
-
-<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+<x-admin.stats-grid>
 
     <x-admin.stat-card
         title="Students"
@@ -38,9 +36,9 @@
         icon="bi-cash-stack"
         color="green"/>
 
-</div>
+</x-admin.stats-grid>
 
-<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+<x-admin.stats-grid>
 
     <x-admin.stat-card
         title="Allocated Students"
@@ -66,196 +64,267 @@
         icon="bi-credit-card"
         color="yellow"/>
 
-</div>
+</x-admin.stats-grid>
 
-<div class="grid lg:grid-cols-2 gap-6 mb-8">
-
-    <x-admin.card>
-
-        <h2 class="text-xl font-bold mb-5">
-
-            Room Summary
-
-        </h2>
-
-        <div class="space-y-4">
-
-            <div class="flex justify-between">
-
-                <span>Total Rooms</span>
-
-                <strong>{{ $totalRooms }}</strong>
-
-            </div>
-
-            <div class="flex justify-between">
-
-                <span>Occupied Rooms</span>
-
-                <strong>{{ $occupiedRooms }}</strong>
-
-            </div>
-
-            <div class="flex justify-between">
-
-                <span>Vacant Rooms</span>
-
-                <strong>{{ $vacantRooms }}</strong>
-
-            </div>
-
-        </div>
-
-    </x-admin.card>
-
-    <x-admin.card>
-
-        <h2 class="text-xl font-bold mb-5">
-
-            Application Summary
-
-        </h2>
-
-        <div class="space-y-4">
-
-            <div class="flex justify-between">
-
-                <span>Total Applications</span>
-
-                <strong>{{ $totalApplications }}</strong>
-
-            </div>
-
-            <div class="flex justify-between">
-
-                <span>Pending</span>
-
-                <x-admin.badge
-                    type="warning"
-                    text="{{ $pendingApplications }}"/>
-
-            </div>
-
-            <div class="flex justify-between">
-
-                <span>Approved</span>
-
-                <x-admin.badge
-                    type="success"
-                    text="{{ $approvedApplications }}"/>
-
-            </div>
-
-        </div>
-
-    </x-admin.card>
-
-</div>
+<div class="grid lg:grid-cols-2 gap-5 mb-6">
 
 <x-admin.card>
 
-    <div class="flex justify-between items-center mb-6">
+    <h3 class="text-base font-semibold text-slate-800 mb-4">
 
-        <h2 class="text-xl font-bold">
+        Room Summary
 
-            Recent Payments
+    </h3>
 
-        </h2>
+    <div class="space-y-3 text-sm">
 
-    </div>
+        <div class="flex justify-between">
 
-    <div class="overflow-x-auto">
+            <span class="text-slate-500">
 
-        <table class="w-full">
+                Total Rooms
 
-            <thead>
+            </span>
 
-            <tr class="bg-gray-50 border-b">
+            <span class="font-semibold">
 
-                <th class="px-6 py-4 text-left">
+                {{ $totalRooms }}
 
-                    Student
+            </span>
 
-                </th>
+        </div>
 
-                <th class="px-6 py-4 text-left">
+        <div class="flex justify-between">
 
-                    Amount
+            <span class="text-slate-500">
 
-                </th>
+                Occupied Rooms
 
-                <th class="px-6 py-4 text-left">
+            </span>
 
-                    Date
+            <span class="font-semibold">
 
-                </th>
+                {{ $occupiedRooms }}
 
-                <th class="px-6 py-4 text-center">
+            </span>
 
-                    Status
+        </div>
 
-                </th>
+        <div class="flex justify-between">
 
-            </tr>
+            <span class="text-slate-500">
 
-            </thead>
+                Vacant Rooms
 
-            <tbody>
+            </span>
 
-            @forelse($recentPayments as $payment)
+            <span class="font-semibold">
 
-            <tr class="border-b hover:bg-gray-50">
+                {{ $vacantRooms }}
 
-                <td class="px-6 py-4">
+            </span>
 
-                    {{ $payment->student->user->name }}
-
-                </td>
-
-                <td class="px-6 py-4">
-
-                    KSh {{ number_format($payment->amount) }}
-
-                </td>
-
-                <td class="px-6 py-4">
-
-                    {{ \Carbon\Carbon::parse($payment->payment_date)->format('d M Y') }}
-
-                </td>
-
-                <td class="px-6 py-4 text-center">
-
-                    <x-admin.badge
-                        type="success"
-                        :text="$payment->status"/>
-
-                </td>
-
-            </tr>
-
-            @empty
-
-            <tr>
-
-                <td
-                    colspan="4"
-                    class="py-10 text-center text-gray-500">
-
-                    No payments found.
-
-                </td>
-
-            </tr>
-
-            @endforelse
-
-            </tbody>
-
-        </table>
+        </div>
 
     </div>
 
 </x-admin.card>
+
+<x-admin.card>
+
+    <h3 class="text-base font-semibold text-slate-800 mb-4">
+
+        Application Summary
+
+    </h3>
+
+    <div class="space-y-3 text-sm">
+
+        <div class="flex justify-between items-center">
+
+            <span class="text-slate-500">
+
+                Total Applications
+
+            </span>
+
+            <span class="font-semibold">
+
+                {{ $totalApplications }}
+
+            </span>
+
+        </div>
+
+        <div class="flex justify-between items-center">
+
+            <span class="text-slate-500">
+
+                Pending
+
+            </span>
+
+            <x-admin.badge
+                type="warning"
+                text="{{ $pendingApplications }}"/>
+
+        </div>
+
+        <div class="flex justify-between items-center">
+
+            <span class="text-slate-500">
+
+                Approved
+
+            </span>
+
+            <x-admin.badge
+                type="success"
+                text="{{ $approvedApplications }}"/>
+
+        </div>
+
+    </div>
+
+</x-admin.card>
+
+</div>
+
+<x-admin.table>
+
+<div class="flex items-center justify-between mb-5">
+
+    <h3 class="text-base font-semibold text-slate-800">
+
+        Recent Payments
+
+    </h3>
+
+</div>
+
+<table class="w-full">
+
+<thead class="bg-slate-50">
+
+<tr>
+
+    <x-admin.table-heading text-left>
+
+        Student
+
+    </x-admin.table-heading>
+
+    <x-admin.table-heading text-left>
+
+        Amount
+
+    </x-admin.table-heading>
+
+    <x-admin.table-heading text-left>
+
+        Date
+
+    </x-admin.table-heading>
+
+    <x-admin.table-heading text-center>
+
+        Status
+
+    </x-admin.table-heading>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+@forelse($recentPayments as $payment)
+
+<tr class="border-b border-slate-100 hover:bg-slate-50 transition">
+
+    <x-admin.table-cell>
+
+        <div>
+
+            <p class="font-medium text-slate-800">
+
+                {{ $payment->student->user->name }}
+
+            </p>
+
+            <p class="text-xs text-slate-500">
+
+                {{ $payment->student->registration_number ?? '' }}
+
+            </p>
+
+        </div>
+
+    </x-admin.table-cell>
+
+    <x-admin.table-cell>
+
+        <span class="font-semibold">
+
+            KSh {{ number_format($payment->amount) }}
+
+        </span>
+
+    </x-admin.table-cell>
+
+    <x-admin.table-cell>
+
+        {{ \Carbon\Carbon::parse($payment->payment_date)->format('d M Y') }}
+
+    </x-admin.table-cell>
+
+    <x-admin.table-cell class="text-center">
+
+        @if($payment->status == 'Completed')
+
+            <x-admin.badge
+                type="success"
+                text="Completed"/>
+
+        @elseif($payment->status == 'Pending')
+
+            <x-admin.badge
+                type="warning"
+                text="Pending"/>
+
+        @else
+
+            <x-admin.badge
+                type="danger"
+                :text="$payment->status"/>
+
+        @endif
+
+    </x-admin.table-cell>
+
+</tr>
+
+@empty
+
+<tr>
+
+    <td colspan="4">
+
+        <x-admin.empty-state
+            icon="bi-credit-card"
+            title="No Payments Found"
+            message="No payment records are available."/>
+
+    </td>
+
+</tr>
+
+@endforelse
+
+</tbody>
+
+</table>
+
+</x-admin.table>
 
 @endsection

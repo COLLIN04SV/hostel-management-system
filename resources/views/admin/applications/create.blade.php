@@ -1,69 +1,79 @@
 @extends('layouts.admin')
 
+@section('page-title', 'New Application')
+
 @section('content')
 
-<div class="bg-white p-6 rounded-xl shadow">
+<x-admin.page-header
+    title="New Application"
+    subtitle="Submit a hostel application for a student">
 
-    <h2 class="text-2xl font-bold mb-6">
-        New Application
-    </h2>
+</x-admin.page-header>
 
-    <form action="{{ route('applications.store') }}"
-          method="POST">
+<form
+    action="{{ route('applications.store') }}"
+    method="POST">
 
-        @csrf
+    @csrf
 
-        <div class="mb-4">
+    <x-admin.form-card>
 
-            <label>Student</label>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 
-            <select
+            {{-- Student --}}
+            <x-admin.select
+                label="Student"
                 name="student_id"
-                class="w-full border p-3 rounded">
+                required>
+
+                <option value="">Select Student</option>
 
                 @foreach($students as $student)
 
-                <option value="{{ $student->id }}">
-                    {{ $student->registration_number }}
-                    -
-                    {{ $student->user->name }}
-                </option>
+                    <option
+                        value="{{ $student->id }}"
+                        {{ old('student_id') == $student->id ? 'selected' : '' }}>
+
+                        {{ $student->registration_number }}
+                        -
+                        {{ $student->user->name }}
+
+                    </option>
 
                 @endforeach
 
-            </select>
+            </x-admin.select>
 
-        </div>
-
-        <div class="mb-4">
-
-            <label>Hostel</label>
-
-            <select
+            {{-- Hostel --}}
+            <x-admin.select
+                label="Hostel"
                 name="hostel_id"
-                class="w-full border p-3 rounded">
+                required>
+
+                <option value="">Select Hostel</option>
 
                 @foreach($hostels as $hostel)
 
-                <option value="{{ $hostel->id }}">
-                    {{ $hostel->name }}
-                </option>
+                    <option
+                        value="{{ $hostel->id }}"
+                        {{ old('hostel_id') == $hostel->id ? 'selected' : '' }}>
+
+                        {{ $hostel->name }}
+
+                    </option>
 
                 @endforeach
 
-            </select>
+            </x-admin.select>
 
         </div>
 
-        <button
-            class="bg-blue-600 text-white px-6 py-3 rounded">
+        <x-admin.form-actions
+            :cancel="route('applications.index')"
+            submit="Submit Application" />
 
-            Submit Application
+    </x-admin.form-card>
 
-        </button>
-
-    </form>
-
-</div>
+</form>
 
 @endsection

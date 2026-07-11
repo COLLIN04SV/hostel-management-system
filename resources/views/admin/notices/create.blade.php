@@ -10,146 +10,80 @@
 
 </x-admin.page-header>
 
-<x-admin.card>
-
 <form
     method="POST"
     action="{{ route('notices.store') }}">
 
     @csrf
 
-    <div class="space-y-6">
+    <x-admin.form-card>
 
-        <div>
+        <div class="space-y-5">
 
-            <label class="block mb-2 font-semibold">
-
-                Title
-
-            </label>
-
-            <input
-                type="text"
+            {{-- Title --}}
+            <x-admin.input
+                label="Notice Title"
                 name="title"
-                value="{{ old('title') }}"
-                class="w-full border rounded-xl px-4 py-3"
-                required>
+                :value="old('title')"
+                required
+                placeholder="Enter notice title" />
 
-            @error('title')
-
-                <p class="text-red-500 text-sm mt-2">
-
-                    {{ $message }}
-
-                </p>
-
-            @enderror
-
-        </div>
-
-        <div>
-
-            <label class="block mb-2 font-semibold">
-
-                Message
-
-            </label>
-
-            <textarea
+            {{-- Message --}}
+            <x-admin.textarea
+                label="Message"
                 name="message"
                 rows="6"
-                class="w-full border rounded-xl px-4 py-3"
-                required>{{ old('message') }}</textarea>
+                required
+                placeholder="Write your announcement here...">
 
-            @error('message')
+                {{ old('message') }}
 
-                <p class="text-red-500 text-sm mt-2">
+            </x-admin.textarea>
 
-                    {{ $message }}
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 
-                </p>
-
-            @enderror
-
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-            <div>
-
-                <label class="block mb-2 font-semibold">
-
-                    Publish Date
-
-                </label>
-
-                <input
-                    type="date"
+                {{-- Publish Date --}}
+                <x-admin.input
+                    label="Publish Date"
                     name="publish_date"
-                    value="{{ old('publish_date', now()->format('Y-m-d')) }}"
-                    class="w-full border rounded-xl px-4 py-3"
+                    type="date"
+                    :value="old('publish_date', now()->format('Y-m-d'))"
+                    required />
+
+                {{-- Status --}}
+                <x-admin.select
+                    label="Status"
+                    name="status"
                     required>
 
-            </div>
-
-            <div>
-
-                <label class="block mb-2 font-semibold">
-
-                    Status
-
-                </label>
-
-                <select
-                    name="status"
-                    class="w-full border rounded-xl px-4 py-3">
-
-                    <option value="1">
+                    <option
+                        value="1"
+                        {{ old('status',1)==1 ? 'selected' : '' }}>
 
                         Published
 
                     </option>
 
-                    <option value="0">
+                    <option
+                        value="0"
+                        {{ old('status')==='0' ? 'selected' : '' }}>
 
                         Draft
 
                     </option>
 
-                </select>
+                </x-admin.select>
 
             </div>
 
         </div>
 
-    </div>
+        <x-admin.form-actions
+            :cancel="route('notices.index')"
+            submit="Save Notice" />
 
-    <div class="flex justify-end gap-3 mt-8">
-
-        <a href="{{ route('notices.index') }}">
-
-            <x-admin.button color="gray">
-
-                Cancel
-
-            </x-admin.button>
-
-        </a>
-
-        <x-admin.button
-            color="blue"
-            type="submit">
-
-            <i class="bi bi-check-lg mr-2"></i>
-
-            Save Notice
-
-        </x-admin.button>
-
-    </div>
+    </x-admin.form-card>
 
 </form>
-
-</x-admin.card>
 
 @endsection

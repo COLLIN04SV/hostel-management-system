@@ -1,6 +1,10 @@
 @extends('layouts.admin')
 
+@section('title', 'Students')
+
 @section('page-title', 'Students')
+
+@section('page-description', 'Manage all registered students')
 
 @section('content')
 
@@ -8,18 +12,18 @@
     title="Students"
     subtitle="Manage all registered students">
 
-    <x-admin.button
-    href="{{ route('students.create') }}">
+    <x-admin.button href="{{ route('students.create') }}">
         <i class="bi bi-plus-lg mr-2"></i>
         Add Student
     </x-admin.button>
 
 </x-admin.page-header>
 
-{{-- Flash Message --}}
 @if(session('success'))
 
-<div class="mb-6 bg-green-100 border border-green-300 text-green-700 px-4 py-3 rounded-xl">
+<div class="mb-5 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-green-700">
+
+    <i class="bi bi-check-circle-fill mr-2"></i>
 
     {{ session('success') }}
 
@@ -27,7 +31,19 @@
 
 @endif
 
-<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-6">
+@if(session('error'))
+
+<div class="mb-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-red-700">
+
+    <i class="bi bi-exclamation-circle-fill mr-2"></i>
+
+    {{ session('error') }}
+
+</div>
+
+@endif
+
+<x-admin.stats-grid>
 
     <x-admin.stat-card
         title="Total Students"
@@ -53,79 +69,29 @@
         icon="bi-house-check"
         color="yellow"/>
 
-</div>
+</x-admin.stats-grid>
 
-<x-admin.card>
+<x-admin.table>
 
-    {{-- Search --}}
+<x-admin.search-bar
+    :action="route('students.index')"
+    placeholder="Search student, registration number or department..." />
 
-    <form
-    method="GET"
-    action="{{ route('students.index') }}"
-    class="mb-6 flex gap-3">
+<div class="flex items-center justify-between mb-5">
 
-    <div class="relative flex-1">
-
-        <i class="bi bi-search absolute left-4 top-4 text-gray-400"></i>
-
-        <input
-            type="text"
-            name="search"
-            value="{{ request('search') }}"
-            placeholder="Search student, registration number or department..."
-
-            class="w-full pl-12 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500">
-
-    </div>
-
-    <button
-        class="bg-blue-600 hover:bg-blue-700 text-white px-6 rounded-xl">
-
-        Search
-
-    </button>
-
-    @if(request('search'))
-
-        <a
-            href="{{ route('students.index') }}"
-            class="bg-gray-200 hover:bg-gray-300 px-5 rounded-xl flex items-center">
-
-            Clear
-
-        </a>
-
-    @endif
-
-</form>
-
-<div class="flex justify-between items-center mb-4">
-
-    <p class="text-gray-500">
+    <p class="text-sm text-slate-500">
 
         Showing
 
-        <strong>
-
-            {{ $students->firstItem() ?? 0 }}
-
-        </strong>
+        <strong>{{ $students->firstItem() ?? 0 }}</strong>
 
         -
 
-        <strong>
-
-            {{ $students->lastItem() ?? 0 }}
-
-        </strong>
+        <strong>{{ $students->lastItem() ?? 0 }}</strong>
 
         of
 
-        <strong>
-
-            {{ $students->total() }}
-
-        </strong>
+        <strong>{{ $students->total() }}</strong>
 
         students
 
@@ -133,250 +99,224 @@
 
 </div>
 
-    <div class="overflow-x-auto">
+<table class="min-w-full">
 
-        <table class="w-full">
+<thead class="bg-slate-50 border-b">
 
-            <thead>
+<tr>
 
-<tr class="border-b hover:bg-blue-50 transition duration-200">
+<x-admin.table-heading class="w-14">
 
-    <th class="p-4 w-12">
+#
 
-        #
+</x-admin.table-heading>
 
-    </th>
+<x-admin.table-heading>
 
-    <th class="p-4 text-left">
+Student
 
-        Student
+</x-admin.table-heading>
 
-    </th>
+<x-admin.table-heading>
 
-    <th class="p-4 text-left">
+Registration
 
-        Registration
+</x-admin.table-heading>
 
-    </th>
+<x-admin.table-heading>
 
-    <th class="p-4 text-left">
+Department
 
-        Department
+</x-admin.table-heading>
 
-    </th>
+<x-admin.table-heading>
 
-    <th class="p-4 text-left">
+Hostel
 
-        Hostel
+</x-admin.table-heading>
 
-    </th>
+<x-admin.table-heading>
 
-    <th class="p-4 text-left">
+Room
 
-        Room
+</x-admin.table-heading>
 
-    </th>
+<x-admin.table-heading class="text-center">
 
-    <th class="p-4 text-center">
+Status
 
-        Status
+</x-admin.table-heading>
 
-    </th>
+<x-admin.table-heading class="text-center">
 
-    <th class="p-4 text-center">
+Actions
 
-        Actions
-
-    </th>
+</x-admin.table-heading>
 
 </tr>
 
 </thead>
 
-            <tbody>
+<tbody>
 
-            @forelse($students as $student)
+@forelse($students as $student)
 
-            @php
+@php
+$number = ($students->currentPage()-1) * $students->perPage() + $loop->iteration;
+@endphp
 
-            $number = ($students->currentPage()-1)*$students->perPage()+$loop->iteration;
+<tr class="border-b border-slate-100 hover:bg-slate-50 transition">
 
-            @endphp
+<x-admin.table-cell>
 
-                <tr class="border-b hover:bg-gray-50">
+{{ $number }}
 
-                    {{-- Student --}}
+</x-admin.table-cell>
 
-                    <td class="p-4 text-gray-500 font-medium">
+<x-admin.table-cell>
 
-    {{ $number }}
+<div class="flex items-center gap-3">
 
-</td>
+@if($student->profile_photo)
 
-<td class="p-4">
+<img
+    src="{{ asset('storage/'.$student->profile_photo) }}"
+    class="w-10 h-10 rounded-full object-cover">
 
-    <div class="flex items-center gap-3">
+@else
 
-        @if($student->profile_photo)
+<div class="w-10 h-10 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-semibold">
 
-            <img
-                src="{{ asset('storage/'.$student->profile_photo) }}"
-                class="w-11 h-11 rounded-full object-cover">
-
-        @else
-
-            <div class="w-11 h-11 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold">
-
-                {{ strtoupper(substr($student->user->name,0,1)) }}
-
-            </div>
-
-        @endif
-
-        <div>
-
-            <p class="font-semibold">
-
-                {{ $student->user->name }}
-
-            </p>
-
-            <p class="text-sm text-gray-500">
-
-                {{ $student->user->email }}
-
-            </p>
-
-        </div>
-
-    </div>
-
-</td>
-
-                    {{-- Registration --}}
-
-                    <td class="p-4">
-
-                        {{ $student->registration_number }}
-
-                    </td>
-
-                    {{-- Department --}}
-
-                    <td class="p-4">
-
-                        {{ $student->department }}
-
-                    </td>
-
-                    {{-- Hostel --}}
-
-                    <td class="p-4">
-
-                        {{ optional($student->allocation?->room?->hostel)->name ?? '-' }}
-
-                    </td>
-
-                    {{-- Room --}}
-
-                    <td class="p-4">
-
-                        {{ optional($student->allocation?->room)->room_number ?? '-' }}
-
-                    </td>
-
-                    {{-- Status --}}
-
-                    <td class="p-4 text-center">
-
-    @if($student->allocation)
-
-        <x-admin.badge
-            type="success"
-            text="Allocated" />
-
-    @else
-
-        <x-admin.badge
-            type="warning"
-            text="Pending" />
-
-    @endif
-
-</td>
-                    {{-- Actions --}}
-
-                    <td class="p-4">
-
-    <div class="flex justify-center gap-2">
-
-        <x-admin.action-button
-            href="{{ route('students.show',$student) }}"
-            color="green"
-            icon="bi-eye" />
-
-        <x-admin.action-button
-            href="{{ route('students.edit',$student) }}"
-            color="blue"
-            icon="bi-pencil-square" />
-
-        <form
-            method="POST"
-            action="{{ route('students.destroy',$student) }}"
-            onsubmit="return confirm('Delete this student?')">
-
-            @csrf
-            @method('DELETE')
-
-            <x-admin.action-button
-                type="submit"
-                color="red"
-                icon="bi-trash" />
-
-        </form>
-
-    </div>
-
-</td>
-
-                </tr>
-
-            @empty
-
-               <div class="py-12">
-
-    <i class="bi bi-people text-5xl text-gray-300"></i>
-
-    <h3 class="text-xl font-semibold mt-4">
-
-        No Students Found
-
-    </h3>
-
-    <p class="text-gray-500 mt-2">
-
-        Try changing your search or add a new student.
-
-    </p>
+{{ strtoupper(substr($student->user->name,0,1)) }}
 
 </div>
 
-            @endforelse
+@endif
 
-            </tbody>
+<div>
 
-        </table>
+<p class="font-medium text-slate-800">
 
-    </div>
+{{ $student->user->name }}
 
-    {{-- Pagination --}}
+</p>
 
-    <div class="mt-6">
+<p class="text-xs text-slate-500">
 
-        {{ $students->links() }}
+{{ $student->user->email }}
 
-    </div>
+</p>
 
-</x-admin.card>
+</div>
+
+</div>
+
+</x-admin.table-cell>
+
+<x-admin.table-cell>
+
+    {{ $student->registration_number }}
+
+</x-admin.table-cell>
+
+<x-admin.table-cell>
+
+    {{ $student->department ?? '-' }}
+
+</x-admin.table-cell>
+
+<x-admin.table-cell>
+
+    {{ optional($student->allocation?->room?->hostel)->name ?? '-' }}
+
+</x-admin.table-cell>
+
+<x-admin.table-cell>
+
+    {{ optional($student->allocation?->room)->room_number ?? '-' }}
+
+</x-admin.table-cell>
+
+<x-admin.table-cell class="text-center">
+
+@if($student->allocation)
+
+    <x-admin.badge
+        type="success"
+        text="Allocated"/>
+
+@else
+
+    <x-admin.badge
+        type="warning"
+        text="Pending"/>
+
+@endif
+
+</x-admin.table-cell>
+
+<x-admin.table-cell class="text-center">
+
+<div class="flex items-center justify-center gap-2">
+
+    <x-admin.action-button
+        href="{{ route('students.show',$student) }}"
+        color="green"
+        icon="bi-eye"/>
+
+    <x-admin.action-button
+        href="{{ route('students.edit',$student) }}"
+        color="blue"
+        icon="bi-pencil-square"/>
+
+    <form
+        action="{{ route('students.destroy',$student) }}"
+        method="POST"
+        onsubmit="return confirm('Delete this student?')">
+
+        @csrf
+        @method('DELETE')
+
+        <x-admin.action-button
+            type="submit"
+            color="red"
+            icon="bi-trash"/>
+
+    </form>
+
+</div>
+
+</x-admin.table-cell>
+
+</tr>
+
+@empty
+
+<tr>
+
+<td colspan="8" class="py-16">
+
+<x-admin.empty-state
+    icon="bi-people"
+    title="No Students Found"
+    message="Try changing your search or add a new student."/>
+
+</td>
+
+</tr>
+
+@endforelse
+
+</tbody>
+
+</table>
+
+<div class="mt-5 border-t border-slate-200 pt-4">
+
+    {{ $students->links() }}
+
+</div>
+
+</x-admin.table>
 
 @endsection

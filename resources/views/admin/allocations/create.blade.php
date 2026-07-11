@@ -6,142 +6,108 @@
 
 <x-admin.page-header
     title="Allocate Room"
-    subtitle="Assign approved students to available rooms"/>
+    subtitle="Assign approved students to available rooms">
 
-<x-admin.card>
+</x-admin.page-header>
 
 <form
     method="POST"
     action="{{ route('allocations.store') }}">
 
-@csrf
+    @csrf
 
-<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <x-admin.form-card>
 
-    <div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 
-        <label class="block mb-2 font-semibold">
+            {{-- Student --}}
+            <div>
 
-            Student
+                <x-admin.select
+                    label="Student"
+                    name="student_id"
+                    required>
 
-        </label>
+                    <option value="">Select Student</option>
 
-        <select
-            name="student_id"
-            class="w-full border rounded-xl px-4 py-3"
-            required>
+                    @foreach($students as $student)
 
-            <option value="">
+                        @php
+                            $application = $student->applications
+                                ->where('status','Approved')
+                                ->sortByDesc('created_at')
+                                ->first();
+                        @endphp
 
-                Select Student
+                        @if($application)
 
-            </option>
+                            <option
+                                value="{{ $student->id }}"
+                                {{ old('student_id') == $student->id ? 'selected' : '' }}>
 
-@foreach($students as $student)
+                                {{ $student->user->name }}
+                                ({{ $student->registration_number }})
+                                — {{ $application->hostel->name }}
 
-    @php
-        $application = $student->applications
-            ->where('status','Approved')
-            ->sortByDesc('created_at')
-            ->first();
-    @endphp
+                            </option>
 
-    @if($application)
+                        @endif
 
-        <option value="{{ $student->id }}">
+                    @endforeach
 
-            {{ $student->user->name }}
-            ({{ $student->registration_number }})
-            - {{ $application->hostel->name }}
+                </x-admin.select>
 
-        </option>
+                <p class="mt-2 text-xs text-slate-500">
 
-    @endif
+                    Only students with approved hostel applications are shown.
 
-@endforeach
+                </p>
 
-</select>
+            </div>
 
-<p class="text-sm text-gray-500 mt-2">
+            {{-- Room --}}
+            <div>
 
-    Only students with approved hostel applications are listed.
+                <x-admin.select
+                    label="Room"
+                    name="room_id"
+                    required>
 
-</p>
+                    <option value="">Select Room</option>
 
-</div>
+                    @foreach($rooms as $room)
 
-<div>
+                        <option
+                            value="{{ $room->id }}"
+                            {{ old('room_id') == $room->id ? 'selected' : '' }}>
 
-    <label class="block mb-2 font-semibold">
+                            {{ $room->hostel->name }}
+                            —
+                            Room {{ $room->room_number }}
+                            ({{ $room->capacity - $room->occupied }} Free)
 
-        Room
+                        </option>
 
-    </label>
+                    @endforeach
 
-    <select
-        name="room_id"
-        class="w-full border rounded-xl px-4 py-3"
-        required>
+                </x-admin.select>
 
-        <option value="">
+                <p class="mt-2 text-xs text-slate-500">
 
-            Select Room
+                    Only rooms with available beds are listed.
 
-        </option>
+                </p>
 
-        @foreach($rooms as $room)
+            </div>
 
-            <option value="{{ $room->id }}">
+        </div>
 
-                {{ $room->hostel->name }}
-                -
-                Room {{ $room->room_number }}
-                ({{ $room->capacity - $room->occupied }}
-                Free)
+        <x-admin.form-actions
+            :cancel="route('allocations.index')"
+            submit="Allocate Room" />
 
-            </option>
-
-        @endforeach
-
-    </select>
-
-    <p class="text-sm text-gray-500 mt-2">
-
-        Only rooms with available beds are displayed.
-
-    </p>
-
-</div>
-
-</div>
-
-<div class="mt-8 flex justify-end gap-3">
-
-    <a
-        href="{{ route('allocations.index') }}">
-
-        <x-admin.button color="gray">
-
-            Cancel
-
-        </x-admin.button>
-
-    </a>
-
-    <x-admin.button
-        color="blue"
-        type="submit">
-
-        <i class="bi bi-house-check mr-2"></i>
-
-        Allocate Room
-
-    </x-admin.button>
-
-</div>
+    </x-admin.form-card>
 
 </form>
 
-</x-admin.card>
-
-@endsection          
+@endsection

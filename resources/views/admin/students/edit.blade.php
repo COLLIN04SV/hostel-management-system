@@ -1,73 +1,75 @@
 @extends('layouts.admin')
 
+@section('page-title', 'Edit Student')
+
 @section('content')
 
-<div class="bg-white rounded-lg shadow p-6">
+<x-admin.page-header
+    title="Edit Student"
+    subtitle="Update student information">
 
-    <h2 class="text-2xl font-bold mb-6">
-        Edit Student
-    </h2>
+</x-admin.page-header>
 
-    <form action="{{ route('students.update', $student->id) }}" method="POST">
+<form
+    action="{{ route('students.update', $student->id) }}"
+    method="POST">
 
-        @csrf
-        @method('PUT')
+    @csrf
+    @method('PUT')
 
-        <div class="mb-4">
-            <label>Phone</label>
-            <input type="text"
-                   name="phone"
-                   value="{{ $student->phone }}"
-                   class="w-full border rounded p-2">
+    <x-admin.form-card>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+            <x-admin.input
+                label="Phone Number"
+                name="phone"
+                :value="$student->phone"
+                placeholder="07XXXXXXXX" />
+
+            <x-admin.input
+                label="Department"
+                name="department"
+                :value="$student->department"
+                placeholder="Computer Science" />
+
+            <x-admin.input
+                label="Year of Study"
+                name="year_of_study"
+                :value="$student->year_of_study"
+                placeholder="Year 1 - Year 4" />
+
+            <x-admin.input
+                label="Guardian Name"
+                name="guardian_name"
+                :value="$student->guardian_name"
+                placeholder="Guardian's full name" />
+
+            <x-admin.input
+                label="Guardian Phone"
+                name="guardian_phone"
+                :value="$student->guardian_phone"
+                placeholder="07XXXXXXXX" />
+
         </div>
 
-        <div class="mb-4">
-            <label>Department</label>
-            <input type="text"
-                   name="department"
-                   value="{{ $student->department }}"
-                   class="w-full border rounded p-2">
+        <div class="mt-5">
+
+            <x-admin.textarea
+                label="Address"
+                name="address"
+                rows="4"
+                :value="$student->address"
+                placeholder="Student's home address" />
+
         </div>
 
-        <div class="mb-4">
-            <label>Year of Study</label>
-            <input type="text"
-                   name="year_of_study"
-                   value="{{ $student->year_of_study }}"
-                   class="w-full border rounded p-2">
-        </div>
+        <x-admin.form-actions
+            :cancel="route('students.index')"
+            submit="Update Student" />
 
-        <div class="mb-4">
-            <label>Guardian Name</label>
-            <input type="text"
-                   name="guardian_name"
-                   value="{{ $student->guardian_name }}"
-                   class="w-full border rounded p-2">
-        </div>
+    </x-admin.form-card>
 
-        <div class="mb-4">
-            <label>Guardian Phone</label>
-            <input type="text"
-                   name="guardian_phone"
-                   value="{{ $student->guardian_phone }}"
-                   class="w-full border rounded p-2">
-        </div>
-
-        <div class="mb-4">
-            <label>Address</label>
-            <textarea name="address"
-                      class="w-full border rounded p-2">{{ $student->address }}</textarea>
-        </div>
-
-        <button
-            type="submit"
-            class="bg-green-600 text-white px-6 py-2 rounded">
-
-            Update Student
-        </button>
-
-    </form>
-
-</div>
+</form>
 
 @endsection

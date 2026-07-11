@@ -1,69 +1,139 @@
 @extends('layouts.admin')
 
+@section('title','Rooms')
+
+@section('page-title','Rooms')
+
+@section('page-description','Manage hostel rooms')
+
 @section('content')
-<x-admin.alert />
 
-<h1 class="text-3xl font-bold mb-6">
-    Rooms
-</h1>
+<x-admin.alert/>
 
-<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mt-6 mb-6">
+<x-admin.page-header
+    title="Rooms"
+    subtitle="Manage hostel rooms">
 
-<x-admin.stat-card
-title="Total Rooms"
-:value="$totalRooms"
-icon="bi-door-open"
-color="blue"/>
+    <x-admin.button
+        href="{{ route('rooms.create') }}">
 
-<x-admin.stat-card
-title="Occupied"
-:value="$occupiedRooms"
-icon="bi-house-lock"
-color="red"/>
+        <i class="bi bi-plus-circle me-2"></i>
 
-<x-admin.stat-card
-title="Available"
-:value="$availableRooms"
-icon="bi-check-circle"
-color="green"/>
+        Add Room
 
-<x-admin.stat-card
-title="Occupancy"
-:value="$occupancyRate.'%'"
-icon="bi-bar-chart"
-color="yellow"/>
+    </x-admin.button>
+
+</x-admin.page-header>
+
+<x-admin.stats-grid>
+
+    <x-admin.stat-card
+        title="Total Rooms"
+        :value="$totalRooms"
+        icon="bi-door-open"
+        color="blue"/>
+
+    <x-admin.stat-card
+        title="Occupied"
+        :value="$occupiedRooms"
+        icon="bi-house-lock"
+        color="red"/>
+
+    <x-admin.stat-card
+        title="Available"
+        :value="$availableRooms"
+        icon="bi-check-circle"
+        color="green"/>
+
+    <x-admin.stat-card
+        title="Occupancy"
+        :value="$occupancyRate.'%'"
+        icon="bi-bar-chart"
+        color="yellow"/>
+
+</x-admin.stats-grid>
+
+<x-admin.table>
+
+<x-admin.search-bar
+    :action="route('rooms.index')"
+    placeholder="Search room number or hostel..." />
+
+<div class="flex items-center justify-between mb-5">
+
+    <p class="text-sm text-slate-500">
+
+        Showing
+
+        <strong>{{ $rooms->firstItem() ?? 0 }}</strong>
+
+        -
+
+        <strong>{{ $rooms->lastItem() ?? 0 }}</strong>
+
+        of
+
+        <strong>{{ $rooms->total() }}</strong>
+
+        rooms
+
+    </p>
 
 </div>
 
-    <div class="flex justify-between items-center mb-6">
+<table class="min-w-full">
 
-       <x-admin.search />
+<thead class="bg-slate-50 border-b">
 
-       <a href="{{ route('rooms.create') }}">
-        <x-admin.button>
-            <i class="bi bi-plus-circle me-2"></i>
-            Add Room
-        </x-admin.button>
-       </a>
+<tr>
 
-    </div>
+<x-admin.table-heading>
 
-<x-admin.card class="mt-6">
+Hostel
 
-<table class="min-w-full divide-y divide-gray-200">
+</x-admin.table-heading>
 
-<thead>
+<x-admin.table-heading>
 
-<tr class="bg-gray-50 text-gray-700 uppercase text-sm">
+Room
 
-    <th class="px-6 py-4 text-left">Hostel</th>
-    <th class="py-6 px-4 text-center">Room</th>
-    <th class="py-6 px-4 text-center">Capacity</th>
-    <th class="py-6 px-4 text-center">Occupied</th>
-    <th class="py-6 px-4 text-center">Available</th>
-    <th class="py-6 px-4 text-center">Price</th>
-    <th class="py-6 px-4 text-center">Status</th>
-    <th class="py-6 px-4 text-center">Actions</th>
+</x-admin.table-heading>
+
+<x-admin.table-heading class="text-center">
+
+Capacity
+
+</x-admin.table-heading>
+
+<x-admin.table-heading class="text-center">
+
+Occupied
+
+</x-admin.table-heading>
+
+<x-admin.table-heading class="text-center">
+
+Available
+
+</x-admin.table-heading>
+
+<x-admin.table-heading class="text-right">
+
+Price
+
+</x-admin.table-heading>
+
+<x-admin.table-heading class="text-center">
+
+Status
+
+</x-admin.table-heading>
+
+<x-admin.table-heading class="text-center">
+
+Actions
+
+</x-admin.table-heading>
 
 </tr>
 
@@ -73,117 +143,142 @@ color="yellow"/>
 
 @forelse($rooms as $room)
 
-<tr class="border-b hover:bg-gray-50 transition">
+<tr class="border-b border-slate-100 hover:bg-slate-50 transition">
 
-    <td class="px-6 py-4">
-        {{ $room->hostel->name }}
-    </td>
+<x-admin.table-cell>
 
-    <td class="px-6 py-4">
-        {{ $room->room_number }}
-    </td>
+<div class="flex items-center gap-3">
 
-    <td class="px-6 py-4 text-center">
+<div class="w-10 h-10 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center">
 
-    <x-admin.badge type="info">
-        {{ $room->capacity }} Beds
-    </x-admin.badge>
+<i class="bi bi-building"></i>
 
-</td>
+</div>
 
-<td class="px-6 py-4 text-center">
+<div>
 
-    <x-admin.badge type="warning">
-        {{ $room->occupied }} Occupied
-    </x-admin.badge>
+<p class="font-medium text-slate-800">
 
-</td>
+{{ $room->hostel->name }}
 
-<td class="px-6 py-4 text-center">
+</p>
 
-    @if($room->availableBeds() > 0)
+<p class="text-xs text-slate-500">
 
-        <x-admin.badge type="success">
-            {{ $room->availableBeds() }} Free
-        </x-admin.badge>
+Hostel Block
 
-    @else
+</p>
 
-        <x-admin.badge type="danger">
-            Full
-        </x-admin.badge>
+</div>
 
-    @endif
+</div>
 
-</td>
+</x-admin.table-cell>
 
-    <td class="px-6 py-4 text-right">
-        KES {{ number_format($room->price,2) }}
-    </td>
+<x-admin.table-cell>
 
-    <td class="px-6 py-4 text-center">
+{{ $room->room_number }}
 
-        @if($room->status)
+</x-admin.table-cell>
 
-            <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm">
-                Active
-            </span>
+<x-admin.table-cell class="text-center">
 
-        @else
+    <x-admin.badge
+        type="info"
+        text="{{ $room->capacity }} Beds"/>
 
-            <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm">
-                Inactive
-            </span>
+</x-admin.table-cell>
 
-        @endif
+<x-admin.table-cell class="text-center">
 
-    </td>
+    <x-admin.badge
+        type="warning"
+        text="{{ $room->occupied }} Occupied"/>
 
-   <td class="text-center">
+</x-admin.table-cell>
 
-    <div class="flex justify-center gap-2">
+<x-admin.table-cell class="text-center">
 
-        <a href="{{ route('rooms.edit', $room) }}"
-           class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-2 rounded-lg">
+@if($room->availableBeds() > 0)
 
-            <i class="bi bi-pencil-square"></i>
+    <x-admin.badge
+        type="success"
+        text="{{ $room->availableBeds() }} Free"/>
 
-        </a>
+@else
 
-        <form action="{{ route('rooms.destroy', $room) }}"
-              method="POST">
+    <x-admin.badge
+        type="danger"
+        text="Full"/>
 
-            @csrf
-            @method('DELETE')
+@endif
 
-            <button
-                onclick="return confirm('Delete this room?')"
-                class="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-lg">
+</x-admin.table-cell>
 
-                <i class="bi bi-trash"></i>
+<x-admin.table-cell class="text-right font-medium">
 
-            </button>
+KES {{ number_format($room->price,2) }}
 
-        </form>
+</x-admin.table-cell>
 
-    </div>
+<x-admin.table-cell class="text-center">
 
-</td>
+@if($room->status)
+
+    <x-admin.badge
+        type="success"
+        text="Active"/>
+
+@else
+
+    <x-admin.badge
+        type="danger"
+        text="Inactive"/>
+
+@endif
+
+</x-admin.table-cell>
+
+<x-admin.table-cell class="text-center">
+
+<div class="flex items-center justify-center gap-2">
+
+    <x-admin.action-button
+        href="{{ route('rooms.edit',$room) }}"
+        color="blue"
+        icon="bi-pencil-square"/>
+
+    <form
+        action="{{ route('rooms.destroy',$room) }}"
+        method="POST"
+        onsubmit="return confirm('Delete this room?')">
+
+        @csrf
+        @method('DELETE')
+
+        <x-admin.action-button
+            type="submit"
+            color="red"
+            icon="bi-trash"/>
+
+    </form>
+
+</div>
+
+</x-admin.table-cell>
+
 </tr>
 
 @empty
 
 <tr>
 
-<td colspan="8" class="text-center py-12">
+<td colspan="8">
 
-<i class="bi bi-door-open text-5xl text-gray-300"></i>
-
-<p class="mt-4 text-gray-500">
-
-No rooms found.
-
-</p>
+<x-admin.empty-state
+    icon="bi-door-open"
+    title="No Rooms Found"
+    message="Click 'Add Room' to create your first room."/>
 
 </td>
 
@@ -195,13 +290,12 @@ No rooms found.
 
 </table>
 
-<div class="mt-6">
+<div class="mt-5 border-t border-slate-200 pt-4">
 
-{{ $rooms->links() }}
+    {{ $rooms->links() }}
 
 </div>
 
-</x-admin.card>
-
+</x-admin.table>
 
 @endsection

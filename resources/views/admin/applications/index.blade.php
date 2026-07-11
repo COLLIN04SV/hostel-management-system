@@ -1,6 +1,10 @@
 @extends('layouts.admin')
 
+@section('title','Applications')
+
 @section('page-title','Applications')
+
+@section('page-description','Manage hostel applications')
 
 @section('content')
 
@@ -8,21 +12,18 @@
     title="Applications"
     subtitle="Manage hostel applications">
 
-    <a href="{{ route('applications.create') }}">
+    <x-admin.button
+        href="{{ route('applications.create') }}">
 
-        <x-admin.button color="blue">
+        <i class="bi bi-plus-lg mr-2"></i>
 
-            <i class="bi bi-plus-lg mr-2"></i>
+        New Application
 
-            New Application
-
-        </x-admin.button>
-
-    </a>
+    </x-admin.button>
 
 </x-admin.page-header>
 
-<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-6 mb-6">
+<x-admin.stats-grid>
 
     <x-admin.stat-card
         title="Total Applications"
@@ -46,7 +47,7 @@
         title="Allocated"
         :value="$allocatedApplications"
         icon="bi-house-check"
-        color="info"/>    
+        color="info"/>
 
     <x-admin.stat-card
         title="Rejected"
@@ -54,37 +55,18 @@
         icon="bi-x-circle"
         color="red"/>
 
-</div>
+</x-admin.stats-grid>
 
-<x-admin.card>
+<x-admin.table>
 
-<form
-    method="GET"
-    action="{{ route('applications.index') }}"
-    class="mb-6">
+<x-admin.search-bar
+    :action="route('applications.index')"
+    :value="$search"
+    placeholder="Search student, hostel or status..." />
 
-    <div class="flex gap-3">
+<div class="flex items-center justify-between mb-5">
 
-        <input
-            type="text"
-            name="search"
-            value="{{ $search }}"
-            placeholder="Search student, hostel or status..."
-            class="flex-1 border rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500">
-
-        <x-admin.button color="blue">
-
-            Search
-
-        </x-admin.button>
-
-    </div>
-
-</form>
-
-<div class="flex justify-between items-center mb-4">
-
-    <p class="text-gray-500">
+    <p class="text-sm text-slate-500">
 
         Showing
 
@@ -104,23 +86,41 @@
 
 </div>
 
-<div class="overflow-x-auto">
+<table class="min-w-full">
 
-<table class="w-full">
+<thead class="bg-slate-50 border-b">
 
-<thead>
+<tr>
 
-<tr class="bg-gray-100 text-gray-600 uppercase text-xs">
+<x-admin.table-heading>
 
-    <th class="p-4 text-left">Student</th>
+Student
 
-    <th class="p-4 text-left">Hostel</th>
+</x-admin.table-heading>
 
-    <th class="p-4 text-left">Date</th>
+<x-admin.table-heading>
 
-    <th class="p-4 text-center">Status</th>
+Hostel
 
-    <th class="p-4 text-center">Actions</th>
+</x-admin.table-heading>
+
+<x-admin.table-heading>
+
+Date
+
+</x-admin.table-heading>
+
+<x-admin.table-heading class="text-center">
+
+Status
+
+</x-admin.table-heading>
+
+<x-admin.table-heading class="text-center">
+
+Actions
+
+</x-admin.table-heading>
 
 </tr>
 
@@ -130,53 +130,53 @@
 
 @forelse($applications as $application)
 
-<tr class="border-b hover:bg-gray-50 transition">
+<tr class="border-b border-slate-100 hover:bg-slate-50 transition">
 
-    <td class="p-4">
+<x-admin.table-cell>
 
-        <div class="flex items-center gap-3">
+<div class="flex items-center gap-3">
 
-            <div class="w-10 h-10 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold">
+<div class="w-10 h-10 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold">
 
-                {{ strtoupper(substr($application->student->user->name,0,1)) }}
+{{ strtoupper(substr($application->student->user->name,0,1)) }}
 
-            </div>
+</div>
 
-            <div>
+<div>
 
-                <p class="font-semibold">
+<p class="font-medium text-slate-800">
 
-                    {{ $application->student->user->name }}
+{{ $application->student->user->name }}
 
-                </p>
+</p>
 
-                <p class="text-sm text-gray-500">
+<p class="text-xs text-slate-500">
 
-                    {{ $application->student->registration_number }}
+{{ $application->student->registration_number }}
 
-                </p>
+</p>
 
-            </div>
+</div>
 
-        </div>
+</div>
 
-    </td>
+</x-admin.table-cell>
 
-    <td class="p-4">
+<x-admin.table-cell>
 
-        {{ $application->hostel->name }}
+{{ $application->hostel->name }}
 
-    </td>
+</x-admin.table-cell>
 
-    <td class="p-4">
+<x-admin.table-cell>
 
-        {{ \Carbon\Carbon::parse($application->application_date)->format('d M Y') }}
+{{ \Carbon\Carbon::parse($application->application_date)->format('d M Y') }}
 
-    </td>
+</x-admin.table-cell>
 
-    <td class="p-4 text-center">
+<x-admin.table-cell class="text-center">
 
-        @if($application->status == 'Approved')
+@if($application->status == 'Approved')
 
     <x-admin.badge
         type="success"
@@ -202,55 +202,55 @@
 
 @endif
 
-    </td>
+</x-admin.table-cell>
 
-    <td class="p-4">
+<x-admin.table-cell class="text-center">
 
-        <div class="flex justify-center gap-2">
+<div class="flex items-center justify-center gap-2">
 
-            @if($application->status == 'Pending')
+@if($application->status == 'Pending')
 
-                <form
-                    method="POST"
-                    action="{{ route('applications.approve',$application->id) }}">
+<form
+    method="POST"
+    action="{{ route('applications.approve',$application->id) }}">
 
-                    @csrf
+    @csrf
 
-                    <x-admin.action-button
-                        type="submit"
-                        color="green"
-                        icon="bi-check-lg"
-                        title="Approve"/>
+    <x-admin.action-button
+        type="submit"
+        color="green"
+        icon="bi-check-lg"
+        title="Approve"/>
 
-                </form>
+</form>
 
-                <form
-                    method="POST"
-                    action="{{ route('applications.reject',$application->id) }}">
+<form
+    method="POST"
+    action="{{ route('applications.reject',$application->id) }}">
 
-                    @csrf
+    @csrf
 
-                    <x-admin.action-button
-                        type="submit"
-                        color="red"
-                        icon="bi-x-lg"
-                        title="Reject"/>
+    <x-admin.action-button
+        type="submit"
+        color="red"
+        icon="bi-x-lg"
+        title="Reject"/>
 
-                </form>
+</form>
 
-            @else
+@else
 
-                <span class="text-gray-400 text-sm">
+<span class="text-xs text-slate-400">
 
-                    No Actions
+No Actions
 
-                </span>
+</span>
 
-            @endif
+@endif
 
-        </div>
+</div>
 
-    </td>
+</x-admin.table-cell>
 
 </tr>
 
@@ -258,27 +258,14 @@
 
 <tr>
 
-    <td colspan="5">
+<td colspan="5">
 
-        <div class="text-center py-12">
+<x-admin.empty-state
+    icon="bi-file-earmark-text"
+    title="No Applications Found"
+    message="No hostel applications match your search."/>
 
-            <i class="bi bi-file-earmark-text text-5xl text-gray-300"></i>
-
-            <h3 class="mt-4 text-xl font-semibold">
-
-                No Applications Found
-
-            </h3>
-
-            <p class="text-gray-500 mt-2">
-
-                No hostel applications match your search.
-
-            </p>
-
-        </div>
-
-    </td>
+</td>
 
 </tr>
 
@@ -288,14 +275,12 @@
 
 </table>
 
-</div>
-
-<div class="mt-6">
+<div class="mt-5 border-t border-slate-200 pt-4">
 
     {{ $applications->links() }}
 
 </div>
 
-</x-admin.card>
+</x-admin.table>
 
 @endsection

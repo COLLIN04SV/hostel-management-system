@@ -1,127 +1,92 @@
 @extends('layouts.admin')
 
+@section('page-title', 'Add Room')
+
 @section('content')
 
-<h1 class="text-3xl font-bold mb-6">
-    Add Room
-</h1>
+<x-admin.page-header
+    title="Add Room"
+    subtitle="Create a new hostel room">
 
-<a href="{{ route('rooms.index') }}"
-   class="inline-flex items-center text-blue-600 hover:text-blue-800 mb-6">
+</x-admin.page-header>
 
-    <i class="bi bi-arrow-left me-2"></i>
+<form
+    method="POST"
+    action="{{ route('rooms.store') }}">
 
-    Back to Rooms
+    @csrf
 
-</a>
+    <x-admin.form-card>
 
-<div class="bg-white p-6 rounded-2xl shadow-sm">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 
-@if ($errors->any())
+            {{-- Hostel --}}
 
-<div class="bg-red-100 border border-red-300 text-red-700 rounded-xl p-4 mb-6">
+            <x-admin.select
+                label="Hostel"
+                name="hostel_id"
+                required>
 
-    <strong>Please fix the following errors:</strong>
+                <option value="">Select Hostel</option>
 
-    <ul class="list-disc ml-6 mt-2">
+                @foreach($hostels as $hostel)
 
-        @foreach ($errors->all() as $error)
+                    <option
+                        value="{{ $hostel->id }}"
+                        {{ old('hostel_id') == $hostel->id ? 'selected' : '' }}>
 
-            <li>{{ $error }}</li>
+                        {{ $hostel->name }}
 
-        @endforeach
+                    </option>
 
-    </ul>
+                @endforeach
 
-</div>
+            </x-admin.select>
 
-@endif
+            {{-- Room Number --}}
 
-<form method="POST"
-      action="{{ route('rooms.store') }}"
-      class="space-y-6">
+            <x-admin.input
+                label="Room Number"
+                name="room_number"
+                required
+                placeholder="e.g. A101" />
 
-@csrf
+            {{-- Floor --}}
 
-<div class="grid grid-cols-2 gap-6">
+            <x-admin.input
+                label="Floor"
+                name="floor"
+                type="number"
+                :value="old('floor',1)"
+                required />
 
-    <div>
-        <label class="block mb-2 font-medium text-gray-700">
-           Hostel
-        </label>
+            {{-- Capacity --}}
 
-        <select
-            name="hostel_id"
-            class="w-full border p-3 rounded-lg">
+            <x-admin.input
+                label="Capacity"
+                name="capacity"
+                type="number"
+                required
+                placeholder="Number of beds" />
 
-            @foreach($hostels as $hostel)
+            {{-- Price --}}
 
-            <option value="{{ $hostel->id }}">
-                {{ $hostel->name }}
-            </option>
+            <x-admin.input
+                label="Room Price (KES)"
+                name="price"
+                type="number"
+                step="0.01"
+                required
+                placeholder="0.00" />
 
-            @endforeach
+        </div>
 
-        </select>
-    </div>
+        <x-admin.form-actions
+            :cancel="route('rooms.index')"
+            submit="Save Room" />
 
-    <div>
-        <label class="block mb-2 font-medium text-gray-700">
-           Room Number
-        </label>
-
-        <input
-            type="text"
-            name="room_number"
-            class="w-full border p-3 rounded-lg">
-    </div>
-
-    <div>
-        <label class="block mb-2 font-medium text-gray-700">
-           Floor
-        </label>
-
-        <input
-            type="number"
-            name="floor"
-            class="w-full border p-3 rounded-lg"
-            value="1">
-    </div>
-
-    <div>
-        <label class="block mb-2 font-medium text-gray-700">
-           Capacity
-        </label>
-
-        <input
-            type="number"
-            name="capacity"
-            class="w-full border p-3 rounded-lg">
-    </div>
-
-    <div>
-        <label class="block mb-2 font-medium text-gray-700">
-           Price
-        </label>
-
-        <input
-            type="number"
-            step="0.01"
-            name="price"
-            class="w-full border p-3 rounded-lg">
-    </div>
-
-</div>
-
-<button
-    class="mt-6 bg-blue-600 text-white px-6 py-3 rounded-xl">
-
-    Save Room
-
-</button>
+    </x-admin.form-card>
 
 </form>
-
-</div>
 
 @endsection

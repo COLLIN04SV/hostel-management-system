@@ -1,6 +1,10 @@
 @extends('layouts.admin')
 
-@section('page-title', 'Hostels')
+@section('title','Hostels')
+
+@section('page-title','Hostels')
+
+@section('page-description','Manage hostel blocks')
 
 @section('content')
 
@@ -8,21 +12,42 @@
     title="Hostels"
     subtitle="Manage hostel blocks">
 
-    <a href="{{ route('hostels.create') }}">
+    <x-admin.button
+        href="{{ route('hostels.create') }}">
 
-        <x-admin.button color="blue">
+        <i class="bi bi-plus-lg mr-2"></i>
 
-            <i class="bi bi-plus-lg mr-2"></i>
+        Add Hostel
 
-            Add Hostel
-
-        </x-admin.button>
-
-    </a>
+    </x-admin.button>
 
 </x-admin.page-header>
 
-<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-6">
+@if(session('success'))
+
+<div class="mb-5 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-green-700">
+
+    <i class="bi bi-check-circle-fill mr-2"></i>
+
+    {{ session('success') }}
+
+</div>
+
+@endif
+
+@if(session('error'))
+
+<div class="mb-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-red-700">
+
+    <i class="bi bi-exclamation-circle-fill mr-2"></i>
+
+    {{ session('error') }}
+
+</div>
+
+@endif
+
+<x-admin.stats-grid>
 
     <x-admin.stat-card
         title="Total Hostels"
@@ -48,37 +73,18 @@
         icon="bi-door-open"
         color="yellow"/>
 
-</div>
+</x-admin.stats-grid>
 
-<x-admin.card>
+<x-admin.table>
 
-    <form
-        method="GET"
-        action="{{ route('hostels.index') }}"
-        class="mb-6">
+<x-admin.search-bar
+    :action="route('hostels.index')"
+    :value="$search"
+    placeholder="Search hostel by name, gender or location..." />
 
-        <div class="flex gap-3">
+<div class="flex items-center justify-between mb-5">
 
-            <input
-                type="text"
-                name="search"
-                value="{{ $search }}"
-                placeholder="Search hostel by name, gender or location..."
-                class="flex-1 border rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500">
-
-            <x-admin.button color="blue">
-
-                Search
-
-            </x-admin.button>
-
-        </div>
-
-    </form>
-
-    <div class="flex justify-between items-center mb-4">
-
-    <p class="text-gray-500">
+    <p class="text-sm text-slate-500">
 
         Showing
 
@@ -98,177 +104,181 @@
 
 </div>
 
-<div class="overflow-x-auto">
+<table class="min-w-full">
 
-    <table class="w-full">
+<thead class="bg-slate-50 border-b">
 
-        <thead>
+<tr>
 
-            <tr class="bg-gray-100 text-gray-600 uppercase text-xs tracking-wider">
+<x-admin.table-heading>
 
-                <th class="p-4 text-left">Hostel</th>
+Hostel
 
-                <th class="p-4 text-left">Gender</th>
+</x-admin.table-heading>
 
-                <th class="p-4 text-center">Capacity</th>
+<x-admin.table-heading>
 
-                <th class="p-4 text-left">Location</th>
+Gender
 
-                <th class="p-4 text-center">Rooms</th>
+</x-admin.table-heading>
 
-                <th class="p-4 text-center">Actions</th>
+<x-admin.table-heading class="text-center">
 
-            </tr>
+Capacity
 
-        </thead>
+</x-admin.table-heading>
 
-        <tbody>
+<x-admin.table-heading>
 
-        @forelse($hostels as $hostel)
+Location
 
-            <tr class="border-b hover:bg-blue-50 transition">
+</x-admin.table-heading>
 
-                <td class="p-4">
+<x-admin.table-heading class="text-center">
 
-                    <div class="flex items-center gap-3">
+Rooms
 
-                        <div class="w-11 h-11 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center">
+</x-admin.table-heading>
 
-                            <i class="bi bi-building"></i>
+<x-admin.table-heading class="text-center">
 
-                        </div>
+Actions
 
-                        <div>
+</x-admin.table-heading>
 
-                            <p class="font-semibold">
+</tr>
 
-                                {{ $hostel->name }}
+</thead>
 
-                            </p>
+<tbody>
 
-                            <p class="text-sm text-gray-500">
+@forelse($hostels as $hostel)
 
-                                Hostel Block
+<tr class="border-b border-slate-100 hover:bg-slate-50 transition">
 
-                            </p>
+<x-admin.table-cell>
 
-                        </div>
+<div class="flex items-center gap-3">
 
-                    </div>
+<div class="w-10 h-10 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center">
 
-                </td>
-
-                <td class="p-4">
-
-                    @if($hostel->gender == 'Male')
-
-                        <x-admin.badge
-                            type="info"
-                            text="Male"/>
-
-                    @else
-
-                        <x-admin.badge
-                            type="danger"
-                            text="Female"/>
-
-                    @endif
-
-                </td>
-
-                <td class="p-4 text-center font-semibold">
-
-                    {{ $hostel->capacity }}
-
-                </td>
-
-                <td class="p-4">
-
-                    {{ $hostel->location }}
-
-                </td>
-
-                <td class="p-4 text-center">
-
-                    {{ $hostel->rooms()->count() }}
-
-                </td>
-
-                <td class="p-4">
-
-                    <div class="flex justify-center gap-2">
-
-                        <x-admin.action-button
-                            href="{{ route('hostels.edit',$hostel) }}"
-                            color="blue"
-                            icon="bi-pencil-square"/>
-
-                        <form
-                            method="POST"
-                            action="{{ route('hostels.destroy',$hostel) }}"
-                            onsubmit="return confirm('Delete this hostel?')">
-
-                            @csrf
-                            @method('DELETE')
-
-                            <x-admin.action-button
-                                type="submit"
-                                color="red"
-                                icon="bi-trash"/>
-
-                        </form>
-
-                    </div>
-
-                </td>
-
-            </tr>
-
-        @empty
-
-            <tr>
-
-                <td colspan="6">
-
-                    <div class="text-center py-12">
-
-                        <i class="bi bi-building text-5xl text-gray-300"></i>
-
-                        <h3 class="mt-4 text-xl font-semibold">
-
-                            No Hostels Found
-
-                        </h3>
-
-                        <p class="text-gray-500 mt-2">
-
-                            Click "Add Hostel" to create your first hostel.
-
-                        </p>
-
-                    </div>
-
-                </td>
-
-            </tr>
-
-        @endforelse
-
-        </tbody>
-
-    </table>
+<i class="bi bi-building"></i>
 
 </div>
 
-{{-- Pagination --}}
-{{ $hostels->links() }}
+<div>
 
-<div class="mt-6">
+<p class="font-medium text-slate-800">
+
+{{ $hostel->name }}
+
+</p>
+
+<p class="text-xs text-slate-500">
+
+Hostel Block
+
+</p>
+
+</div>
+
+</div>
+
+</x-admin.table-cell>
+
+<x-admin.table-cell class="text-center">
+
+@if($hostel->gender == 'Male')
+
+    <x-admin.badge
+        type="info"
+        text="Male"/>
+
+@else
+
+    <x-admin.badge
+        type="danger"
+        text="Female"/>
+
+@endif
+
+</x-admin.table-cell>
+
+<x-admin.table-cell class="text-center font-medium">
+
+{{ $hostel->capacity }}
+
+</x-admin.table-cell>
+
+<x-admin.table-cell>
+
+{{ $hostel->location ?? '-' }}
+
+</x-admin.table-cell>
+
+<x-admin.table-cell class="text-center">
+
+{{ $hostel->rooms()->count() }}
+
+</x-admin.table-cell>
+
+<x-admin.table-cell class="text-center">
+
+<div class="flex items-center justify-center gap-2">
+
+    <x-admin.action-button
+        href="{{ route('hostels.edit',$hostel) }}"
+        color="blue"
+        icon="bi-pencil-square"/>
+
+    <form
+        method="POST"
+        action="{{ route('hostels.destroy',$hostel) }}"
+        onsubmit="return confirm('Delete this hostel?')">
+
+        @csrf
+        @method('DELETE')
+
+        <x-admin.action-button
+            type="submit"
+            color="red"
+            icon="bi-trash"/>
+
+    </form>
+
+</div>
+
+</x-admin.table-cell>
+
+</tr>
+
+@empty
+
+<tr>
+
+<td colspan="6">
+
+<x-admin.empty-state
+    icon="bi-building"
+    title="No Hostels Found"
+    message="Click 'Add Hostel' to create your first hostel."/>
+
+</td>
+
+</tr>
+
+@endforelse
+
+</tbody>
+
+</table>
+
+<div class="mt-5 border-t border-slate-200 pt-4">
 
     {{ $hostels->links() }}
 
 </div>
 
-</x-admin.card>
+</x-admin.table>
 
 @endsection

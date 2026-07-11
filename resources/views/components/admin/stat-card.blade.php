@@ -2,46 +2,52 @@
     'title',
     'value',
     'icon',
-    'color' => 'blue'
+    'color' => 'indigo'
 ])
 
 @php
 
 $colors = [
 
-'blue' => 'bg-blue-100 text-blue-600',
+    'indigo' => 'bg-indigo-100 text-indigo-600',
 
-'green' => 'bg-green-100 text-green-600',
+    'blue' => 'bg-blue-100 text-blue-600',
 
-'red' => 'bg-red-100 text-red-600',
+    'green' => 'bg-green-100 text-green-600',
 
-'yellow' => 'bg-yellow-100 text-yellow-600',
+    'red' => 'bg-red-100 text-red-600',
 
-'info' => 'bg-cyan-100 text-cyan-600',
+    'yellow' => 'bg-yellow-100 text-yellow-600',
+
+    'cyan' => 'bg-cyan-100 text-cyan-600',
 
 ];
 
 @endphp
 
-<div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+<div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
 
-    <div class="flex justify-between items-center">
+    <div class="flex items-center justify-between">
 
         <div>
 
-            <p class="text-gray-500 text-sm">
+            <p class="text-xs uppercase tracking-wide text-slate-500">
+
                 {{ $title }}
+
             </p>
 
-            <h2 class="text-3xl font-bold mt-2">
+            <h2 class="mt-2 text-2xl font-bold text-slate-800">
+
                 {{ $value }}
+
             </h2>
 
         </div>
 
-        <div class="{{ $colors[$color] }} p-4 rounded-xl">
+        <div class="w-11 h-11 rounded-xl flex items-center justify-center {{ $colors[$color] ?? $colors['indigo'] }}">
 
-            <i class="bi {{ $icon }} text-2xl"></i>
+            <i class="bi {{ $icon }} text-lg"></i>
 
         </div>
 

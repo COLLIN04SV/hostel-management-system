@@ -1,6 +1,10 @@
 @extends('layouts.admin')
 
-@section('page-title', 'Payments')
+@section('title','Payments')
+
+@section('page-title','Payments')
+
+@section('page-description','Manage hostel payment records')
 
 @section('content')
 
@@ -8,26 +12,18 @@
     title="Payments"
     subtitle="Manage hostel payment records">
 
-    <a href="{{ route('payments.create') }}">
-        <x-admin.button color="blue">
-            <i class="bi bi-plus-lg mr-2"></i>
-            Record Payment
-        </x-admin.button>
-    </a>
+    <x-admin.button
+        href="{{ route('payments.create') }}">
+
+        <i class="bi bi-plus-lg mr-2"></i>
+
+        Record Payment
+
+    </x-admin.button>
 
 </x-admin.page-header>
 
-@if(session('success'))
-
-<div class="mb-6 bg-green-100 border border-green-300 text-green-700 px-4 py-3 rounded-xl">
-
-    {{ session('success') }}
-
-</div>
-
-@endif
-
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+<x-admin.stats-grid>
 
     <x-admin.stat-card
         title="Total Payments"
@@ -53,31 +49,83 @@
         icon="bi-cash-stack"
         color="blue"/>
 
+</x-admin.stats-grid>
+
+<x-admin.table>
+
+<x-admin.search-bar
+    :action="route('payments.index')"
+    placeholder="Search student, reference or payment method..." />
+
+<div class="flex items-center justify-between mb-5">
+
+    <p class="text-sm text-slate-500">
+
+        Showing
+
+        <strong>{{ $payments->firstItem() ?? 0 }}</strong>
+
+        -
+
+        <strong>{{ $payments->lastItem() ?? 0 }}</strong>
+
+        of
+
+        <strong>{{ $payments->total() }}</strong>
+
+        payments
+
+    </p>
+
 </div>
 
-<x-admin.card>
+<table class="min-w-full">
 
-<div class="overflow-x-auto">
+<thead class="bg-slate-50 border-b">
 
-<table class="w-full">
+<tr>
 
-<thead>
+<x-admin.table-heading>
 
-<tr class="border-b bg-gray-50">
+Student
 
-<th class="px-6 py-4 text-left">Student</th>
+</x-admin.table-heading>
 
-<th class="px-6 py-4 text-left">Amount</th>
+<x-admin.table-heading>
 
-<th class="px-6 py-4 text-left">Method</th>
+Amount
 
-<th class="px-6 py-4 text-left">Reference</th>
+</x-admin.table-heading>
 
-<th class="px-6 py-4 text-left">Date</th>
+<x-admin.table-heading>
 
-<th class="px-6 py-4 text-center">Status</th>
+Method
 
-<th class="px-6 py-4 text-center">Actions</th>
+</x-admin.table-heading>
+
+<x-admin.table-heading>
+
+Reference
+
+</x-admin.table-heading>
+
+<x-admin.table-heading>
+
+Date
+
+</x-admin.table-heading>
+
+<x-admin.table-heading class="text-center">
+
+Status
+
+</x-admin.table-heading>
+
+<x-admin.table-heading class="text-center">
+
+Actions
+
+</x-admin.table-heading>
 
 </tr>
 
@@ -87,57 +135,61 @@
 
 @forelse($payments as $payment)
 
-<tr class="border-b hover:bg-gray-50">
+<tr class="border-b border-slate-100 hover:bg-slate-50 transition">
 
-<td class="px-6 py-4">
+<x-admin.table-cell>
 
-    <div class="font-semibold">
+<div>
 
-        {{ $payment->student->user->name ?? 'Unknown Student' }}
+<p class="font-medium text-slate-800">
 
-    </div>
+{{ $payment->student->user->name ?? 'Unknown Student' }}
 
-    <div class="text-sm text-gray-500">
+</p>
 
-        {{ $payment->student->registration_number ?? '' }}
+<p class="text-xs text-slate-500">
 
-    </div>
+{{ $payment->student->registration_number ?? '' }}
 
-</td>
+</p>
 
-<td class="px-6 py-4 font-semibold">
+</div>
 
-    KSh {{ number_format($payment->amount) }}
+</x-admin.table-cell>
 
-</td>
+<x-admin.table-cell class="font-medium">
 
-<td class="px-6 py-4">
+KSh {{ number_format($payment->amount) }}
 
-    {{ $payment->payment_method }}
+</x-admin.table-cell>
 
-</td>
+<x-admin.table-cell>
 
-<td class="px-6 py-4">
+{{ $payment->payment_method }}
 
-    {{ $payment->transaction_reference }}
+</x-admin.table-cell>
 
-</td>
+<x-admin.table-cell>
 
-<td class="px-6 py-4">
+{{ $payment->transaction_reference }}
 
-    {{ \Carbon\Carbon::parse($payment->payment_date)->format('d M Y') }}
+</x-admin.table-cell>
 
-</td>
+<x-admin.table-cell>
 
-<td>
+{{ \Carbon\Carbon::parse($payment->payment_date)->format('d M Y') }}
 
-@if($payment->status=='Completed')
+</x-admin.table-cell>
+
+<x-admin.table-cell class="text-center">
+
+@if($payment->status == 'Completed')
 
     <x-admin.badge
         type="success"
         text="Completed"/>
 
-@elseif($payment->status=='Pending')
+@elseif($payment->status == 'Pending')
 
     <x-admin.badge
         type="warning"
@@ -151,42 +203,37 @@
 
 @endif
 
-</td>
+</x-admin.table-cell>
 
-<td class="px-6 py-4">
+<x-admin.table-cell class="text-center">
 
-<div class="flex justify-center gap-2">
+<div class="flex items-center justify-center gap-2">
 
-<a href="{{ route('payments.edit',$payment) }}">
-
-<x-admin.button color="blue">
-
-<i class="bi bi-pencil"></i>
-
-</x-admin.button>
-
-</a>
+<x-admin.action-button
+    href="{{ route('payments.edit',$payment) }}"
+    color="blue"
+    icon="bi-pencil"
+    title="Edit"/>
 
 <form
-method="POST"
-action="{{ route('payments.destroy',$payment) }}">
+    method="POST"
+    action="{{ route('payments.destroy',$payment) }}"
+    onsubmit="return confirm('Delete this payment?')">
 
-@csrf
-@method('DELETE')
+    @csrf
+    @method('DELETE')
 
-<x-admin.button
-color="red"
-onclick="return confirm('Delete this payment?')">
-
-<i class="bi bi-trash"></i>
-
-</x-admin.button>
+    <x-admin.action-button
+        type="submit"
+        color="red"
+        icon="bi-trash"
+        title="Delete"/>
 
 </form>
 
 </div>
 
-</td>
+</x-admin.table-cell>
 
 </tr>
 
@@ -194,9 +241,12 @@ onclick="return confirm('Delete this payment?')">
 
 <tr>
 
-<td colspan="7" class="py-10 text-center text-gray-500">
+<td colspan="7">
 
-No payment records found.
+<x-admin.empty-state
+    icon="bi-credit-card"
+    title="No Payments Found"
+    message="No payment records are available."/>
 
 </td>
 
@@ -208,14 +258,12 @@ No payment records found.
 
 </table>
 
-</div>
+<div class="mt-5 border-t border-slate-200 pt-4">
 
-<div class="mt-6">
-
-{{ $payments->links() }}
+    {{ $payments->links() }}
 
 </div>
 
-</x-admin.card>
+</x-admin.table>
 
 @endsection

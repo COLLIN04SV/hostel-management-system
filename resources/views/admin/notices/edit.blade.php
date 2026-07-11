@@ -10,8 +10,6 @@
 
 </x-admin.page-header>
 
-<x-admin.card>
-
 <form
     method="POST"
     action="{{ route('notices.update', $notice) }}">
@@ -19,140 +17,70 @@
     @csrf
     @method('PUT')
 
-    <div class="space-y-6">
+    <x-admin.form-card>
 
-        <div>
+        <div class="space-y-5">
 
-            <label class="block mb-2 font-semibold">
-
-                Title
-
-            </label>
-
-            <input
-                type="text"
+            {{-- Title --}}
+            <x-admin.input
+                label="Notice Title"
                 name="title"
-                value="{{ old('title', $notice->title) }}"
-                class="w-full border rounded-xl px-4 py-3"
-                required>
+                :value="old('title', $notice->title)"
+                required
+                placeholder="Enter notice title" />
 
-            @error('title')
-
-                <p class="text-red-500 text-sm mt-2">
-
-                    {{ $message }}
-
-                </p>
-
-            @enderror
-
-        </div>
-
-        <div>
-
-            <label class="block mb-2 font-semibold">
-
-                Message
-
-            </label>
-
-            <textarea
+            {{-- Message --}}
+            <x-admin.textarea
+                label="Message"
                 name="message"
                 rows="6"
-                class="w-full border rounded-xl px-4 py-3"
-                required>{{ old('message', $notice->message) }}</textarea>
+                required
+                placeholder="Write your announcement here...">{{ old('message', $notice->message) }}</x-admin.textarea>
 
-            @error('message')
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 
-                <p class="text-red-500 text-sm mt-2">
-
-                    {{ $message }}
-
-                </p>
-
-            @enderror
-
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-            <div>
-
-                <label class="block mb-2 font-semibold">
-
-                    Publish Date
-
-                </label>
-
-                <input
-                    type="date"
+                {{-- Publish Date --}}
+                <x-admin.input
+                    label="Publish Date"
                     name="publish_date"
-                    value="{{ old('publish_date', \Carbon\Carbon::parse($notice->publish_date)->format('Y-m-d')) }}"
-                    class="w-full border rounded-xl px-4 py-3"
+                    type="date"
+                    :value="old('publish_date', \Carbon\Carbon::parse($notice->publish_date)->format('Y-m-d'))"
+                    required />
+
+                {{-- Status --}}
+                <x-admin.select
+                    label="Status"
+                    name="status"
                     required>
 
-            </div>
-
-            <div>
-
-                <label class="block mb-2 font-semibold">
-
-                    Status
-
-                </label>
-
-                <select
-                    name="status"
-                    class="w-full border rounded-xl px-4 py-3">
-
-                    <option value="1"
-                        {{ $notice->status ? 'selected' : '' }}>
+                    <option
+                        value="1"
+                        {{ old('status', $notice->status) == 1 ? 'selected' : '' }}>
 
                         Published
 
                     </option>
 
-                    <option value="0"
-                        {{ !$notice->status ? 'selected' : '' }}>
+                    <option
+                        value="0"
+                        {{ old('status', $notice->status) == 0 ? 'selected' : '' }}>
 
                         Draft
 
                     </option>
 
-                </select>
+                </x-admin.select>
 
             </div>
 
         </div>
 
-    </div>
+        <x-admin.form-actions
+            :cancel="route('notices.index')"
+            submit="Update Notice" />
 
-    <div class="flex justify-end gap-3 mt-8">
-
-        <a href="{{ route('notices.index') }}">
-
-            <x-admin.button color="gray">
-
-                Cancel
-
-            </x-admin.button>
-
-        </a>
-
-        <x-admin.button
-            color="green"
-            type="submit">
-
-            <i class="bi bi-check2-circle mr-2"></i>
-
-            Update Notice
-
-        </x-admin.button>
-
-    </div>
+    </x-admin.form-card>
 
 </form>
-
-</x-admin.card>
 
 @endsection

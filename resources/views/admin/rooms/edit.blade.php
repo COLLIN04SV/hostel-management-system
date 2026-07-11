@@ -1,135 +1,113 @@
 @extends('layouts.admin')
 
+@section('page-title', 'Edit Room')
+
 @section('content')
 
-<h1 class="text-3xl font-bold mb-6">
-    Edit Room
-</h1>
+<x-admin.page-header
+    title="Edit Room"
+    subtitle="Update room information">
 
-<div class="bg-white p-6 rounded-2xl shadow-sm">
+</x-admin.page-header>
 
-<form method="POST" action="{{ route('rooms.update', $room->id) }}">
+<form
+    method="POST"
+    action="{{ route('rooms.update', $room) }}">
 
     @csrf
     @method('PUT')
 
-<div class="grid grid-cols-2 gap-6">
+    <x-admin.form-card>
 
-    <div>
-        <label class="block mb-2 font-medium">
-            Hostel
-        </label>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 
-        <select
-            name="hostel_id"
-            class="w-full border p-3 rounded-lg">
+            {{-- Hostel --}}
+            <x-admin.select
+                label="Hostel"
+                name="hostel_id"
+                required>
 
-            @foreach($hostels as $hostel)
+                <option value="">Select Hostel</option>
+
+                @foreach($hostels as $hostel)
+
+                    <option
+                        value="{{ $hostel->id }}"
+                        {{ old('hostel_id', $room->hostel_id) == $hostel->id ? 'selected' : '' }}>
+
+                        {{ $hostel->name }}
+
+                    </option>
+
+                @endforeach
+
+            </x-admin.select>
+
+            {{-- Room Number --}}
+            <x-admin.input
+                label="Room Number"
+                name="room_number"
+                :value="$room->room_number"
+                required
+                placeholder="e.g. A101" />
+
+            {{-- Floor --}}
+            <x-admin.input
+                label="Floor"
+                name="floor"
+                type="number"
+                :value="$room->floor"
+                required />
+
+            {{-- Capacity --}}
+            <x-admin.input
+                label="Capacity"
+                name="capacity"
+                type="number"
+                :value="$room->capacity"
+                required />
+
+            {{-- Price --}}
+            <x-admin.input
+                label="Room Price (KES)"
+                name="price"
+                type="number"
+                step="0.01"
+                :value="$room->price"
+                required />
+
+            {{-- Status --}}
+            <x-admin.select
+                label="Status"
+                name="status"
+                required>
 
                 <option
-                    value="{{ $hostel->id }}"
-                    {{ $room->hostel_id == $hostel->id ? 'selected' : '' }}>
+                    value="1"
+                    {{ old('status', $room->status) == 1 ? 'selected' : '' }}>
 
-                    {{ $hostel->name }}
+                    Active
 
                 </option>
 
-            @endforeach
+                <option
+                    value="0"
+                    {{ old('status', $room->status) == 0 ? 'selected' : '' }}>
 
-        </select>
+                    Inactive
 
-    </div>
+                </option>
 
-    <div>
+            </x-admin.select>
 
-        <label class="block mb-2 font-medium">
-            Room Number
-        </label>
+        </div>
 
-        <input
-            type="text"
-            name="room_number"
-            value="{{ old('room_number', $room->room_number) }}"
-            class="w-full border p-3 rounded-lg">
+        <x-admin.form-actions
+            :cancel="route('rooms.index')"
+            submit="Update Room" />
 
-    </div>
-
-    <div>
-
-        <label class="block mb-2 font-medium">
-            Floor
-        </label>
-
-        <input
-            type="number"
-            name="floor"
-            value="{{ old('floor', $room->floor) }}"
-            class="w-full border p-3 rounded-lg">
-
-    </div>
-
-    <div>
-
-        <label class="block mb-2 font-medium">
-            Capacity
-        </label>
-
-        <input
-            type="number"
-            name="capacity"
-            value="{{ old('capacity', $room->capacity) }}"
-            class="w-full border p-3 rounded-lg">
-
-    </div>
-
-    <div>
-
-        <label class="block mb-2 font-medium">
-            Price
-        </label>
-
-        <input
-            type="number"
-            step="0.01"
-            name="price"
-            value="{{ old('price', $room->price) }}"
-            class="w-full border p-3 rounded-lg">
-
-    </div>
-
-    <div>
-
-        <label class="block mb-2 font-medium">
-            Status
-        </label>
-
-        <select
-            name="status"
-            class="w-full border p-3 rounded-lg">
-
-            <option value="1" {{ $room->status ? 'selected' : '' }}>
-                Active
-            </option>
-
-            <option value="0" {{ !$room->status ? 'selected' : '' }}>
-                Inactive
-            </option>
-
-        </select>
-
-    </div>
-
-</div>
-
-<button
-    class="mt-6 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl">
-
-    Update Room
-
-</button>
+    </x-admin.form-card>
 
 </form>
-
-</div>
 
 @endsection

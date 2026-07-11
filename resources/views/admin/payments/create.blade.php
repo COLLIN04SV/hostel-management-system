@@ -6,171 +6,134 @@
 
 <x-admin.page-header
     title="Record Payment"
-    subtitle="Record a student's hostel payment"/>
+    subtitle="Record a student's hostel payment">
 
-<x-admin.card>
+</x-admin.page-header>
 
 <form
     method="POST"
     action="{{ route('payments.store') }}">
 
-@csrf
+    @csrf
 
-<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <x-admin.form-card>
 
-    <div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 
-        <label class="block mb-2 font-semibold">
+            {{-- Student --}}
+            <div>
 
-            Student
+                <x-admin.select
+                    label="Student"
+                    name="student_id"
+                    required>
 
-        </label>
+                    <option value="">Select Student</option>
 
-        <select
-            name="student_id"
-            class="w-full border rounded-xl px-4 py-3"
-            required>
+                    @foreach($students as $student)
 
-            <option value="">
+                        @php
+                            $payment = $student->payments
+                                ->where('status','Pending')
+                                ->first();
+                        @endphp
 
-                Select Student
+                        @if($payment)
 
-            </option>
+                            <option
+                                value="{{ $student->id }}"
+                                {{ old('student_id') == $student->id ? 'selected' : '' }}>
 
-            @foreach($students as $student)
+                                {{ $student->user->name }}
+                                ({{ $student->registration_number }})
 
-            @php
+                            </option>
 
-            $payment = $student->payments
-             ->where('status','Pending')
-             ->first();
+                        @endif
 
-            @endphp
+                    @endforeach
 
-            @if($payment)
+                </x-admin.select>
 
-           <option value="{{ $student->id }}">
+                <p class="mt-2 text-xs text-slate-500">
 
-              {{ $student->user->name }}
-              ({{ $student->registration_number }})
+                    Only students with pending payments are displayed.
 
-           </option>
+                </p>
 
-         @endif
+            </div>
 
-         @endforeach
+            {{-- Amount --}}
+            <x-admin.input
+                label="Amount (KES)"
+                name="amount"
+                type="number"
+                required
+                placeholder="Enter payment amount" />
 
-        </select>
+            {{-- Payment Method --}}
+            <x-admin.select
+                label="Payment Method"
+                name="payment_method"
+                required>
 
-         <p class="text-sm text-gray-500 mt-2">
+                <option
+                    value="Cash"
+                    {{ old('payment_method') == 'Cash' ? 'selected' : '' }}>
 
-             Only students with pending payments are displayed.
+                    Cash
 
-         </p>
+                </option>
 
-    </div>
+                <option
+                    value="Bank"
+                    {{ old('payment_method') == 'Bank' ? 'selected' : '' }}>
 
-    <div>
+                    Bank
 
-        <label class="block mb-2 font-semibold">
+                </option>
 
-            Amount
+                <option
+                    value="M-Pesa"
+                    {{ old('payment_method') == 'M-Pesa' ? 'selected' : '' }}>
 
-        </label>
+                    M-Pesa
 
-        <input
-            type="number"
-            name="amount"
-            class="w-full border rounded-xl px-4 py-3"
-            required>
+                </option>
 
-    </div>
+                <option
+                    value="Card"
+                    {{ old('payment_method') == 'Card' ? 'selected' : '' }}>
 
-    <div>
+                    Card
 
-        <label class="block mb-2 font-semibold">
+                </option>
 
-            Payment Method
+            </x-admin.select>
 
-        </label>
-
-        <select
-            name="payment_method"
-            class="w-full border rounded-xl px-4 py-3">
-
-            <option value="Cash">Cash</option>
-
-            <option value="Bank">Bank</option>
-
-            <option value="M-Pesa">M-Pesa</option>
-
-            <option value="Card">Card</option>
-
-        </select>
-
-    </div>
-
-    <div>
-
-        <label class="block mb-2 font-semibold">
-
-            Transaction Reference
-
-        </label>
-
-        <input
-            type="text"
-            name="transaction_reference"
-            class="w-full border rounded-xl px-4 py-3"
-            required>
-
-    </div>
-
-    <div>
-
-        <label class="block mb-2 font-semibold">
-
-            Payment Date
-
-        </label>
-
-        <input
-            type="date"
-            name="payment_date"
-            value="{{ date('Y-m-d') }}"
-            class="w-full border rounded-xl px-4 py-3"
-            required>
-
-    </div>
-
-</div>
-
-<div class="flex justify-end gap-3 mt-8">
-
-    <a href="{{ route('payments.index') }}">
-
-        <x-admin.button color="gray">
-
-            Cancel
-
-        </x-admin.button>
-
-    </a>
-
-    <x-admin.button
-        color="blue"
-        type="submit">
-
-        <i class="bi bi-check-circle mr-2"></i>
-
-        Save Payment
-
-    </x-admin.button>
-
-</div>
+            {{-- Transaction Reference --}}
+            <x-admin.input
+                label="Transaction Reference"
+                name="transaction_reference"
+                required
+                placeholder="e.g. QWE123XYZ" />
+
+            {{-- Payment Date --}}
+            <x-admin.input
+                label="Payment Date"
+                name="payment_date"
+                type="date"
+                :value="old('payment_date', date('Y-m-d'))"
+                required />
+
+        </div>
+
+        <x-admin.form-actions
+            :cancel="route('payments.index')"
+            submit="Save Payment" />
+
+    </x-admin.form-card>
 
 </form>
-
-</x-admin.card>
 
 @endsection

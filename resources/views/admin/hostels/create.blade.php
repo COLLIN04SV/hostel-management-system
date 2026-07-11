@@ -1,79 +1,83 @@
 @extends('layouts.admin')
 
+@section('page-title', 'Add Hostel')
+
 @section('content')
 
-<h1 class="text-3xl font-bold mb-6">
-Add Hostel
-</h1>
+<x-admin.page-header
+    title="Add Hostel"
+    subtitle="Create a new hostel block">
 
-<form method="POST" action="{{ route('hostels.store') }}">
+</x-admin.page-header>
 
-@csrf
+<form
+    method="POST"
+    action="{{ route('hostels.store') }}">
 
-<div class="bg-white p-6 rounded-2xl">
+    @csrf
 
-<div class="grid grid-cols-2 gap-6">
+    <x-admin.form-card>
 
-<div>
-<label>Hostel Name</label>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 
-<input type="text"
-name="name"
-class="w-full border p-3 rounded-lg">
-</div>
+            <x-admin.input
+                label="Hostel Name"
+                name="name"
+                required
+                placeholder="e.g. Block A" />
 
-<div>
-<label>Gender</label>
+            <x-admin.select
+                label="Gender"
+                name="gender"
+                required>
 
-<select
-name="gender"
-class="w-full border p-3 rounded-lg">
+                <option value="">Select Gender</option>
 
-<option>Male</option>
-<option>Female</option>
+                <option value="Male"
+                    {{ old('gender') == 'Male' ? 'selected' : '' }}>
 
-</select>
+                    Male
 
-</div>
+                </option>
 
-<div>
-<label>Capacity</label>
+                <option value="Female"
+                    {{ old('gender') == 'Female' ? 'selected' : '' }}>
 
-<input type="number"
-name="capacity"
-class="w-full border p-3 rounded-lg">
+                    Female
 
-</div>
+                </option>
 
-<div>
-<label>Location</label>
+            </x-admin.select>
 
-<input type="text"
-name="location"
-class="w-full border p-3 rounded-lg">
+            <x-admin.input
+                label="Capacity"
+                name="capacity"
+                type="number"
+                required
+                placeholder="Enter hostel capacity" />
 
-</div>
+            <x-admin.input
+                label="Location"
+                name="location"
+                placeholder="e.g. East Wing" />
 
-</div>
+        </div>
 
-<div class="mt-6">
+        <div class="mt-5">
 
-<label>Description</label>
+            <x-admin.textarea
+                label="Description"
+                name="description"
+                rows="4"
+                placeholder="Enter hostel description..." />
 
-<textarea
-name="description"
-class="w-full border p-3 rounded-lg"></textarea>
+        </div>
 
-</div>
+        <x-admin.form-actions
+            :cancel="route('hostels.index')"
+            submit="Save Hostel" />
 
-<button
-class="bg-blue-600 text-white px-6 py-3 rounded-xl mt-6">
-
-Save Hostel
-
-</button>
-
-</div>
+    </x-admin.form-card>
 
 </form>
 

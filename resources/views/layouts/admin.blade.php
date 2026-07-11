@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>@yield('title', 'Hostel Management System')</title>
+    <title>@yield('title','Hostel Management System')</title>
 
-    <script src="https://cdn.tailwindcss.com"></script>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <link rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -18,163 +18,167 @@
 
     <!-- Sidebar -->
 
-    <aside class="fixed top-0 left-0 h-screen w-64 bg-blue-900 text-white flex flex-col shadow-xl z-40 overflow-hidden">
+    <aside class="fixed top-0 left-0 h-screen w-64 bg-slate-900 text-white flex flex-col shadow-xl z-40">
 
         <!-- Logo -->
 
-        <div class="p-6 border-b border-blue-800">
+        <div class="px-6 py-6">
 
             <h1 class="text-3xl font-bold">
+
                 HMS
+
             </h1>
 
-            <p class="text-blue-200 text-sm">
+            <p class="text-slate-300 text-sm">
+
                 Hostel Management System
+
             </p>
 
         </div>
 
         <!-- Navigation -->
 
-        <nav class="mt-4 flex-1 overflow-y-auto px-2">
+        <nav class="flex-1 px-2 space-y-1 overflow-y-auto">
 
             <a href="{{ route('admin.dashboard') }}"
-               class="flex items-center gap-3 px-6 py-3 border-l-4 transition duration-200
-                {{ request()->routeIs('admin.dashboard')
-                ? 'bg-blue-700 border-white'
-                : 'border-transparent hover:bg-slate-800 hover:border-blue-400' }}"
-                <i class="bi bi-speedometer2"></i>
+               class="block px-6 py-3 rounded-lg transition duration-200 hover:bg-slate-800
+               {{ request()->routeIs('admin.dashboard')
+                    ? 'bg-slate-800 text-white font-semibold'
+                    : '' }}">
+
+                <i class="bi bi-speedometer2 mr-3"></i>
+
                 Dashboard
+
             </a>
 
             <a href="{{ route('students.index') }}"
-               class="flex items-center gap-3 px-6 py-3 border-l-4 transition duration-200
+               class="block px-6 py-3 rounded-lg transition duration-200 hover:bg-slate-800
                {{ request()->routeIs('students.*')
-               ? 'bg-blue-700 border-white'
-               : 'border-transparent hover:bg-slate-800 hover:border-blue-400' }}"
-                <i class="bi bi-people"></i>
+                    ? 'bg-slate-800 text-white font-semibold'
+                    : '' }}">
+
+                <i class="bi bi-people mr-3"></i>
+
                 Students
+
             </a>
 
             <a href="{{ route('hostels.index') }}"
-               class="flex items-center gap-3 px-6 py-3 border-l-4 transition duration-200
+               class="block px-6 py-3 rounded-lg transition duration-200 hover:bg-slate-800
                {{ request()->routeIs('hostels.*')
-               ? 'bg-blue-700 border-white'
-               : 'border-transparent hover:bg-slate-800 hover:border-blue-400' }}"
-                <i class="bi bi-building"></i>
+                    ? 'bg-slate-800 text-white font-semibold'
+                    : '' }}">
+
+                <i class="bi bi-building mr-3"></i>
+
                 Hostels
+
             </a>
 
             <a href="{{ route('rooms.index') }}"
-               class="flex items-center gap-3 px-6 py-3 border-l-4 transition duration-200
+               class="block px-6 py-3 rounded-lg transition duration-200 hover:bg-slate-800
                {{ request()->routeIs('rooms.*')
-               ? 'bg-blue-700 border-white'
-               : 'border-transparent hover:bg-slate-800 hover:border-blue-400' }}"
-                <i class="bi bi-door-open"></i>
+                    ? 'bg-slate-800 text-white font-semibold'
+                    : '' }}">
+
+                <i class="bi bi-door-open mr-3"></i>
+
                 Rooms
+
             </a>
 
             <a href="{{ route('applications.index') }}"
-               class="flex items-center gap-3 px-6 py-3 border-l-4 transition duration-200
+               class="block px-6 py-3 rounded-lg transition duration-200 hover:bg-slate-800
                {{ request()->routeIs('applications.*')
-               ? 'bg-blue-700 border-white'
-               : 'border-transparent hover:bg-slate-800 hover:border-blue-400' }}"
-                <i class="bi bi-file-earmark-text"></i>
+                    ? 'bg-slate-800 text-white font-semibold'
+                    : '' }}">
+
+                <i class="bi bi-file-earmark-text mr-3"></i>
+
                 Applications
+
             </a>
 
             <a href="{{ route('allocations.index') }}"
-               class="flex items-center gap-3 px-6 py-3 border-l-4 transition duration-200
+               class="block px-6 py-3 rounded-lg transition duration-200 hover:bg-slate-800
                {{ request()->routeIs('allocations.*')
-               ? 'bg-blue-700 border-white'
-               : 'border-transparent hover:bg-slate-800 hover:border-blue-400' }}"
-                <i class="bi bi-house-check"></i>
+                    ? 'bg-slate-800 text-white font-semibold'
+                    : '' }}">
+
+                <i class="bi bi-house-check mr-3"></i>
+
                 Allocations
+
             </a>
 
             <a href="{{ route('payments.index') }}"
-               class="flex items-center gap-3 px-6 py-3 border-l-4 transition duration-200
+               class="block px-6 py-3 rounded-lg transition duration-200 hover:bg-slate-800
                {{ request()->routeIs('payments.*')
-               ? 'bg-blue-700 border-white'
-               : 'border-transparent hover:bg-slate-800 hover:border-blue-400' }}"
-                <i class="bi bi-credit-card"></i>
+                    ? 'bg-slate-800 text-white font-semibold'
+                    : '' }}">
+
+                <i class="bi bi-credit-card mr-3"></i>
+
                 Payments
+
             </a>
 
             <a href="{{ route('notices.index') }}"
-               class="flex items-center gap-3 px-6 py-3 border-l-4 transition duration-200
+               class="block px-6 py-3 rounded-lg transition duration-200 hover:bg-slate-800
                {{ request()->routeIs('notices.*')
-               ? 'bg-blue-700 border-white'
-               : 'border-transparent hover:bg-slate-800 hover:border-blue-400' }}"
-                <i class="bi bi-megaphone"></i>
+                    ? 'bg-slate-800 text-white font-semibold'
+                    : '' }}">
+
+                <i class="bi bi-megaphone mr-3"></i>
+
                 Notices
+
             </a>
 
             <a href="{{ route('reports.index') }}"
-               class="flex items-center gap-3 px-6 py-3 border-l-4 transition duration-200
+               class="block px-6 py-3 rounded-lg transition duration-200 hover:bg-slate-800
                {{ request()->routeIs('reports.*')
-               ? 'bg-blue-700 border-white'
-               : 'border-transparent hover:bg-slate-800 hover:border-blue-400' }}"
-                <i class="bi bi-bar-chart"></i>
+                    ? 'bg-slate-800 text-white font-semibold'
+                    : '' }}">
+
+                <i class="bi bi-bar-chart mr-3"></i>
+
                 Reports
+
             </a>
 
             <a href="{{ route('settings.index') }}"
-               class="flex items-center gap-3 px-6 py-3 border-l-4 transition duration-200
+               class="block px-6 py-3 rounded-lg transition duration-200 hover:bg-slate-800
                {{ request()->routeIs('settings.*')
-               ? 'bg-blue-700 border-white'
-               : 'border-transparent hover:bg-slate-800 hover:border-blue-400' }}"
-                <i class="bi bi-gear"></i>
+                    ? 'bg-slate-800 text-white font-semibold'
+                    : '' }}">
+
+                <i class="bi bi-gear mr-3"></i>
+
                 Settings
+
             </a>
 
         </nav>
 
-        <!-- Logged In User -->
+        <!-- Logout -->
 
-        <div class="p-4 border-t border-blue-800">
+        <div class="p-4">
 
-            <div class="bg-blue-800 rounded-xl px-4 py-3">
-
-    <div class="flex items-center gap-3">
-
-        <div class="w-10 h-10 rounded-full bg-white text-blue-900 flex items-center justify-center font-bold">
-
-            {{ strtoupper(substr(auth()->user()->name,0,1)) }}
-
-        </div>
-
-        <div>
-
-            <p class="font-semibold text-sm">
-
-                {{ auth()->user()->name }}
-
-            </p>
-
-            <p class="text-xs text-blue-200">
-
-                {{ ucfirst(auth()->user()->role) }}
-
-            </p>
-
-        </div>
-
-    </div>
-
-</div>
-
-            <!-- Logout -->
-
-            <form method="POST" action="{{ route('logout') }}" class="mt-4">
+            <form
+                method="POST"
+                action="{{ route('logout') }}">
 
                 @csrf
 
                 <button
                     type="submit"
-                    class="w-full flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 py-3 rounded-xl transition">
+                    class="w-full bg-red-600 hover:bg-red-700 py-3 rounded-lg transition duration-200">
 
-                    <i class="bi bi-box-arrow-right"></i>
+                    <i class="bi bi-box-arrow-right mr-2"></i>
 
                     Logout
 
@@ -186,66 +190,80 @@
 
     </aside>
 
-    <!-- Main Content -->
+       <!-- Main Content -->
 
     <main class="ml-64 flex-1">
 
-        <!-- Top Bar -->
+        <!-- Top Navigation -->
 
-        <div class="fixed top-0 left-64 right-0 bg-white shadow-sm px-8 py-5 flex items-center justify-between z-30">
+        <header class="fixed top-0 left-64 right-0 bg-slate-900 text-white shadow-lg z-30">
 
-            <div>
+            <div class="flex items-center justify-between px-8 py-4">
 
-                <h2 class="text-3xl font-bold text-gray-800">
+                <!-- System Title -->
 
-                    @yield('page-title','Dashboard')
+                <div>
 
-                </h2>
+                    <h2 class="text-2xl font-bold">
 
-                <p class="text-gray-500">
+                        Hostel Management System
 
-                    @yield('page-description','Hostel Management System')
+                    </h2>
 
-                </p>
+                    <p class="text-sm text-slate-300">
 
-            </div>
+                        Administrator Portal
 
-            <div class="flex items-center gap-5">
+                    </p>
 
-                <button
-                class="relative w-10 h-10 rounded-full hover:bg-gray-100 transition flex items-center justify-center">
+                </div>
 
-                    <i class="bi bi-bell text-2xl text-gray-600"></i>
+                <!-- Right Side -->
 
-                    <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-2 rounded-full">
+                <div class="flex items-center gap-6">
 
-                        3
+                    <!-- Notification -->
 
-                    </span>
+                    <button
+                        class="relative w-10 h-10 rounded-full hover:bg-slate-800 transition flex items-center justify-center">
 
-                </button>
+                        <i class="bi bi-bell text-xl text-white"></i>
 
-                <div class="flex items-center gap-3">
+                        <span
+                            class="absolute -top-1 -right-1 bg-red-600 text-white text-xs px-2 rounded-full">
 
-                    <div class="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold">
+                            3
 
-                        {{ strtoupper(substr(auth()->user()->name,0,1)) }}
+                        </span>
 
-                    </div>
+                    </button>
 
-                    <div>
+                    <!-- User -->
 
-                        <p class="font-semibold">
+                    <div class="flex items-center gap-3">
 
-                            {{ auth()->user()->name }}
+                        <div
+                            class="w-11 h-11 rounded-full bg-indigo-600 flex items-center justify-center font-bold text-white">
 
-                        </p>
+                            {{ strtoupper(substr(auth()->user()->name,0,1)) }}
 
-                        <p class="text-sm text-gray-500">
+                        </div>
 
-                            {{ ucfirst(auth()->user()->role) }}
+                        <div>
 
-                        </p>
+                            <p class="font-semibold leading-tight">
+
+                                {{ auth()->user()->name }}
+
+                            </p>
+
+                            <p class="text-sm text-slate-300">
+
+                                {{ ucfirst(auth()->user()->role) }}
+
+                            </p>
+
+                        </div>
 
                     </div>
 
@@ -253,19 +271,24 @@
 
             </div>
 
-        </div>
+        </header>
 
         <!-- Page -->
 
-        <div class="pt-28 p-6 overflow-y-auto min-h-screen">
+        <div class="pt-24 px-6 pb-6 min-h-screen">
 
-            @if(session('success'))
+                    @if(session('success'))
 
-                <div class="mb-6 rounded-xl border border-green-200 bg-green-100 text-green-800 px-5 py-4">
+                <div
+                    class="mb-6 flex items-center gap-3 rounded-xl border border-green-200 bg-green-50 px-5 py-4 text-green-700 shadow-sm">
 
-                    <i class="bi bi-check-circle-fill mr-2"></i>
+                    <i class="bi bi-check-circle-fill text-xl"></i>
 
-                    {{ session('success') }}
+                    <span>
+
+                        {{ session('success') }}
+
+                    </span>
 
                 </div>
 
@@ -273,15 +296,53 @@
 
             @if(session('error'))
 
-                <div class="mb-6 rounded-xl border border-red-200 bg-red-100 text-red-800 px-5 py-4">
+                <div
+                    class="mb-6 flex items-center gap-3 rounded-xl border border-red-200 bg-red-50 px-5 py-4 text-red-700 shadow-sm">
 
-                    <i class="bi bi-exclamation-circle-fill mr-2"></i>
+                    <i class="bi bi-exclamation-circle-fill text-xl"></i>
 
-                    {{ session('error') }}
+                    <span>
+
+                        {{ session('error') }}
+
+                    </span>
 
                 </div>
 
             @endif
+
+            @if($errors->any())
+
+                <div
+                    class="mb-6 rounded-xl border border-red-200 bg-red-50 px-5 py-4 shadow-sm">
+
+                    <div class="flex items-center gap-3 text-red-700 mb-3">
+
+                        <i class="bi bi-exclamation-triangle-fill text-xl"></i>
+
+                        <span class="font-semibold">
+
+                            Please correct the following errors.
+
+                        </span>
+
+                    </div>
+
+                    <ul class="list-disc ml-10 text-red-700 space-y-1">
+
+                        @foreach($errors->all() as $error)
+
+                            <li>{{ $error }}</li>
+
+                        @endforeach
+
+                    </ul>
+
+                </div>
+
+            @endif
+
+            {{-- Page Content --}}
 
             @yield('content')
 
@@ -292,4 +353,5 @@
 </div>
 
 </body>
+
 </html>

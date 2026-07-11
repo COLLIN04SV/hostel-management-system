@@ -10,107 +10,58 @@
 
 </x-admin.page-header>
 
-<x-admin.card>
-
-@if(session('success'))
-
-<div class="mb-6 rounded-xl bg-green-100 text-green-700 px-4 py-3">
-
-    {{ session('success') }}
-
-</div>
-
-@endif
-
 <form
     method="POST"
     action="{{ route('settings.update') }}">
 
     @csrf
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <x-admin.form-card>
 
-        <div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 
-            <label class="block mb-2 font-semibold">
-
-                System Name
-
-            </label>
-
-            <input
-                type="text"
+            {{-- System Name --}}
+            <x-admin.input
+                label="System Name"
                 name="system_name"
-                value="{{ old('system_name',$setting->system_name) }}"
-                class="w-full border rounded-xl px-4 py-3">
+                :value="old('system_name', $setting->system_name)"
+                required
+                placeholder="Hostel Management System" />
 
-        </div>
-
-        <div>
-
-            <label class="block mb-2 font-semibold">
-
-                Contact Email
-
-            </label>
-
-            <input
-                type="email"
+            {{-- Email --}}
+            <x-admin.input
+                label="Contact Email"
                 name="email"
-                value="{{ old('email',$setting->email) }}"
-                class="w-full border rounded-xl px-4 py-3">
+                type="email"
+                :value="old('email', $setting->email)"
+                required
+                placeholder="admin@example.com" />
 
-        </div>
-
-        <div>
-
-            <label class="block mb-2 font-semibold">
-
-                Phone Number
-
-            </label>
-
-            <input
-                type="text"
+            {{-- Phone --}}
+            <x-admin.input
+                label="Phone Number"
                 name="phone"
-                value="{{ old('phone',$setting->phone) }}"
-                class="w-full border rounded-xl px-4 py-3">
+                :value="old('phone', $setting->phone)"
+                placeholder="+2547XXXXXXXX" />
 
         </div>
 
-        <div>
+        <div class="mt-5">
 
-            <label class="block mb-2 font-semibold">
-
-                Address
-
-            </label>
-
-            <textarea
+            <x-admin.textarea
+                label="Address"
                 name="address"
-                rows="4"
-                class="w-full border rounded-xl px-4 py-3">{{ old('address',$setting->address) }}</textarea>
+                rows="5"
+                placeholder="Enter school or hostel address">{{ old('address', $setting->address) }}</x-admin.textarea>
 
         </div>
 
-    </div>
+        <x-admin.form-actions
+            :cancel="route('admin.dashboard')"
+            submit="Save Settings" />
 
-    <div class="flex justify-end mt-8">
-
-        <x-admin.button
-            color="blue"
-            type="submit">
-
-            <i class="bi bi-check-circle mr-2"></i>
-
-            Save Settings
-
-        </x-admin.button>
-
-    </div>
+    </x-admin.form-card>
 
 </form>
-
-</x-admin.card>
 
 @endsection

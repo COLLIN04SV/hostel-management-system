@@ -1,93 +1,90 @@
 @extends('layouts.admin')
 
+@section('page-title', 'Edit Hostel')
+
 @section('content')
 
-<h1 class="text-3xl font-bold mb-6">
-Edit Hostel
-</h1>
+<x-admin.page-header
+    title="Edit Hostel"
+    subtitle="Update hostel information">
+
+</x-admin.page-header>
 
 <form
-method="POST"
-action="{{ route('hostels.update',$hostel->id) }}">
+    method="POST"
+    action="{{ route('hostels.update', $hostel) }}">
 
-@csrf
-@method('PUT')
+    @csrf
+    @method('PUT')
 
-<div class="bg-white p-6 rounded-2xl">
+    <x-admin.form-card>
 
-<div class="grid grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 
-<div>
-<label>Hostel Name</label>
+            <x-admin.input
+                label="Hostel Name"
+                name="name"
+                :value="$hostel->name"
+                required
+                placeholder="e.g. Block A" />
 
-<input
-type="text"
-name="name"
-value="{{ $hostel->name }}"
-class="w-full border p-3 rounded-lg">
-</div>
+            <x-admin.select
+                label="Gender"
+                name="gender"
+                required>
 
-<div>
-<label>Gender</label>
+                <option value="">Select Gender</option>
 
-<select
-name="gender"
-class="w-full border p-3 rounded-lg">
+                <option
+                    value="Male"
+                    {{ old('gender', $hostel->gender) == 'Male' ? 'selected' : '' }}>
 
-<option
-{{ $hostel->gender == 'Male' ? 'selected' : '' }}>
-Male
-</option>
+                    Male
 
-<option
-{{ $hostel->gender == 'Female' ? 'selected' : '' }}>
-Female
-</option>
+                </option>
 
-</select>
+                <option
+                    value="Female"
+                    {{ old('gender', $hostel->gender) == 'Female' ? 'selected' : '' }}>
 
-</div>
+                    Female
 
-<div>
-<label>Capacity</label>
+                </option>
 
-<input
-type="number"
-name="capacity"
-value="{{ $hostel->capacity }}"
-class="w-full border p-3 rounded-lg">
-</div>
+            </x-admin.select>
 
-<div>
-<label>Location</label>
+            <x-admin.input
+                label="Capacity"
+                name="capacity"
+                type="number"
+                :value="$hostel->capacity"
+                required
+                placeholder="Enter hostel capacity" />
 
-<input
-type="text"
-name="location"
-value="{{ $hostel->location }}"
-class="w-full border p-3 rounded-lg">
-</div>
+            <x-admin.input
+                label="Location"
+                name="location"
+                :value="$hostel->location"
+                placeholder="e.g. East Wing" />
 
-</div>
+        </div>
 
-<div class="mt-6">
+        <div class="mt-5">
 
-<label>Description</label>
+            <x-admin.textarea
+                label="Description"
+                name="description"
+                rows="4"
+                :value="$hostel->description"
+                placeholder="Enter hostel description..." />
 
-<textarea
-name="description"
-class="w-full border p-3 rounded-lg">{{ $hostel->description }}</textarea>
+        </div>
 
-</div>
+        <x-admin.form-actions
+            :cancel="route('hostels.index')"
+            submit="Update Hostel" />
 
-<button
-class="bg-blue-600 text-white px-6 py-3 rounded-xl mt-6">
-
-Update Hostel
-
-</button>
-
-</div>
+    </x-admin.form-card>
 
 </form>
 

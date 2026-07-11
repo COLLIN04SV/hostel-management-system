@@ -1,6 +1,10 @@
 @extends('layouts.admin')
 
+@section('title','Allocations')
+
 @section('page-title','Allocations')
+
+@section('page-description','Manage student room allocations')
 
 @section('content')
 
@@ -8,21 +12,18 @@
     title="Room Allocations"
     subtitle="Manage student room allocations">
 
-    <a href="{{ route('allocations.create') }}">
+    <x-admin.button
+        href="{{ route('allocations.create') }}">
 
-        <x-admin.button color="blue">
+        <i class="bi bi-plus-lg mr-2"></i>
 
-            <i class="bi bi-plus-lg mr-2"></i>
+        Allocate Student
 
-            Allocate Student
-
-        </x-admin.button>
-
-    </a>
+    </x-admin.button>
 
 </x-admin.page-header>
 
-<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-6">
+<x-admin.stats-grid>
 
     <x-admin.stat-card
         title="Total Allocations"
@@ -48,37 +49,18 @@
         icon="bi-door-open"
         color="yellow"/>
 
-</div>
+</x-admin.stats-grid>
 
-<x-admin.card>
+<x-admin.table>
 
-<form
-    method="GET"
-    action="{{ route('allocations.index') }}"
-    class="mb-6">
+<x-admin.search-bar
+    :action="route('allocations.index')"
+    :value="$search"
+    placeholder="Search student, registration number, room or status..." />
 
-    <div class="flex gap-3">
+<div class="flex items-center justify-between mb-5">
 
-        <input
-            type="text"
-            name="search"
-            value="{{ $search }}"
-            placeholder="Search student, registration number, room or status..."
-            class="flex-1 border rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500">
-
-        <x-admin.button color="blue">
-
-            Search
-
-        </x-admin.button>
-
-    </div>
-
-</form>
-
-<div class="flex justify-between items-center mb-4">
-
-    <p class="text-gray-500">
+    <p class="text-sm text-slate-500">
 
         Showing
 
@@ -98,25 +80,47 @@
 
 </div>
 
-<div class="overflow-x-auto">
+<table class="min-w-full">
 
-<table class="w-full">
+<thead class="bg-slate-50 border-b">
 
-<thead>
+<tr>
 
-<tr class="bg-gray-100 uppercase text-xs text-gray-600">
+<x-admin.table-heading>
 
-    <th class="p-4 text-left">Student</th>
+Student
 
-    <th class="p-4 text-left">Hostel</th>
+</x-admin.table-heading>
 
-    <th class="p-4 text-left">Room</th>
+<x-admin.table-heading>
 
-    <th class="p-4 text-left">Allocated</th>
+Hostel
 
-    <th class="p-4 text-center">Status</th>
+</x-admin.table-heading>
 
-    <th class="p-4 text-center">Actions</th>
+<x-admin.table-heading>
+
+Room
+
+</x-admin.table-heading>
+
+<x-admin.table-heading>
+
+Allocated
+
+</x-admin.table-heading>
+
+<x-admin.table-heading class="text-center">
+
+Status
+
+</x-admin.table-heading>
+
+<x-admin.table-heading class="text-center">
+
+Actions
+
+</x-admin.table-heading>
 
 </tr>
 
@@ -126,115 +130,107 @@
 
 @forelse($allocations as $allocation)
 
-<tr class="border-b hover:bg-gray-50 transition">
+<tr class="border-b border-slate-100 hover:bg-slate-50 transition">
 
-    <td class="p-4">
+<x-admin.table-cell>
 
-        <div class="flex items-center gap-3">
+<div class="flex items-center gap-3">
 
-            <div class="w-10 h-10 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold">
+<div class="w-10 h-10 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold">
 
-                {{ strtoupper(substr($allocation->student->user->name,0,1)) }}
+{{ strtoupper(substr($allocation->student->user->name,0,1)) }}
 
-            </div>
+</div>
 
-            <div>
+<div>
 
-                <p class="font-semibold">
+<p class="font-medium text-slate-800">
 
-                    {{ $allocation->student->user->name }}
+{{ $allocation->student->user->name }}
 
-                </p>
+</p>
 
-                <p class="text-sm text-gray-500">
+<p class="text-xs text-slate-500">
 
-                    {{ $allocation->student->registration_number }}
+{{ $allocation->student->registration_number }}
 
-                </p>
+</p>
 
-            </div>
+</div>
 
-        </div>
+</div>
 
-    </td>
+</x-admin.table-cell>
 
-    <td class="p-4">
+<x-admin.table-cell>
 
-        {{ $allocation->room->hostel->name }}
+{{ $allocation->room->hostel->name }}
 
-    </td>
+</x-admin.table-cell>
 
-    <td class="p-4">
+<x-admin.table-cell>
 
-        {{ $allocation->room->room_number }}
+{{ $allocation->room->room_number }}
 
-    </td>
+</x-admin.table-cell>
 
-    <td class="p-4">
+<x-admin.table-cell>
 
-        {{ \Carbon\Carbon::parse($allocation->allocated_date)->format('d M Y') }}
+{{ \Carbon\Carbon::parse($allocation->allocated_date)->format('d M Y') }}
 
-    </td>
+</x-admin.table-cell>
 
-    <td class="p-4 text-center">
+<x-admin.table-cell class="text-center">
 
-        @if($allocation->status == 'Active')
+@if($allocation->status == 'Active')
 
-            <x-admin.badge type="success">
+    <x-admin.badge
+        type="success"
+        text="Active"/>
 
-                Active
+@else
 
-            </x-admin.badge>
+    <x-admin.badge
+        type="danger"
+        text="Vacated"/>
 
-        @else
+@endif
 
-            <x-admin.badge type="danger">
+</x-admin.table-cell>
 
-                Vacated
+<x-admin.table-cell class="text-center">
 
-            </x-admin.badge>
+<div class="flex items-center justify-center gap-2">
 
-        @endif
+@if($allocation->status == 'Active')
 
-    </td>
+<form
+    method="POST"
+    action="{{ route('allocations.vacate',$allocation->id) }}">
 
-    <td class="p-4">
+    @csrf
 
-        <div class="flex justify-center gap-2">
+    <x-admin.action-button
+        type="submit"
+        color="red"
+        icon="bi-box-arrow-right"
+        title="Vacate"/>
 
-            @if($allocation->status == 'Active')
+</form>
 
-                <form
-                    method="POST"
-                    action="{{ route('allocations.vacate',$allocation->id) }}">
+@else
 
-                    @csrf
+<span class="text-xs text-slate-400">
 
-                    <x-admin.button
-                        type="submit"
-                        color="red">
+No Actions
 
-                        <i class="bi bi-box-arrow-right mr-2"></i>
+</span>
 
-                        Vacate
+@endif
 
-                    </x-admin.button>
+</div>
 
-                </form>
-
-            @else
-
-                <span class="text-gray-400 text-sm">
-
-                    No Actions
-
-                </span>
-
-            @endif
-
-        </div>
-
-    </td>
+</x-admin.table-cell>
 
 </tr>
 
@@ -242,27 +238,14 @@
 
 <tr>
 
-    <td colspan="6">
+<td colspan="6">
 
-        <div class="text-center py-12">
+<x-admin.empty-state
+    icon="bi-house"
+    title="No Allocations Found"
+    message="No room allocations match your search."/>
 
-            <i class="bi bi-house text-5xl text-gray-300"></i>
-
-            <h3 class="mt-4 text-xl font-semibold">
-
-                No Allocations Found
-
-            </h3>
-
-            <p class="text-gray-500 mt-2">
-
-                No room allocations match your search.
-
-            </p>
-
-        </div>
-
-    </td>
+</td>
 
 </tr>
 
@@ -272,14 +255,12 @@
 
 </table>
 
-</div>
-
-<div class="mt-6">
+<div class="mt-5 border-t border-slate-200 pt-4">
 
     {{ $allocations->links() }}
 
 </div>
 
-</x-admin.card>
+</x-admin.table>
 
 @endsection
