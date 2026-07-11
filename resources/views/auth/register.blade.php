@@ -1,94 +1,190 @@
-<x-guest-layout>
-    <form method="POST" action="{{ route('register') }}">
-        @csrf
+<x-auth.layout>
 
-        <!-- Name -->
-        <div>
-            <x-input-label for="name" :value="__('Name')" />
-            <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" />
-            <x-input-error :messages="$errors->get('name')" class="mt-2" />
+    <x-auth.card>
+
+        <div class="text-center mb-10">
+
+            <div class="inline-flex items-center justify-center
+                        w-16 h-16
+                        rounded-2xl
+                        bg-gradient-to-br
+                        from-blue-600
+                        to-indigo-600
+                        shadow-lg
+                        mb-5">
+
+                <i class="bi bi-person-plus-fill text-white text-3xl"></i>
+
+            </div>
+
+            <h1 class="text-3xl font-bold text-slate-800">
+
+                Create Account
+
+            </h1>
+
+            <p class="mt-2 text-slate-500">
+
+                Register a new student account
+
+            </p>
+
         </div>
 
-        <div class="mt-4">
-           <x-input-label for="registration_number" value="Registration Number" />
-           <x-text-input id="registration_number"
-           class="block mt-1 w-full"
-           type="text"
-           name="registration_number"
-          :value="old('registration_number')"
-          required />
-       </div>
+        @if ($errors->any())
 
-       <div class="mt-4">
-          <x-input-label for="phone" value="Phone Number" />
-          <x-text-input id="phone"
-           class="block mt-1 w-full"
-           type="text"
-           name="phone"
-           :value="old('phone')" />
-       </div>
+        <div class="mb-6 rounded-xl bg-red-50 border border-red-200 p-4">
 
-       <div class="mt-4">
-          <x-input-label for="department" value="Department" />
-          <x-text-input id="department"
-          class="block mt-1 w-full"
-          type="text"
-          name="department"
-          :value="old('department')" />
-       </div>
+            <div class="flex">
 
-       <div class="mt-4">
-          <x-input-label for="year_of_study" value="Year of Study" />
-          <select
-           id="year_of_study"
-           name="year_of_study"
-           class="block mt-1 w-full border-gray-300 rounded-md"
-            >
-           <option value="1">Year 1</option>
-           <option value="2">Year 2</option>
-           <option value="3">Year 3</option>
-           <option value="4">Year 4</option>
-          </select>
-       </div>
+                <i class="bi bi-exclamation-circle-fill text-red-500 mr-3"></i>
 
-        <!-- Email Address -->
-        <div class="mt-4">
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+                <div>
+
+                    @foreach($errors->all() as $error)
+
+                        <p class="text-red-600 text-sm">
+
+                            {{ $error }}
+
+                        </p>
+
+                    @endforeach
+
+                </div>
+
+            </div>
+
         </div>
 
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
+        @endif
 
-            <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="new-password" />
+        <form method="POST"
+              action="{{ route('register') }}">
 
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
+            @csrf
+
+            <div class="grid md:grid-cols-2 gap-5">
+
+                <x-auth.input
+                    label="Full Name"
+                    name="name"
+                    :value="old('name')"
+                    placeholder="Enter full name"
+                    required />
+
+                <x-auth.input
+                    label="Registration Number"
+                    name="registration_number"
+                    :value="old('registration_number')"
+                    placeholder="e.g CST001"
+                    required />
+
+                <x-auth.input
+                    label="Email Address"
+                    name="email"
+                    type="email"
+                    :value="old('email')"
+                    placeholder="example@email.com"
+                    required />
+
+                <x-auth.input
+                    label="Phone Number"
+                    name="phone"
+                    :value="old('phone')"
+                    placeholder="+254..." />
+
+                <x-auth.input
+                    label="Department"
+                    name="department"
+                    :value="old('department')"
+                    placeholder="Computer Science" />
+
+                <div>
+
+                    <label class="block mb-2 text-sm font-medium text-slate-700">
+
+                        Year of Study
+
+                    </label>
+
+                    <select
+                        name="year_of_study"
+                        class="w-full rounded-xl border border-slate-300
+                               bg-white/70 backdrop-blur
+                               px-4 py-3
+                               focus:border-blue-500
+                               focus:ring-2 focus:ring-blue-200">
+
+                        <option value="1">Year 1</option>
+                        <option value="2">Year 2</option>
+                        <option value="3">Year 3</option>
+                        <option value="4">Year 4</option>
+
+                    </select>
+
+                </div>
+
+                <x-auth.input
+                    id="password"
+                    label="Password"
+                    name="password"
+                    type="password"
+                    placeholder="Create password"
+                    required />
+
+                <x-auth.input
+                    id="password_confirmation"
+                    label="Confirm Password"
+                    name="password_confirmation"
+                    type="password"
+                    placeholder="Repeat password"
+                    required />
+
+            </div>
+
+            <div class="flex items-center justify-between mt-8">
+
+                <x-auth.link
+                    href="{{ route('login') }}">
+
+                    Already have an account?
+
+                </x-auth.link>
+
+                <button
+                    type="submit"
+                    class="rounded-xl
+                           bg-gradient-to-r
+                           from-blue-600
+                           to-indigo-600
+                           px-8 py-3
+                           font-semibold
+                           text-white
+                           shadow-lg
+                           transition
+                           hover:shadow-xl">
+
+                    <i class="bi bi-person-check-fill mr-2"></i>
+
+                    Register
+
+                </button>
+
+            </div>
+
+        </form>
+
+        <div class="mt-10 pt-6 border-t border-slate-200">
+
+            <p class="text-center text-sm text-slate-400">
+
+                © {{ date('Y') }} Oliver Collins. All rights reserved.
+
+            </p>
+
         </div>
 
-        <!-- Confirm Password -->
-        <div class="mt-4">
-            <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
+    </x-auth.card>
 
-            <x-text-input id="password_confirmation" class="block mt-1 w-full"
-                            type="password"
-                            name="password_confirmation" required autocomplete="new-password" />
-
-            <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
-        </div>
-
-        <div class="flex items-center justify-end mt-4">
-            <a class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800" href="{{ route('login') }}">
-                {{ __('Already registered?') }}
-            </a>
-
-            <x-primary-button class="ms-4">
-                {{ __('Register') }}
-            </x-primary-button>
-        </div>
-    </form>
-</x-guest-layout>
+</x-auth.layout>

@@ -1,25 +1,65 @@
-<x-guest-layout>
-    <div class="mb-4 text-sm text-gray-600 dark:text-gray-400">
-        {{ __('Forgot your password? No problem. Just let us know your email address and we will email you a password reset link that will allow you to choose a new one.') }}
+<x-auth.layout>
+
+@section('title','Forgot Password')
+
+@section('content')
+
+<x-auth.card>
+
+    <div class="text-center mb-8">
+
+        <h1 class="text-3xl font-bold text-slate-800">
+            Forgot Password
+        </h1>
+
+        <p class="text-slate-500 mt-2">
+            Enter your email address and we'll send you a reset link.
+        </p>
+
     </div>
 
-    <!-- Session Status -->
-    <x-auth-session-status class="mb-4" :status="session('status')" />
+    @if (session('status'))
 
-    <form method="POST" action="{{ route('password.email') }}">
+        <div class="mb-6 rounded-xl bg-green-100 text-green-700 p-4">
+
+            {{ session('status') }}
+
+        </div>
+
+    @endif
+
+    <form method="POST"
+          action="{{ route('password.email') }}"
+          class="space-y-6">
+
         @csrf
 
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
-        </div>
+        <x-auth.input
+            label="Email Address"
+            name="email"
+            type="email"
+            :value="old('email')"
+            required/>
 
-        <div class="flex items-center justify-end mt-4">
-            <x-primary-button>
-                {{ __('Email Password Reset Link') }}
-            </x-primary-button>
-        </div>
+        <x-auth.button>
+
+            Email Password Reset Link
+
+        </x-auth.button>
+
     </form>
-</x-guest-layout>
+
+    <div class="mt-8 text-center">
+
+        <a href="{{ route('login') }}"
+           class="text-sm text-blue-600 hover:text-blue-700">
+
+            ← Back to Login
+
+        </a>
+
+    </div>
+
+</x-auth.card>
+
+</x-auth.layout>
