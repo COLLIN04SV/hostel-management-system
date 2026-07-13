@@ -17,43 +17,53 @@ class Student extends Model
         'guardian_name',
         'guardian_phone',
         'address',
-        'profile_photo'
+        'profile_photo',
     ];
 
+    /*
+    |--------------------------------------------------------------------------
+    | Relationships
+    |--------------------------------------------------------------------------
+    */
+
     public function user()
-{
-    return $this->belongsTo(User::class);
-}
+    {
+        return $this->belongsTo(User::class);
+    }
 
-public function allocation()
-{
-    return $this->hasOne(Allocation::class)
-        ->where('status', 'Active');
-}
+    public function applications()
+    {
+        return $this->hasMany(Application::class);
+    }
 
-public function applications()
-{
-    return $this->hasMany(Application::class);
-}
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
+    }
 
-public function payments()
-{
-    return $this->hasMany(Payment::class);
-}
+    public function allocation()
+    {
+        return $this->hasOne(Allocation::class)
+            ->where('status', 'Active');
+    }
 
-public function allocations()
-{
-    return $this->hasMany(Allocation::class);
-}
+    public function allocations()
+    {
+        return $this->hasMany(Allocation::class);
+    }
 
-public function supportTickets()
-{
-    return $this->hasMany(SupportTicket::class);
-}
+    public function account()
+    {
+        return $this->hasOne(StudentAccount::class);
+    }
 
-public function noticeReads()
-{
-    return $this->hasMany(NoticeRead::class);
-}
+    public function supportTickets()
+    {
+        return $this->hasMany(SupportTicket::class);
+    }
 
+    public function noticeReads()
+    {
+        return $this->hasMany(NoticeRead::class);
+    }
 }

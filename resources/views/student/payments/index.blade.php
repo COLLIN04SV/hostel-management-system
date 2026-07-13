@@ -110,10 +110,10 @@
 
                             <td class="px-4 py-4">
 
-                                @if($payment->status == 'Paid')
+                                @if($payment->status == 'Completed')
 
                                     <span class="px-3 py-1 rounded-full text-sm bg-green-100 text-green-700">
-                                        Paid
+                                        Completed
                                     </span>
 
                                 @elseif($payment->status == 'Pending')

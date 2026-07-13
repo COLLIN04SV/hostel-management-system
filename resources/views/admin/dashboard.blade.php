@@ -1,6 +1,10 @@
 @extends('layouts.admin')
 
+@section('title','Admin Dashboard')
+
 @section('page-title','Dashboard')
+
+@section('page-description','Hostel Management Overview')
 
 @section('content')
 
@@ -11,15 +15,11 @@
     <div class="text-right">
 
         <p class="text-xs text-slate-500">
-
             {{ now()->format('l') }}
-
         </p>
 
         <p class="text-sm font-semibold text-slate-700">
-
             {{ now()->format('d M Y') }}
-
         </p>
 
     </div>
@@ -27,9 +27,9 @@
 </x-admin.page-header>
 
 
-{{-- Statistics --}}
+{{-- Statistics Cards --}}
 
-<x-admin.stats-grid>
+<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
 
     <x-admin.stat-card
         title="Students"
@@ -50,23 +50,52 @@
         color="yellow"/>
 
     <x-admin.stat-card
-        title="Revenue"
+        title="Active Allocations"
+        :value="$activeAllocations"
+        icon="bi-house-check-fill"
+        color="indigo"/>
+
+</div>
+
+
+<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+
+    <x-admin.stat-card
+        title="Revenue Collected"
         :value="'KSh '.number_format($totalRevenue)"
         icon="bi-cash-stack"
-        color="info"/>
+        color="green"/>
 
-</x-admin.stats-grid>
+    <x-admin.stat-card
+        title="Outstanding Balance"
+        :value="'KSh '.number_format($outstandingBalance)"
+        icon="bi-wallet2"
+        color="red"/>
+
+    <x-admin.stat-card
+        title="Accounts Cleared"
+        :value="$completedAccounts"
+        icon="bi-check-circle-fill"
+        color="green"/>
+
+    <x-admin.stat-card
+        title="Pending Accounts"
+        :value="$pendingAccounts + $partialAccounts"
+        icon="bi-clock-history"
+        color="yellow"/>
+
+</div>
 
 
 {{-- Quick Actions --}}
 
 <x-admin.card>
 
-    <div class="flex items-center justify-between mb-5">
+    <div class="flex items-center justify-between mb-6">
 
         <div>
 
-            <h2 class="text-base font-semibold text-slate-800">
+            <h2 class="text-lg font-semibold text-slate-800">
 
                 Quick Actions
 
@@ -74,7 +103,7 @@
 
             <p class="text-sm text-slate-500">
 
-                Frequently used administrative shortcuts.
+                Frequently used shortcuts.
 
             </p>
 
@@ -82,19 +111,19 @@
 
     </div>
 
-    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+    <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-5">
 
         <a
             href="{{ route('students.create') }}"
-            class="group rounded-xl border border-slate-200 bg-slate-50 hover:bg-blue-50 hover:border-blue-200 transition p-4 text-center">
+            class="rounded-xl border border-slate-200 hover:border-blue-300 hover:bg-blue-50 transition p-5 text-center">
 
-            <div class="w-11 h-11 mx-auto rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center">
+            <div class="w-12 h-12 mx-auto rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center">
 
-                <i class="bi bi-person-plus-fill text-lg"></i>
+                <i class="bi bi-person-plus-fill text-xl"></i>
 
             </div>
 
-            <p class="mt-3 text-sm font-medium text-slate-700 group-hover:text-blue-700">
+            <p class="mt-3 font-medium">
 
                 Add Student
 
@@ -104,15 +133,15 @@
 
         <a
             href="{{ route('hostels.create') }}"
-            class="group rounded-xl border border-slate-200 bg-slate-50 hover:bg-green-50 hover:border-green-200 transition p-4 text-center">
+            class="rounded-xl border border-slate-200 hover:border-green-300 hover:bg-green-50 transition p-5 text-center">
 
-            <div class="w-11 h-11 mx-auto rounded-xl bg-green-100 text-green-600 flex items-center justify-center">
+            <div class="w-12 h-12 mx-auto rounded-xl bg-green-100 text-green-600 flex items-center justify-center">
 
-                <i class="bi bi-building-add text-lg"></i>
+                <i class="bi bi-building-add text-xl"></i>
 
             </div>
 
-            <p class="mt-3 text-sm font-medium text-slate-700 group-hover:text-green-700">
+            <p class="mt-3 font-medium">
 
                 Add Hostel
 
@@ -122,15 +151,15 @@
 
         <a
             href="{{ route('rooms.create') }}"
-            class="group rounded-xl border border-slate-200 bg-slate-50 hover:bg-yellow-50 hover:border-yellow-200 transition p-4 text-center">
+            class="rounded-xl border border-slate-200 hover:border-yellow-300 hover:bg-yellow-50 transition p-5 text-center">
 
-            <div class="w-11 h-11 mx-auto rounded-xl bg-yellow-100 text-yellow-600 flex items-center justify-center">
+            <div class="w-12 h-12 mx-auto rounded-xl bg-yellow-100 text-yellow-600 flex items-center justify-center">
 
-                <i class="bi bi-door-open-fill text-lg"></i>
+                <i class="bi bi-door-open-fill text-xl"></i>
 
             </div>
 
-            <p class="mt-3 text-sm font-medium text-slate-700 group-hover:text-yellow-700">
+            <p class="mt-3 font-medium">
 
                 Add Room
 
@@ -140,15 +169,15 @@
 
         <a
             href="{{ route('allocations.create') }}"
-            class="group rounded-xl border border-slate-200 bg-slate-50 hover:bg-indigo-50 hover:border-indigo-200 transition p-4 text-center">
+            class="rounded-xl border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 transition p-5 text-center">
 
-            <div class="w-11 h-11 mx-auto rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center">
+            <div class="w-12 h-12 mx-auto rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center">
 
-                <i class="bi bi-house-check-fill text-lg"></i>
+                <i class="bi bi-house-check-fill text-xl"></i>
 
             </div>
 
-            <p class="mt-3 text-sm font-medium text-slate-700 group-hover:text-indigo-700">
+            <p class="mt-3 font-medium">
 
                 Allocate Room
 
@@ -158,15 +187,15 @@
 
         <a
             href="{{ route('payments.create') }}"
-            class="group rounded-xl border border-slate-200 bg-slate-50 hover:bg-emerald-50 hover:border-emerald-200 transition p-4 text-center">
+            class="rounded-xl border border-slate-200 hover:border-emerald-300 hover:bg-emerald-50 transition p-5 text-center">
 
-            <div class="w-11 h-11 mx-auto rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center">
+            <div class="w-12 h-12 mx-auto rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center">
 
-                <i class="bi bi-cash-coin text-lg"></i>
+                <i class="bi bi-cash-coin text-xl"></i>
 
             </div>
 
-            <p class="mt-3 text-sm font-medium text-slate-700 group-hover:text-emerald-700">
+            <p class="mt-3 font-medium">
 
                 Record Payment
 
@@ -179,16 +208,433 @@
 </x-admin.card>
 
 
-{{-- Recent Activity --}}
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
 
-<div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+    {{-- Occupancy Overview --}}
 
-    {{-- Recent Applications --}}
+    <x-admin.card>
+
+        <div class="flex justify-between items-center mb-6">
+
+            <div>
+
+                <h2 class="text-lg font-semibold">
+
+                    Occupancy Overview
+
+                </h2>
+
+                <p class="text-sm text-slate-500">
+
+                    Hostel bed utilization
+
+                </p>
+
+            </div>
+
+            <i class="bi bi-bar-chart-fill text-2xl text-blue-600"></i>
+
+        </div>
+
+        <div class="mb-6">
+
+            <div class="flex justify-between text-sm mb-2">
+
+                <span>Occupancy Rate</span>
+
+                <strong>{{ $occupancyRate }}%</strong>
+
+            </div>
+
+            <div class="w-full bg-slate-200 rounded-full h-3">
+
+                <div
+                    class="bg-blue-600 h-3 rounded-full"
+                    style="width:{{ $occupancyRate }}%">
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="grid grid-cols-3 gap-4">
+
+            <div class="text-center">
+
+                <p class="text-xs text-slate-500">
+
+                    Occupied
+
+                </p>
+
+                <h3 class="text-2xl font-bold text-blue-600">
+
+                    {{ $occupiedBeds }}
+
+                </h3>
+
+            </div>
+
+            <div class="text-center">
+
+                <p class="text-xs text-slate-500">
+
+                    Vacant
+
+                </p>
+
+                <h3 class="text-2xl font-bold text-green-600">
+
+                    {{ $vacantBeds }}
+
+                </h3>
+
+            </div>
+
+            <div class="text-center">
+
+                <p class="text-xs text-slate-500">
+
+                    Capacity
+
+                </p>
+
+                <h3 class="text-2xl font-bold">
+
+                    {{ $totalBeds }}
+
+                </h3>
+
+            </div>
+
+        </div>
+
+    </x-admin.card>
+
+
+    {{-- Financial Overview --}}
+
+    <x-admin.card>
+
+        <div class="flex justify-between items-center mb-6">
+
+            <div>
+
+                <h2 class="text-lg font-semibold">
+
+                    Financial Overview
+
+                </h2>
+
+                <p class="text-sm text-slate-500">
+
+                    Current payment status
+
+                </p>
+
+            </div>
+
+            <i class="bi bi-wallet2 text-2xl text-green-600"></i>
+
+        </div>
+
+                <div class="space-y-5">
+
+            <div class="flex justify-between items-center border-b border-slate-200 pb-4">
+
+                <div>
+
+                    <p class="text-sm text-slate-500">
+
+                        Revenue Collected
+
+                    </p>
+
+                    <h3 class="text-2xl font-bold text-green-600 mt-1">
+
+                        KSh {{ number_format($totalRevenue) }}
+
+                    </h3>
+
+                </div>
+
+                <div class="w-12 h-12 rounded-xl bg-green-100 text-green-600 flex items-center justify-center">
+
+                    <i class="bi bi-cash-stack"></i>
+
+                </div>
+
+            </div>
+
+            <div class="flex justify-between items-center border-b border-slate-200 pb-4">
+
+                <div>
+
+                    <p class="text-sm text-slate-500">
+
+                        Outstanding Balance
+
+                    </p>
+
+                    <h3 class="text-2xl font-bold text-red-600 mt-1">
+
+                        KSh {{ number_format($outstandingBalance) }}
+
+                    </h3>
+
+                </div>
+
+                <div class="w-12 h-12 rounded-xl bg-red-100 text-red-600 flex items-center justify-center">
+
+                    <i class="bi bi-wallet2"></i>
+
+                </div>
+
+            </div>
+
+            <div class="grid grid-cols-3 gap-4">
+
+                <div class="text-center">
+
+                    <p class="text-xs text-slate-500">
+
+                        Completed
+
+                    </p>
+
+                    <h3 class="text-2xl font-bold text-green-600">
+
+                        {{ $completedAccounts }}
+
+                    </h3>
+
+                </div>
+
+                <div class="text-center">
+
+                    <p class="text-xs text-slate-500">
+
+                        Partial
+
+                    </p>
+
+                    <h3 class="text-2xl font-bold text-yellow-500">
+
+                        {{ $partialAccounts }}
+
+                    </h3>
+
+                </div>
+
+                <div class="text-center">
+
+                    <p class="text-xs text-slate-500">
+
+                        Pending
+
+                    </p>
+
+                    <h3 class="text-2xl font-bold text-red-600">
+
+                        {{ $pendingAccounts }}
+
+                    </h3>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </x-admin.card>
+
+</div>
+
+
+<div class="grid grid-cols-1 xl:grid-cols-2 gap-6 mt-8">
+
+    {{-- Recent Payments --}}
+
     <x-admin.card>
 
         <div class="flex items-center justify-between mb-5">
 
-            <h2 class="text-base font-semibold flex items-center gap-2">
+            <h2 class="text-lg font-semibold flex items-center gap-2">
+
+                <i class="bi bi-cash-stack text-green-600"></i>
+
+                Recent Payments
+
+            </h2>
+
+            <a
+                href="{{ route('payments.index') }}"
+                class="text-sm text-blue-600">
+
+                View All
+
+            </a>
+
+        </div>
+
+        @forelse($recentPayments as $payment)
+
+            <div class="flex justify-between items-center py-4 border-b border-slate-100 last:border-0">
+
+                <div>
+
+                    <p class="font-medium">
+
+                        {{ $payment->student->user->name }}
+
+                    </p>
+
+                    <p class="text-xs text-slate-500">
+
+                        {{ $payment->student->registration_number }}
+
+                    </p>
+
+                    <p class="text-xs text-slate-400">
+
+                        {{ $payment->payment_date }}
+
+                    </p>
+
+                </div>
+
+                <div class="text-right">
+
+                    <p class="font-semibold text-green-600">
+
+                        KSh {{ number_format($payment->amount) }}
+
+                    </p>
+
+                    @if($payment->status=='Completed')
+
+                        <x-admin.badge
+                            type="success"
+                            text="Completed"/>
+
+                    @else
+
+                        <x-admin.badge
+                            type="warning"
+                            text="Pending"/>
+
+                    @endif
+
+                </div>
+
+            </div>
+
+        @empty
+
+            <x-admin.empty-state
+                icon="bi-cash-stack"
+                title="No Payments"
+                message="Payment records will appear here."/>
+
+        @endforelse
+
+    </x-admin.card>
+
+
+
+    {{-- Recent Allocations --}}
+
+    <x-admin.card>
+
+        <div class="flex items-center justify-between mb-5">
+
+            <h2 class="text-lg font-semibold flex items-center gap-2">
+
+                <i class="bi bi-house-check-fill text-indigo-600"></i>
+
+                Recent Allocations
+
+            </h2>
+
+            <a
+                href="{{ route('allocations.index') }}"
+                class="text-sm text-blue-600">
+
+                View All
+
+            </a>
+
+        </div>
+
+        @forelse($recentAllocations as $allocation)
+
+            <div class="flex justify-between items-center py-4 border-b border-slate-100 last:border-0">
+
+                <div>
+
+                    <p class="font-medium">
+
+                        {{ $allocation->student->user->name }}
+
+                    </p>
+
+                    <p class="text-xs text-slate-500">
+
+                        Room {{ $allocation->room->room_number }}
+
+                    </p>
+
+                    <p class="text-xs text-slate-400">
+
+                        {{ $allocation->allocated_date }}
+
+                    </p>
+
+                </div>
+
+                <div>
+
+                    @if($allocation->status=='Active')
+
+                        <x-admin.badge
+                            type="success"
+                            text="Active"/>
+
+                    @else
+
+                        <x-admin.badge
+                            type="warning"
+                            text="{{ $allocation->status }}"/>
+
+                    @endif
+
+                </div>
+
+            </div>
+
+        @empty
+
+            <x-admin.empty-state
+                icon="bi-house-check"
+                title="No Allocations"
+                message="Room allocations will appear here."/>
+
+        @endforelse
+
+    </x-admin.card>
+
+</div>
+
+<div class="grid grid-cols-1 xl:grid-cols-2 gap-6 mt-8">
+
+    {{-- Recent Applications --}}
+
+    <x-admin.card>
+
+        <div class="flex items-center justify-between mb-5">
+
+            <h2 class="text-lg font-semibold flex items-center gap-2">
 
                 <i class="bi bi-file-earmark-text text-blue-600"></i>
 
@@ -198,7 +644,7 @@
 
             <a
                 href="{{ route('applications.index') }}"
-                class="text-sm text-blue-600 hover:text-blue-700">
+                class="text-sm text-blue-600">
 
                 View All
 
@@ -208,23 +654,23 @@
 
         @forelse($recentApplications as $application)
 
-            <div class="flex justify-between items-center py-3 border-b border-slate-100 last:border-0">
+            <div class="flex justify-between items-center py-4 border-b border-slate-100 last:border-0">
 
                 <div>
 
-                    <p class="font-medium text-sm">
+                    <p class="font-medium">
 
                         {{ $application->student->user->name }}
 
                     </p>
 
-                    <p class="text-xs text-slate-500 mt-1">
+                    <p class="text-xs text-slate-500">
 
                         {{ $application->hostel->name }}
 
                     </p>
 
-                    <p class="text-xs text-slate-400 mt-1">
+                    <p class="text-xs text-slate-400">
 
                         {{ $application->created_at->diffForHumans() }}
 
@@ -240,17 +686,23 @@
                             type="success"
                             text="Approved"/>
 
-                    @elseif($application->status=='Rejected')
-
-                        <x-admin.badge
-                            type="danger"
-                            text="Rejected"/>
-
-                    @else
+                    @elseif($application->status=='Pending')
 
                         <x-admin.badge
                             type="warning"
                             text="Pending"/>
+
+                    @elseif($application->status=='Allocated')
+
+                        <x-admin.badge
+                            type="info"
+                            text="Allocated"/>
+
+                    @else
+
+                        <x-admin.badge
+                            type="danger"
+                            text="{{ $application->status }}"/>
 
                     @endif
 
@@ -263,106 +715,21 @@
             <x-admin.empty-state
                 icon="bi-file-earmark-text"
                 title="No Applications"
-                message="Recent hostel applications will appear here."/>
+                message="Applications will appear here."/>
 
         @endforelse
 
     </x-admin.card>
 
-
-    {{-- Recent Payments --}}
-    <x-admin.card>
-
-        <div class="flex items-center justify-between mb-5">
-
-            <h2 class="text-base font-semibold flex items-center gap-2">
-
-                <i class="bi bi-cash-stack text-green-600"></i>
-
-                Recent Payments
-
-            </h2>
-
-            <a
-                href="{{ route('payments.index') }}"
-                class="text-sm text-blue-600 hover:text-blue-700">
-
-                View All
-
-            </a>
-
-        </div>
-
-        @forelse($recentPayments as $payment)
-
-            <div class="flex justify-between items-center py-3 border-b border-slate-100 last:border-0">
-
-                <div>
-
-                    <p class="font-medium text-sm">
-
-                        {{ $payment->student->user->name }}
-
-                    </p>
-
-                    <p class="text-xs text-green-600 font-semibold mt-1">
-
-                        KSh {{ number_format($payment->amount) }}
-
-                    </p>
-
-                    <p class="text-xs text-slate-400 mt-1">
-
-                        {{ $payment->created_at->diffForHumans() }}
-
-                    </p>
-
-                </div>
-
-                <div>
-
-                    @if($payment->status=='Paid')
-
-                        <x-admin.badge
-                            type="success"
-                            text="Paid"/>
-
-                    @elseif($payment->status=='Pending')
-
-                        <x-admin.badge
-                            type="warning"
-                            text="Pending"/>
-
-                    @else
-
-                        <x-admin.badge
-                            type="danger"
-                            text="Failed"/>
-
-                    @endif
-
-                </div>
-
-            </div>
-
-        @empty
-
-            <x-admin.empty-state
-                icon="bi-cash-stack"
-                title="No Payments"
-                message="Recent payment records will appear here."/>
-
-        @endforelse
-
-    </x-admin.card>
 
 
     {{-- Latest Notices --}}
+
     <x-admin.card>
 
         <div class="flex items-center justify-between mb-5">
 
-            <h2 class="text-base font-semibold flex items-center gap-2">
+            <h2 class="text-lg font-semibold flex items-center gap-2">
 
                 <i class="bi bi-megaphone-fill text-orange-500"></i>
 
@@ -372,7 +739,7 @@
 
             <a
                 href="{{ route('notices.index') }}"
-                class="text-sm text-blue-600 hover:text-blue-700">
+                class="text-sm text-blue-600">
 
                 View All
 
@@ -382,21 +749,21 @@
 
         @forelse($recentNotices as $notice)
 
-            <div class="py-3 border-b border-slate-100 last:border-0">
+            <div class="py-4 border-b border-slate-100 last:border-0">
 
-                <p class="font-medium text-sm">
+                <h3 class="font-semibold text-slate-800">
 
                     {{ $notice->title }}
 
+                </h3>
+
+                <p class="text-sm text-slate-500 mt-2">
+
+                    {{ \Illuminate\Support\Str::limit($notice->message,80) }}
+
                 </p>
 
-                <p class="text-xs text-slate-500 mt-1">
-
-                    {{ \Illuminate\Support\Str::limit($notice->message,60) }}
-
-                </p>
-
-                <p class="text-xs text-slate-400 mt-2">
+                <p class="text-xs text-slate-400 mt-3">
 
                     {{ $notice->created_at->diffForHumans() }}
 
@@ -418,116 +785,77 @@
 </div>
 
 
-{{-- System Overview --}}
 
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+{{-- Footer Summary --}}
 
-    {{-- Occupancy Summary --}}
+<div class="mt-8">
+
     <x-admin.card>
 
-        <div class="flex items-center justify-between mb-6">
+        <div class="flex flex-col lg:flex-row justify-between items-center gap-6">
 
             <div>
 
-                <h2 class="text-base font-semibold">
+                <h2 class="text-xl font-semibold text-slate-800">
 
-                    Occupancy Summary
+                    Hostel Management System
 
                 </h2>
 
-                <p class="text-sm text-slate-500">
+                <p class="text-sm text-slate-500 mt-1">
 
-                    Current bed occupancy across all hostels
+                    Real-time overview of student accommodation, finances and hostel operations.
 
                 </p>
 
             </div>
 
-            <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center">
+            <div class="grid grid-cols-3 gap-8 text-center">
 
-                <i class="bi bi-bar-chart-fill"></i>
+                <div>
 
-            </div>
+                    <p class="text-xs text-slate-500">
 
-        </div>
+                        Students
 
-        <div class="space-y-5">
+                    </p>
 
-            <div>
+                    <h3 class="text-2xl font-bold text-blue-600">
 
-                <div class="flex justify-between text-sm mb-2">
+                        {{ $totalStudents }}
 
-                    <span class="text-slate-500">
+                    </h3>
 
-                        Bed Occupancy
+                </div>
 
-                    </span>
+                <div>
 
-                    <span class="font-semibold">
+                    <p class="text-xs text-slate-500">
+
+                        Revenue
+
+                    </p>
+
+                    <h3 class="text-2xl font-bold text-green-600">
+
+                        {{ number_format($totalRevenue) }}
+
+                    </h3>
+
+                </div>
+
+                <div>
+
+                    <p class="text-xs text-slate-500">
+
+                        Occupancy
+
+                    </p>
+
+                    <h3 class="text-2xl font-bold text-indigo-600">
 
                         {{ $occupancyRate }}%
 
-                    </span>
-
-                </div>
-
-                <div class="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
-
-                    <div
-                        class="h-full bg-blue-600 rounded-full"
-                        style="width: {{ $occupancyRate }}%">
-                    </div>
-
-                </div>
-
-            </div>
-
-            <div class="grid grid-cols-3 gap-4 pt-2">
-
-                <div class="text-center">
-
-                    <p class="text-xs text-slate-500">
-
-                        Occupied
-
-                    </p>
-
-                    <h3 class="text-xl font-bold text-blue-600">
-
-                        {{ $occupiedBeds }}
-
-                    </h3>
-
-                </div>
-
-                <div class="text-center">
-
-                    <p class="text-xs text-slate-500">
-
-                        Vacant
-
-                    </p>
-
-                    <h3 class="text-xl font-bold text-green-600">
-
-                        {{ $vacantBeds }}
-
-                    </h3>
-
-                </div>
-
-                <div class="text-center">
-
-                    <p class="text-xs text-slate-500">
-
-                        Capacity
-
-                    </p>
-
-                    <h3 class="text-xl font-bold text-slate-700">
-
-                        {{ $totalBeds }}
-
                     </h3>
 
                 </div>
@@ -537,96 +865,6 @@
         </div>
 
     </x-admin.card>
-
-
-    {{-- Financial Summary --}}
-    <x-admin.card>
-
-        <div class="flex items-center justify-between mb-6">
-
-            <div>
-
-                <h2 class="text-base font-semibold">
-
-                    Financial Summary
-
-                </h2>
-
-                <p class="text-sm text-slate-500">
-
-                    Revenue collected and outstanding balance
-
-                </p>
-
-            </div>
-
-            <div class="w-10 h-10 rounded-xl bg-green-100 text-green-600 flex items-center justify-center">
-
-                <i class="bi bi-cash-stack"></i>
-
-            </div>
-
-        </div>
-
-        <div class="space-y-5">
-
-            <div class="flex items-center justify-between border-b border-slate-200 pb-4">
-
-                <div>
-
-                    <p class="text-sm text-slate-500">
-
-                        Total Revenue
-
-                    </p>
-
-                    <h3 class="text-2xl font-bold text-green-600 mt-1">
-
-                        KSh {{ number_format($totalRevenue) }}
-
-                    </h3>
-
-                </div>
-
-                <div class="w-12 h-12 rounded-xl bg-green-100 text-green-600 flex items-center justify-center">
-
-                    <i class="bi bi-wallet2 text-lg"></i>
-
-                </div>
-
-            </div>
-
-            <div class="flex items-center justify-between">
-
-                <div>
-
-                    <p class="text-sm text-slate-500">
-
-                        Pending Payments
-
-                    </p>
-
-                    <h3 class="text-2xl font-bold text-orange-500 mt-1">
-
-                        KSh {{ number_format($pendingPayments) }}
-
-                    </h3>
-
-                </div>
-
-                <div class="w-12 h-12 rounded-xl bg-orange-100 text-orange-500 flex items-center justify-center">
-
-                    <i class="bi bi-clock-history text-lg"></i>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </x-admin.card>
-
-</div>
 
 </div>
 

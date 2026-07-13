@@ -6,6 +6,7 @@ use App\Models\Room;
 use App\Models\Student;
 use App\Models\Allocation;
 use App\Models\Payment;
+use App\Models\StudentAccount;
 use Illuminate\Http\Request;
 
 class AllocationController extends Controller
@@ -116,98 +117,99 @@ class AllocationController extends Controller
     );
 }
 
-    public function store(Request $request)
+  public function store(Request $request)
 {
     $request->validate([
         'student_id' => 'required|exists:students,id',
         'room_id' => 'required|exists:rooms,id',
     ]);
 
-    // Student
-    $student = Student::with('applications')->findOrFail(
-        $request->student_id
-    );
+    $student = Student::with('applications')->findOrFail($request->student_id);
 
-    // Student must have an approved application
     $approvedApplication = $student->applications()
         ->where('status', 'Approved')
         ->latest()
         ->first();
 
     if (!$approvedApplication) {
-
         return back()->with(
             'error',
             'This student does not have an approved application.'
         );
-
     }
 
-    // Student must not already have an active allocation
     if ($student->allocation) {
-
         return back()->with(
             'error',
             'Student already has an active room allocation.'
         );
-
     }
 
-    // Room
     $room = Room::findOrFail($request->room_id);
 
-    // Check room capacity
     if ($room->occupied >= $room->capacity) {
-
         return back()->with(
             'error',
             'The selected room is already full.'
         );
-
     }
 
-    // Create allocation
-    Allocation::create([
+    /*
+    |--------------------------------------------------------------------------
+    | Create Allocation
+    |--------------------------------------------------------------------------
+    */
 
-        'student_id'     => $student->id,
-        'room_id'        => $room->id,
+    $allocation = Allocation::create([
+
+        'student_id' => $student->id,
+
+        'room_id' => $room->id,
+
         'allocated_date' => now(),
-        'status'         => 'Active',
+
+        'status' => 'Active',
 
     ]);
 
-    // Create a pending payment record for the student
-    $existingPayment = Payment::where(
-    'student_id',
-    $request->student_id
-    )
-    ->where('status', 'Pending')
-    ->first();
+    /*
+    |--------------------------------------------------------------------------
+    | Create Student Financial Account
+    |--------------------------------------------------------------------------
+    */
 
-   if (!$existingPayment) {
-    Payment::create([
+    StudentAccount::create([
 
-    'student_id' => $request->student_id,
+        'student_id' => $student->id,
 
-    'amount' => 0,
+        'allocation_id' => $allocation->id,
 
-    'payment_method' => null,
+        'room_fee' => $room->price,
 
-    'transaction_reference' => null,
+        'amount_paid' => 0,
 
-    'payment_date' => now(),
+        'balance' => $room->price,
 
-    'status' => 'Pending'
+        'status' => 'Pending',
 
-  ]);
-   }
+    ]);
 
-    // Mark the application as allocated
+    /*
+    |--------------------------------------------------------------------------
+    | Update Application
+    |--------------------------------------------------------------------------
+    */
+
     $approvedApplication->update([
-    'status' => 'Allocated'
+        'status' => 'Allocated'
     ]);
 
-    // Increase occupied beds
+    /*
+    |--------------------------------------------------------------------------
+    | Update Room Occupancy
+    |--------------------------------------------------------------------------
+    */
+
     $room->increment('occupied');
 
     return redirect()

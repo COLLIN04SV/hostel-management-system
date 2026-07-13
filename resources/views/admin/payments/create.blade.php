@@ -28,17 +28,19 @@
                     name="student_id"
                     required>
 
-                    <option value="">Select Student</option>
+                    <option value="">
+                        Select Student
+                    </option>
 
                     @foreach($students as $student)
 
                         @php
-                            $payment = $student->payments
-                                ->where('status','Pending')
-                                ->first();
+
+                            $account = $student->account;
+
                         @endphp
 
-                        @if($payment)
+                        @if($account && $account->status != 'Completed')
 
                             <option
                                 value="{{ $student->id }}"
@@ -46,6 +48,9 @@
 
                                 {{ $student->user->name }}
                                 ({{ $student->registration_number }})
+
+                                - Balance:
+                                KSh {{ number_format($account->balance) }}
 
                             </option>
 
@@ -57,19 +62,20 @@
 
                 <p class="mt-2 text-xs text-slate-500">
 
-                    Only students with pending payments are displayed.
+                    Only students with an outstanding hostel balance are displayed.
 
                 </p>
 
             </div>
 
-            {{-- Amount --}}
+                        {{-- Amount --}}
             <x-admin.input
                 label="Amount (KES)"
                 name="amount"
                 type="number"
+                :value="old('amount')"
                 required
-                placeholder="Enter payment amount" />
+                placeholder="Enter amount received" />
 
             {{-- Payment Method --}}
             <x-admin.select
@@ -77,36 +83,32 @@
                 name="payment_method"
                 required>
 
-                <option
-                    value="Cash"
-                    {{ old('payment_method') == 'Cash' ? 'selected' : '' }}>
-
-                    Cash
-
+                <option value="">
+                    Select Payment Method
                 </option>
 
                 <option
-                    value="Bank"
-                    {{ old('payment_method') == 'Bank' ? 'selected' : '' }}>
-
-                    Bank
-
+                    value="Cash"
+                    {{ old('payment_method') == 'Cash' ? 'selected' : '' }}>
+                    Cash
                 </option>
 
                 <option
                     value="M-Pesa"
                     {{ old('payment_method') == 'M-Pesa' ? 'selected' : '' }}>
-
                     M-Pesa
+                </option>
 
+                <option
+                    value="Bank"
+                    {{ old('payment_method') == 'Bank' ? 'selected' : '' }}>
+                    Bank
                 </option>
 
                 <option
                     value="Card"
                     {{ old('payment_method') == 'Card' ? 'selected' : '' }}>
-
                     Card
-
                 </option>
 
             </x-admin.select>
@@ -115,8 +117,9 @@
             <x-admin.input
                 label="Transaction Reference"
                 name="transaction_reference"
+                :value="old('transaction_reference')"
                 required
-                placeholder="e.g. QWE123XYZ" />
+                placeholder="e.g. MPESA123ABC" />
 
             {{-- Payment Date --}}
             <x-admin.input
@@ -128,9 +131,9 @@
 
         </div>
 
-        <x-admin.form-actions
+                <x-admin.form-actions
             :cancel="route('payments.index')"
-            submit="Save Payment" />
+            submit="Record Payment" />
 
     </x-admin.form-card>
 

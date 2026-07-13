@@ -4,13 +4,13 @@
 
 @section('page-title','Payments')
 
-@section('page-description','Manage hostel payment records')
+@section('page-description','Manage student fee accounts')
 
 @section('content')
 
 <x-admin.page-header
-    title="Payments"
-    subtitle="Manage hostel payment records">
+    title="Student Payments"
+    subtitle="Track room fees, balances and payment history">
 
     <x-admin.button
         href="{{ route('payments.create') }}">
@@ -26,25 +26,25 @@
 <x-admin.stats-grid>
 
     <x-admin.stat-card
-        title="Total Payments"
+        title="Payment Records"
         :value="$totalPayments"
         icon="bi-credit-card"
         color="blue"/>
 
     <x-admin.stat-card
-        title="Completed"
+        title="Accounts Cleared"
         :value="$completedPayments"
-        icon="bi-check-circle"
+        icon="bi-check-circle-fill"
         color="green"/>
 
     <x-admin.stat-card
-        title="Pending"
+        title="Outstanding Accounts"
         :value="$pendingPayments"
         icon="bi-clock-history"
         color="yellow"/>
 
     <x-admin.stat-card
-        title="Revenue"
+        title="Revenue Collected"
         :value="'KSh '.number_format($totalCollected)"
         icon="bi-cash-stack"
         color="blue"/>
@@ -55,7 +55,7 @@
 
 <x-admin.search-bar
     :action="route('payments.index')"
-    placeholder="Search student, reference or payment method..." />
+    placeholder="Search student..." />
 
 <div class="flex items-center justify-between mb-5">
 
@@ -63,17 +63,17 @@
 
         Showing
 
-        <strong>{{ $payments->firstItem() ?? 0 }}</strong>
+        <strong>{{ $accounts->firstItem() ?? 0 }}</strong>
 
         -
 
-        <strong>{{ $payments->lastItem() ?? 0 }}</strong>
+        <strong>{{ $accounts->lastItem() ?? 0 }}</strong>
 
         of
 
-        <strong>{{ $payments->total() }}</strong>
+        <strong>{{ $accounts->total() }}</strong>
 
-        payments
+        student accounts
 
     </p>
 
@@ -86,45 +86,31 @@
 <tr>
 
 <x-admin.table-heading>
-
 Student
-
 </x-admin.table-heading>
 
 <x-admin.table-heading>
-
-Amount
-
+Room Fee
 </x-admin.table-heading>
 
 <x-admin.table-heading>
-
-Method
-
+Amount Paid
 </x-admin.table-heading>
 
 <x-admin.table-heading>
-
-Reference
-
+Balance
 </x-admin.table-heading>
 
 <x-admin.table-heading>
-
-Date
-
+Last Payment
 </x-admin.table-heading>
 
 <x-admin.table-heading class="text-center">
-
 Status
-
 </x-admin.table-heading>
 
 <x-admin.table-heading class="text-center">
-
 Actions
-
 </x-admin.table-heading>
 
 </tr>
@@ -133,103 +119,173 @@ Actions
 
 <tbody>
 
-@forelse($payments as $payment)
+@forelse($accounts as $account)
+
+@php
+
+$lastPayment = $account->payments()->latest()->first();
+
+@endphp
 
 <tr class="border-b border-slate-100 hover:bg-slate-50 transition">
 
 <x-admin.table-cell>
 
-<div>
+    <div>
 
-<p class="font-medium text-slate-800">
+        <p class="font-medium text-slate-800">
 
-{{ $payment->student->user->name ?? 'Unknown Student' }}
+            {{ $account->student->user->name }}
 
-</p>
+        </p>
 
-<p class="text-xs text-slate-500">
+        <p class="text-xs text-slate-500">
 
-{{ $payment->student->registration_number ?? '' }}
+            {{ $account->student->registration_number }}
 
-</p>
+        </p>
 
-</div>
-
-</x-admin.table-cell>
-
-<x-admin.table-cell class="font-medium">
-
-KSh {{ number_format($payment->amount) }}
+    </div>
 
 </x-admin.table-cell>
+
 
 <x-admin.table-cell>
 
-{{ $payment->payment_method }}
+    <span class="font-semibold">
+
+        KSh {{ number_format($account->room_fee) }}
+
+    </span>
 
 </x-admin.table-cell>
+
 
 <x-admin.table-cell>
 
-{{ $payment->transaction_reference }}
+    <span class="font-semibold text-green-600">
+
+        KSh {{ number_format($account->amount_paid) }}
+
+    </span>
 
 </x-admin.table-cell>
+
 
 <x-admin.table-cell>
 
-{{ \Carbon\Carbon::parse($payment->payment_date)->format('d M Y') }}
+    @if($account->balance > 0)
+
+        <span class="font-semibold text-red-600">
+
+            KSh {{ number_format($account->balance) }}
+
+        </span>
+
+    @else
+
+        <span class="font-semibold text-green-600">
+
+            Cleared
+
+        </span>
+
+    @endif
 
 </x-admin.table-cell>
+
+
+<x-admin.table-cell>
+
+    @if($lastPayment)
+
+        <div>
+
+            <p class="font-medium">
+
+                {{ \Carbon\Carbon::parse($lastPayment->payment_date)->format('d M Y') }}
+
+            </p>
+
+            <p class="text-xs text-slate-500">
+
+                KSh {{ number_format($lastPayment->amount) }}
+
+            </p>
+
+        </div>
+
+    @else
+
+        <span class="text-slate-400">
+
+            No payment yet
+
+        </span>
+
+    @endif
+
+</x-admin.table-cell>
+
 
 <x-admin.table-cell class="text-center">
 
-@if($payment->status == 'Completed')
+    @if($account->status == 'Completed')
 
-    <x-admin.badge
-        type="success"
-        text="Completed"/>
+        <x-admin.badge
+            type="success"
+            text="Completed"/>
 
-@elseif($payment->status == 'Pending')
+    @elseif($account->status == 'Partial')
 
-    <x-admin.badge
-        type="warning"
-        text="Pending"/>
+        <x-admin.badge
+            type="info"
+            text="Partial"/>
 
-@else
+    @else
 
-    <x-admin.badge
-        type="danger"
-        text="{{ $payment->status }}"/>
+        <x-admin.badge
+            type="warning"
+            text="Pending"/>
 
-@endif
+    @endif
 
 </x-admin.table-cell>
 
+
 <x-admin.table-cell class="text-center">
 
-<div class="flex items-center justify-center gap-2">
+<div class="flex justify-center gap-2">
 
-<x-admin.action-button
-    href="{{ route('payments.edit',$payment) }}"
-    color="blue"
-    icon="bi-pencil"
-    title="Edit"/>
+    @if($account->payments->count())
 
-<form
-    method="POST"
-    action="{{ route('payments.destroy',$payment) }}"
-    onsubmit="return confirm('Delete this payment?')">
-
-    @csrf
-    @method('DELETE')
+    @php
+        $payment = $account->payments->last();
+    @endphp
 
     <x-admin.action-button
-        type="submit"
-        color="red"
-        icon="bi-trash"
-        title="Delete"/>
+        href="{{ route('payments.edit', $payment) }}"
+        color="blue"
+        icon="bi-pencil"
+        title="Edit"/>
 
-</form>
+    <form
+        method="POST"
+        action="{{ route('payments.destroy', $payment) }}"
+        onsubmit="return confirm('Delete this payment?')">
+
+        @csrf
+        @method('DELETE')
+
+        <x-admin.action-button
+            type="submit"
+            color="red"
+            icon="bi-trash"
+            title="Delete"/>
+
+    </form>
+
+@endif
 
 </div>
 
@@ -245,8 +301,8 @@ KSh {{ number_format($payment->amount) }}
 
 <x-admin.empty-state
     icon="bi-credit-card"
-    title="No Payments Found"
-    message="No payment records are available."/>
+    title="No Student Accounts"
+    message="No student payment accounts have been created yet."/>
 
 </td>
 
@@ -258,9 +314,9 @@ KSh {{ number_format($payment->amount) }}
 
 </table>
 
-<div class="mt-5 border-t border-slate-200 pt-4">
+<div class="mt-6 border-t border-slate-200 pt-4">
 
-    {{ $payments->links() }}
+    {{ $accounts->links() }}
 
 </div>
 

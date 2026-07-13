@@ -9,47 +9,121 @@ use App\Models\Notice;
 use App\Models\Payment;
 use App\Models\Room;
 use App\Models\Student;
+use App\Models\StudentAccount;
 
 class DashboardController extends Controller
 {
     public function admin()
     {
+        /*
+        |--------------------------------------------------------------------------
+        | Basic Statistics
+        |--------------------------------------------------------------------------
+        */
+
         $totalStudents = Student::count();
 
         $totalHostels = Hostel::count();
 
         $totalRooms = Room::count();
 
-       $occupiedBeds = Room::sum('occupied');
+        $activeAllocations = Allocation::where(
+            'status',
+            'Active'
+        )->count();
 
-       $totalBeds = Room::sum('capacity');
+        /*
+        |--------------------------------------------------------------------------
+        | Bed Occupancy
+        |--------------------------------------------------------------------------
+        */
 
-       $vacantBeds = $totalBeds - $occupiedBeds;
+        $occupiedBeds = Room::sum('occupied');
 
-       $occupancyRate = $totalBeds > 0
-         ? round(($occupiedBeds / $totalBeds) * 100)
-         : 0;
+        $totalBeds = Room::sum('capacity');
 
-        $totalRevenue = Payment::where('status', 'Paid')
-            ->sum('amount');
+        $vacantBeds = max(
+            0,
+            $totalBeds - $occupiedBeds
+        );
 
-        $pendingPayments = Payment::where('status','Pending')
-            ->sum('amount');
+        $occupancyRate = $totalBeds > 0
+            ? round(($occupiedBeds / $totalBeds) * 100)
+            : 0;
+
+        /*
+        |--------------------------------------------------------------------------
+        | Financial Summary
+        |--------------------------------------------------------------------------
+        */
+
+        $totalRevenue = Payment::sum('amount');
+
+        $outstandingBalance = StudentAccount::sum('balance');
+
+        $totalRoomFees = StudentAccount::sum('room_fee');
+
+        $completedAccounts = StudentAccount::where(
+            'status',
+            'Completed'
+        )->count();
+
+        $partialAccounts = StudentAccount::where(
+            'status',
+            'Partial'
+        )->count();
+
+        $pendingAccounts = StudentAccount::where(
+            'status',
+            'Pending'
+        )->count();
+
+        /*
+        |--------------------------------------------------------------------------
+        | Recent Applications
+        |--------------------------------------------------------------------------
+        */
 
         $recentApplications = Application::with([
-            'student.user',
-            'hostel'
-        ])
-        ->latest()
-        ->take(5)
-        ->get();
+                'student.user',
+                'hostel'
+            ])
+            ->latest()
+            ->take(5)
+            ->get();
+
+        /*
+        |--------------------------------------------------------------------------
+        | Recent Payments
+        |--------------------------------------------------------------------------
+        */
 
         $recentPayments = Payment::with([
-            'student.user'
-        ])
-        ->latest()
-        ->take(5)
-        ->get();
+                'student.user'
+            ])
+            ->latest()
+            ->take(5)
+            ->get();
+
+        /*
+        |--------------------------------------------------------------------------
+        | Recent Allocations
+        |--------------------------------------------------------------------------
+        */
+
+        $recentAllocations = Allocation::with([
+                'student.user',
+                'room.hostel'
+            ])
+            ->latest()
+            ->take(5)
+            ->get();
+
+        /*
+        |--------------------------------------------------------------------------
+        | Recent Notices
+        |--------------------------------------------------------------------------
+        */
 
         $recentNotices = Notice::latest()
             ->take(5)
@@ -60,14 +134,25 @@ class DashboardController extends Controller
             'totalStudents',
             'totalHostels',
             'totalRooms',
+
+            'activeAllocations',
+
             'occupiedBeds',
             'vacantBeds',
             'totalBeds',
             'occupancyRate',
+
             'totalRevenue',
-            'pendingPayments',
+            'outstandingBalance',
+            'totalRoomFees',
+
+            'completedAccounts',
+            'partialAccounts',
+            'pendingAccounts',
+
             'recentApplications',
             'recentPayments',
+            'recentAllocations',
             'recentNotices'
 
         ));

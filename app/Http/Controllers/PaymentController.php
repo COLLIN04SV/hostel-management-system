@@ -4,37 +4,31 @@ namespace App\Http\Controllers;
 
 use App\Models\Payment;
 use App\Models\Student;
+use App\Models\StudentAccount;
 use Illuminate\Http\Request;
 
 class PaymentController extends Controller
 {
-    public function index()
+   public function index()
 {
-    $payments = Payment::with('student.user')
-        ->latest()
-        ->paginate(10);
+   $totalPayments = Payment::count();
 
-    $totalPayments = Payment::count();
+$accounts = StudentAccount::with([
+    'student.user',
+    'payments'
+])
+->latest()
+->paginate(10);
 
-    $totalCollected = Payment::where(
-        'status',
-        'Completed'
-    )->sum('amount');
+$totalCollected = StudentAccount::sum('amount_paid');
 
-    $pendingPayments = Payment::where(
-        'status',
-        'Pending'
-    )->count();
+$pendingPayments = StudentAccount::where('status', '!=', 'Completed')->count();
 
-    $completedPayments = Payment::where(
-        'status',
-        'Completed'
-    )->count();
-
+$completedPayments = StudentAccount::where('status', 'Completed')->count();
     return view(
         'admin.payments.index',
         compact(
-            'payments',
+            'accounts',
             'totalPayments',
             'totalCollected',
             'pendingPayments',
@@ -44,62 +38,73 @@ class PaymentController extends Controller
 }
 
     public function create()
-{
-    $students = Student::with([
+    {
+        $students = Student::with([
             'user',
-            'payments'
+            'account'
         ])
-        ->whereHas('payments', function ($query) {
-
-            $query->where('status', 'Pending');
-
+        ->whereHas('account', function ($q) {
+            $q->where('status', '!=', 'Completed');
         })
-        ->orderBy('registration_number')
         ->get();
 
-    return view(
-        'admin.payments.create',
-        compact('students')
-    );
-}
+        return view(
+            'admin.payments.create',
+            compact('students')
+        );
+    }
 
-    public function store(Request $request)
+   public function store(Request $request)
 {
     $request->validate([
         'student_id' => 'required|exists:students,id',
-        'amount' => 'required|numeric|min:0',
+        'amount' => 'required|numeric|min:1',
         'payment_method' => 'required',
         'transaction_reference' => 'required',
-        'payment_date' => 'required|date'
+        'payment_date' => 'required|date',
     ]);
 
-    $payment = Payment::where('student_id', $request->student_id)
-        ->where('status', 'Pending')
-        ->latest()
-        ->first();
+    // Get the student's financial account
+    $account = StudentAccount::where(
+        'student_id',
+        $request->student_id
+    )->first();
 
-    if (!$payment || $payment->status === 'Completed') {
-
+    if (!$account) {
         return back()->with(
             'error',
-            'No pending payment found for the selected student.'
+            'Student account not found.'
         );
-
     }
 
-    $payment->update([
-
-        'amount' => $request->amount,
-
-        'payment_method' => $request->payment_method,
-
+    // Save payment record
+    Payment::create([
+        'student_id'            => $request->student_id,
+        'student_account_id'    => $account->id,
+        'amount'                => $request->amount,
+        'payment_method'        => $request->payment_method,
         'transaction_reference' => $request->transaction_reference,
-
-        'payment_date' => $request->payment_date,
-
-        'status' => 'Completed'
-
+        'payment_date'          => $request->payment_date,
+        'status'                => 'Completed',
     ]);
+
+    // Update student account
+    $account->amount_paid += $request->amount;
+
+    $account->balance = max(
+        0,
+        $account->room_fee - $account->amount_paid
+    );
+
+    if ($account->balance == 0) {
+        $account->status = 'Completed';
+    } elseif ($account->amount_paid > 0) {
+        $account->status = 'Partial';
+    } else {
+        $account->status = 'Pending';
+    }
+
+    $account->save();
 
     return redirect()
         ->route('payments.index')
@@ -111,37 +116,46 @@ class PaymentController extends Controller
 
     public function edit(Payment $payment)
     {
-    $students = Student::all();
+        $students = Student::all();
 
-    return view('admin.payments.edit', compact('payment', 'students'));
+        return view(
+            'admin.payments.edit',
+            compact(
+                'payment',
+                'students'
+            )
+        );
     }
 
-public function update(Request $request, Payment $payment)
-{
-    $request->validate([
-        'student_id' => 'required',
-        'amount' => 'required',
-        'payment_method' => 'required',
-        'payment_date' => 'required',
-    ]);
+    public function update(Request $request, Payment $payment)
+    {
+        $request->validate([
+            'student_id' => 'required',
+            'amount' => 'required|numeric',
+            'payment_method' => 'required',
+            'transaction_reference' => 'required',
+            'payment_date' => 'required|date',
+        ]);
 
-    $payment->update([
-        'student_id' => $request->student_id,
-        'amount' => $request->amount,
-        'payment_method' => $request->payment_method,
-        'transaction_reference' => $request->transaction_reference,
-        'payment_date' => $request->payment_date,
-    ]);
+        $payment->update($request->all());
 
-    return redirect()->route('payments.index')
-        ->with('success', 'Payment updated successfully');
-}
+        return redirect()
+            ->route('payments.index')
+            ->with(
+                'success',
+                'Payment updated successfully.'
+            );
+    }
 
-public function destroy(Payment $payment)
-{
-    $payment->delete();
+    public function destroy(Payment $payment)
+    {
+        $payment->delete();
 
-    return redirect()->route('payments.index')
-        ->with('success', 'Payment deleted successfully');
-}
+        return redirect()
+            ->route('payments.index')
+            ->with(
+                'success',
+                'Payment deleted successfully.'
+            );
+    }
 }
