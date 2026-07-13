@@ -13,6 +13,7 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\NoticeController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SettingController;
+use App\Http\Controllers\NotificationController;
 
 use App\Http\Controllers\Student\DashboardController as StudentDashboardController;
 use App\Http\Controllers\Student\ProfileController as StudentProfileController;
@@ -116,6 +117,21 @@ Route::middleware(['auth', 'admin'])->group(function () {
         '/allocations/{allocation}/vacate',
         [AllocationController::class, 'vacate']
     )->name('allocations.vacate');
+
+    Route::get(
+    '/admin/notifications',
+    [NotificationController::class, 'index']
+    )->name('notifications.index');
+
+    Route::post(
+    '/admin/notifications/{id}/read',
+    [NotificationController::class, 'markAsRead']
+    )->name('notifications.read');
+
+    Route::post(
+    '/admin/notifications/read-all',
+    [NotificationController::class, 'markAllAsRead']
+    )->name('notifications.readAll');
 
 });
 

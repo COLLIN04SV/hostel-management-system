@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\NoticeRead;
 use App\Models\Student;
+use App\Models\Notification;
 
 class NoticeController extends Controller
 {
@@ -31,6 +32,16 @@ class NoticeController extends Controller
             'publish_date' => $request->publish_date,
             'status' => $request->status
         ]);
+
+        Notification::create([
+
+       'title' => 'New Notice Published',
+
+       'message' => $request->title,
+
+       'type' => 'notice'
+
+       ]);
 
         return redirect()->route('notices.index')
             ->with('success','Notice created successfully');

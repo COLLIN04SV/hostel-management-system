@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Application;
 use App\Models\Student;
 use App\Models\Hostel;
+use App\Models\Notification;
 use Illuminate\Http\Request;
 
 class ApplicationController extends Controller
@@ -177,6 +178,19 @@ class ApplicationController extends Controller
 
     ]);
 
+    $student = Student::with('user')->find($request->student_id);
+
+    Notification::create([
+
+    'title' => 'New Hostel Application',
+
+    'message' => $student->user->name .
+        ' submitted a hostel application.',
+
+    'type' => 'application'
+
+   ]);
+
     return redirect()
         ->route('applications.index')
         ->with(
@@ -200,6 +214,18 @@ class ApplicationController extends Controller
         'status' => 'Approved'
     ]);
 
+    Notification::create([
+
+    'title' => 'Application Approved',
+
+    'message' =>
+        $application->student->user->name .
+        ' application has been approved.',
+
+    'type' => 'application'
+
+    ]);
+
     return back()->with(
         'success',
         'Application approved successfully.'
@@ -220,6 +246,18 @@ class ApplicationController extends Controller
     $application->update([
         'status' => 'Rejected'
     ]);
+
+    Notification::create([
+
+    'title' => 'Application Rejected',
+
+    'message' =>
+        $application->student->user->name .
+        ' application has been rejected.',
+
+    'type' => 'application'
+
+   ]);
 
     return back()->with(
         'success',

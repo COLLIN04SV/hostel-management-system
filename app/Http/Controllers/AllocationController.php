@@ -7,6 +7,7 @@ use App\Models\Application;
 use App\Models\Room;
 use App\Models\Student;
 use App\Models\StudentAccount;
+use App\Models\Notification;
 use Illuminate\Http\Request;
 
 class AllocationController extends Controller
@@ -204,6 +205,22 @@ class AllocationController extends Controller
         'status' => 'Active',
 
     ]);
+
+    Notification::create([
+
+    'title' => 'Room Allocated',
+
+    'message' =>
+        $student->user->name .
+        ' allocated to Room ' .
+        $room->room_number .
+        ' (' .
+        $room->hostel->name .
+        ').',
+
+    'type' => 'allocation'
+
+   ]);
 
     StudentAccount::create([
 

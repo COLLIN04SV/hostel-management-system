@@ -224,19 +224,112 @@
 
                     <!-- Notification -->
 
-                    <button
-                        class="relative w-10 h-10 rounded-full hover:bg-slate-800 transition flex items-center justify-center">
+<div class="relative">
 
-                        <i class="bi bi-bell text-xl text-white"></i>
+<button
+id="notificationButton"
+class="relative p-2 rounded-lg hover:bg-slate-100 transition">
 
-                        <span
-                            class="absolute -top-1 -right-1 bg-red-600 text-white text-xs px-2 rounded-full">
+<i class="bi bi-bell text-xl"></i>
 
-                            3
+@if($unreadNotifications > 0)
 
-                        </span>
+<span
+class="absolute -top-1 -right-1 bg-red-600 text-white text-[10px] rounded-full w-5 h-5 flex items-center justify-center">
 
-                    </button>
+{{ $unreadNotifications }}
+
+</span>
+
+@endif
+
+</button>
+
+<div
+id="notificationDropdown"
+class="hidden absolute right-0 mt-3 w-96 bg-white rounded-xl shadow-xl border border-slate-200 z-50">
+
+<div class="flex items-center justify-between p-4 border-b">
+
+<h3 class="font-semibold">
+
+Notifications
+
+</h3>
+
+<a
+href="{{ route('notifications.index') }}"
+class="text-blue-600 text-sm">
+
+View All
+
+</a>
+
+</div>
+
+<div class="max-h-96 overflow-y-auto">
+
+@forelse($notifications as $notification)
+
+<form
+    action="{{ route('notifications.read', $notification->id) }}"
+    method="POST">
+
+    @csrf
+
+    <button
+        type="submit"
+        class="w-full text-left p-4 border-b hover:bg-slate-50">
+
+        <div class="flex justify-between">
+
+            <h4 class="font-medium">
+
+                {{ $notification->title }}
+
+            </h4>
+
+            @if(!$notification->is_read)
+
+                <span
+                    class="w-2 h-2 rounded-full bg-blue-600 mt-2">
+                </span>
+
+            @endif
+
+        </div>
+
+        <p class="text-sm text-slate-500 mt-1">
+
+            {{ $notification->message }}
+
+        </p>
+
+        <p class="text-xs text-slate-400 mt-2">
+
+            {{ $notification->created_at->diffForHumans() }}
+
+        </p>
+
+    </button>
+
+</form>
+
+@empty
+
+<div class="p-6 text-center text-slate-500">
+
+    No notifications
+
+</div>
+
+@endforelse
+
+</div>
+
+</div>
+
+</div>
 
                     <!-- User -->
 
@@ -351,6 +444,36 @@
     </main>
 
 </div>
+
+<script>
+
+const notificationButton =
+document.getElementById('notificationButton');
+
+const notificationDropdown =
+document.getElementById('notificationDropdown');
+
+notificationButton.addEventListener('click', function () {
+
+notificationDropdown.classList.toggle('hidden');
+
+});
+
+window.addEventListener('click', function(e){
+
+if(
+!notificationButton.contains(e.target)
+&&
+!notificationDropdown.contains(e.target)
+){
+
+notificationDropdown.classList.add('hidden');
+
+}
+
+});
+
+</script>
 
 </body>
 

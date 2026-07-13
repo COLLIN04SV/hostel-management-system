@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Payment;
 use App\Models\Student;
 use App\Models\StudentAccount;
+use App\Models\Notification;
 use Illuminate\Http\Request;
 
 class PaymentController extends Controller
@@ -86,6 +87,21 @@ $completedPayments = StudentAccount::where('status', 'Completed')->count();
         'transaction_reference' => $request->transaction_reference,
         'payment_date'          => $request->payment_date,
         'status'                => 'Completed',
+    ]);
+
+    $student = Student::with('user')->find($request->student_id);
+
+    Notification::create([
+
+    'title' => 'Payment Received',
+
+    'message' =>
+        $student->user->name .
+        ' paid KSh ' .
+        number_format($request->amount),
+
+    'type' => 'payment'
+
     ]);
 
     // Update student account
