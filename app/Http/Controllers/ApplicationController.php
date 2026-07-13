@@ -78,38 +78,112 @@ class ApplicationController extends Controller
     );
 }
 
-    public function create()
-    {
-        $students = Student::all();
-        $hostels = Hostel::all();
+   public function create()
+{
+    // Only students without an active allocation
+    $students = Student::whereDoesntHave('allocations', function ($query) {
+        $query->where('status', 'Active');
+    })
+    ->with('user')
+    ->orderBy('registration_number')
+    ->get();
 
-        return view(
-            'admin.applications.create',
-            compact('students', 'hostels')
+    // Hostels are loaded dynamically after selecting a student
+    $hostels = collect();
+
+    return view(
+        'admin.applications.create',
+        compact('students', 'hostels')
+    );
+}
+
+   public function getHostels(Student $student)
+{
+    $hostels = Hostel::where(
+        'gender',
+        $student->gender
+    )
+    ->orderBy('name')
+    ->get();
+
+    return response()->json($hostels);
+}
+
+   public function store(Request $request)
+{
+    $request->validate([
+        'student_id' => 'required|exists:students,id',
+        'hostel_id' => 'required|exists:hostels,id'
+    ]);
+
+    $student = Student::findOrFail($request->student_id);
+
+    // Prevent applications for allocated students
+    $activeAllocation = $student->allocations()
+        ->where('status', 'Active')
+        ->exists();
+
+    if ($activeAllocation) {
+
+        return back()->with(
+            'error',
+            'This student already has an active room allocation.'
         );
+
     }
 
-    public function store(Request $request)
-    {
-        $request->validate([
-            'student_id' => 'required',
-            'hostel_id' => 'required'
-        ]);
+    // Prevent duplicate active applications
+    $existingApplication = Application::where(
+        'student_id',
+        $student->id
+    )
+    ->whereIn('status', [
+        'Pending',
+        'Approved',
+        'Allocated'
+    ])
+    ->exists();
 
-        Application::create([
-            'student_id' => $request->student_id,
-            'hostel_id' => $request->hostel_id,
-            'application_date' => now(),
-            'status' => 'Pending'
-        ]);
+    if ($existingApplication) {
 
-        return redirect()
-            ->route('applications.index')
-            ->with(
-                'success',
-                'Application submitted successfully'
-            );
+        return back()->with(
+            'error',
+            'This student already has an active application.'
+        );
+
     }
+
+    $hostel = Hostel::findOrFail($request->hostel_id);
+
+    // Gender check
+    if ($student->gender != $hostel->gender) {
+
+        return back()->with(
+            'error',
+            'Student gender does not match the selected hostel.'
+        );
+
+    }
+
+    Application::create([
+
+        'student_id' => $student->id,
+
+        'hostel_id' => $hostel->id,
+
+        'application_date' => now(),
+
+        'status' => 'Pending'
+
+    ]);
+
+    return redirect()
+        ->route('applications.index')
+        ->with(
+            'success',
+            'Application submitted successfully.'
+        );
+}
 
     public function approve($id)
 {

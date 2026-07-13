@@ -97,6 +97,16 @@ Route::middleware(['auth', 'admin'])->group(function () {
         [ApplicationController::class, 'reject']
     )->name('applications.reject');
 
+    Route::get(
+    '/applications/student/{student}/hostels',
+    [ApplicationController::class, 'getHostels']
+    )->name('applications.hostels');
+
+    Route::get(
+    '/allocations/student/{student}/rooms',
+    [AllocationController::class, 'getRooms']
+   )->name('allocations.rooms');
+
     Route::post(
         '/allocations/{allocation}/vacate',
         [AllocationController::class, 'vacate']
