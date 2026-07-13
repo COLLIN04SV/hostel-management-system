@@ -81,6 +81,11 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/reports', [ReportController::class, 'index'])
         ->name('reports.index');
 
+    Route::get(
+    '/admin/reports/export/pdf',
+    [ReportController::class, 'exportPdf']
+    )->name('reports.export.pdf');    
+
     Route::get('/settings', [SettingController::class, 'index'])
         ->name('settings.index');
 

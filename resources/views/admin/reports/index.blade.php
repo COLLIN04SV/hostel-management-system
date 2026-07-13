@@ -6,67 +6,156 @@
 
 <x-admin.page-header
     title="Reports Dashboard"
-    subtitle="Hostel performance, financial reports and occupancy statistics"/>
+    subtitle="Financial, occupancy and hostel performance reports">
 
-{{-- Main Statistics --}}
+</x-admin.page-header>
+
+<div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 mb-6">
+
+<form
+    action="{{ route('reports.index') }}"
+    method="GET">
+
+<div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+
+<div>
+
+<label class="block text-sm font-medium text-slate-700 mb-2">
+
+From Date
+
+</label>
+
+<input
+type="date"
+name="from"
+value="{{ request('from') }}"
+class="w-full rounded-xl border-slate-300">
+
+</div>
+
+<div>
+
+<label class="block text-sm font-medium text-slate-700 mb-2">
+
+To Date
+
+</label>
+
+<input
+type="date"
+name="to"
+value="{{ request('to') }}"
+class="w-full rounded-xl border-slate-300">
+
+</div>
+
+<div class="flex items-end">
+
+<button
+type="submit"
+class="w-full px-5 py-2.5 rounded-xl bg-blue-600 text-white hover:bg-blue-700">
+
+<i class="bi bi-funnel me-2"></i>
+
+Filter Report
+
+</button>
+
+</div>
+
+<div class="flex items-end">
+
+<a
+href="{{ route('reports.index') }}"
+class="w-full text-center px-5 py-2.5 rounded-xl bg-slate-600 text-white hover:bg-slate-700">
+
+Reset
+
+</a>
+
+</div>
+
+<div class="flex items-end">
+
+<a
+href="{{ route('reports.export.pdf',[
+'from'=>request('from'),
+'to'=>request('to')
+]) }}"
+class="w-full text-center px-5 py-2.5 rounded-xl bg-red-600 text-white hover:bg-red-700">
+
+<i class="bi bi-file-earmark-pdf me-2"></i>
+
+Export PDF
+
+</a>
+
+</div>
+
+</div>
+
+</form>
+
+</div>
+
+
 
 <x-admin.stats-grid>
 
-    <x-admin.stat-card
-        title="Students"
-        :value="$totalStudents"
-        icon="bi-people-fill"
-        color="blue"/>
+<x-admin.stat-card
+title="Students"
+:value="$totalStudents"
+icon="bi-people-fill"
+color="blue"/>
 
-    <x-admin.stat-card
-        title="Revenue Collected"
-        :value="'KSh '.number_format($totalRevenue)"
-        icon="bi-cash-stack"
-        color="green"/>
+<x-admin.stat-card
+title="Revenue"
+:value="'KSh '.number_format($totalRevenue)"
+icon="bi-cash-stack"
+color="green"/>
 
-    <x-admin.stat-card
-        title="Outstanding Balance"
-        :value="'KSh '.number_format($outstandingBalance)"
-        icon="bi-wallet2"
-        color="yellow"/>
+<x-admin.stat-card
+title="Outstanding"
+:value="'KSh '.number_format($outstandingBalance)"
+icon="bi-wallet2"
+color="yellow"/>
 
-    <x-admin.stat-card
-        title="Occupancy"
-        :value="$occupancyRate.'%'"
-        icon="bi-house-check-fill"
-        color="indigo"/>
+<x-admin.stat-card
+title="Occupancy"
+:value="$occupancyRate.'%'"
+icon="bi-building"
+color="indigo"/>
 
 </x-admin.stats-grid>
 
 
 
-{{-- Payment Statistics --}}
-
 <x-admin.stats-grid>
 
-    <x-admin.stat-card
-        title="Accounts Cleared"
-        :value="$completedAccounts"
-        icon="bi-check-circle-fill"
-        color="green"/>
+<x-admin.stat-card
+title="Paid Students"
+:value="$completedAccounts"
+icon="bi-check-circle-fill"
+color="green"/>
 
-    <x-admin.stat-card
-        title="Partial Payments"
-        :value="$partialAccounts"
-        icon="bi-hourglass-split"
-        color="blue"/>
+<x-admin.stat-card
+title="Partial Payments"
+:value="$partialAccounts"
+icon="bi-hourglass-split"
+color="blue"/>
 
-    <x-admin.stat-card
-        title="Pending Payments"
-        :value="$pendingAccounts"
-        icon="bi-clock-history"
-        color="yellow"/>
+<x-admin.stat-card
+title="Pending Payments"
+:value="$pendingAccounts"
+icon="bi-clock-history"
+color="yellow"/>
 
-    <x-admin.stat-card
-        title="Allocated Students"
-        :value="$allocatedStudents"
-        icon="bi-person-check-fill"
-        color="blue"/>
+<x-admin.stat-card
+title="Allocated Students"
+:value="$allocatedStudents"
+icon="bi-house-check-fill"
+color="blue"/>
 
 </x-admin.stats-grid>
 
@@ -74,228 +163,231 @@
 
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
 
-{{-- Occupancy Summary --}}
-
 <x-admin.card>
 
-    <div class="flex items-center justify-between mb-5">
+<div class="flex justify-between items-center mb-5">
 
-        <div>
+<div>
 
-            <h2 class="text-lg font-semibold">
+<h2 class="text-lg font-semibold">
 
-                Hostel Occupancy
+Hostel Occupancy
 
-            </h2>
+</h2>
 
-            <p class="text-sm text-slate-500">
+<p class="text-sm text-slate-500">
 
-                Overall bed utilization
+Current bed utilization
 
-            </p>
+</p>
 
-        </div>
+</div>
 
-        <i class="bi bi-building text-2xl text-blue-600"></i>
+<i class="bi bi-building text-3xl text-blue-600"></i>
 
-    </div>
+</div>
 
-    <div class="space-y-5">
+<div class="space-y-5">
 
-        <div>
+<div>
 
-            <div class="flex justify-between text-sm mb-2">
+<div class="flex justify-between mb-2 text-sm">
 
-                <span>Occupancy Rate</span>
+<span>
 
-                <span class="font-semibold">
+Occupancy Rate
 
-                    {{ $occupancyRate }}%
+</span>
 
-                </span>
+<span class="font-semibold">
 
-            </div>
+{{ $occupancyRate }}%
 
-            <div class="w-full h-3 bg-slate-200 rounded-full overflow-hidden">
+</span>
 
-                <div
-                    class="h-full bg-blue-600 rounded-full"
-                    style="width: {{ $occupancyRate }}%">
-                </div>
+</div>
 
-            </div>
+<div class="w-full h-3 rounded-full bg-slate-200 overflow-hidden">
 
-        </div>
+<div
+class="h-full bg-blue-600"
+style="width:{{ $occupancyRate }}%">
 
-        <div class="grid grid-cols-3 gap-4 text-center">
+</div>
 
-            <div>
+</div>
 
-                <p class="text-xs text-slate-500">
+</div>
 
-                    Capacity
+<div class="grid grid-cols-3 gap-4 text-center">
 
-                </p>
+<div>
 
-                <h3 class="text-xl font-bold">
+<p class="text-xs text-slate-500">
 
-                    {{ $totalBeds }}
+Capacity
 
-                </h3>
+</p>
 
-            </div>
+<h3 class="text-xl font-bold">
 
-            <div>
+{{ $totalBeds }}
 
-                <p class="text-xs text-slate-500">
+</h3>
 
-                    Occupied
+</div>
 
-                </p>
+<div>
 
-                <h3 class="text-xl font-bold text-blue-600">
+<p class="text-xs text-slate-500">
 
-                    {{ $occupiedBeds }}
+Occupied
 
-                </h3>
+</p>
 
-            </div>
+<h3 class="text-xl font-bold text-blue-600">
 
-            <div>
+{{ $occupiedBeds }}
 
-                <p class="text-xs text-slate-500">
+</h3>
 
-                    Vacant
+</div>
 
-                </p>
+<div>
 
-                <h3 class="text-xl font-bold text-green-600">
+<p class="text-xs text-slate-500">
 
-                    {{ $vacantBeds }}
+Vacant
 
-                </h3>
+</p>
 
-            </div>
+<h3 class="text-xl font-bold text-green-600">
 
-        </div>
+{{ $vacantBeds }}
 
-    </div>
+</h3>
+
+</div>
+
+</div>
+
+</div>
 
 </x-admin.card>
 
-{{-- Financial Summary --}}
+
 
 <x-admin.card>
 
-    <div class="flex items-center justify-between mb-5">
+<div class="flex justify-between items-center mb-5">
 
-        <div>
+<div>
 
-            <h2 class="text-lg font-semibold">
+<h2 class="text-lg font-semibold">
 
-                Financial Summary
+Financial Summary
 
-            </h2>
+</h2>
 
-            <p class="text-sm text-slate-500">
+<p class="text-sm text-slate-500">
 
-                Student payment progress
+Student payment overview
 
-            </p>
+</p>
 
-        </div>
+</div>
 
-        <i class="bi bi-cash-stack text-2xl text-green-600"></i>
+<i class="bi bi-cash-stack text-3xl text-green-600"></i>
 
-    </div>
+</div>
 
-    <div class="space-y-5">
+<div class="space-y-5">
 
-        <div class="flex justify-between items-center">
+<div class="flex justify-between">
 
-            <span class="text-slate-500">
+<span class="text-slate-500">
 
-                Revenue Collected
+Revenue Collected
 
-            </span>
+</span>
 
-            <span class="text-xl font-bold text-green-600">
+<span class="text-xl font-bold text-green-600">
 
-                KSh {{ number_format($totalRevenue) }}
+KSh {{ number_format($totalRevenue) }}
 
-            </span>
+</span>
 
-        </div>
+</div>
 
-        <div class="flex justify-between items-center">
+<div class="flex justify-between">
 
-            <span class="text-slate-500">
+<span class="text-slate-500">
 
-                Outstanding Balance
+Outstanding Balance
 
-            </span>
+</span>
 
-            <span class="text-xl font-bold text-red-600">
+<span class="text-xl font-bold text-red-600">
 
-                KSh {{ number_format($outstandingBalance) }}
+KSh {{ number_format($outstandingBalance) }}
 
-            </span>
+</span>
 
-        </div>
+</div>
 
-        <div class="grid grid-cols-3 gap-4 pt-4">
+<div class="grid grid-cols-3 gap-4 text-center pt-3">
 
-            <div class="text-center">
+<div>
 
-                <p class="text-xs text-slate-500">
+<p class="text-xs text-slate-500">
 
-                    Paid
+Paid
 
-                </p>
+</p>
 
-                <h3 class="text-xl font-bold text-green-600">
+<h3 class="text-xl font-bold text-green-600">
 
-                    {{ $completedAccounts }}
+{{ $completedAccounts }}
 
-                </h3>
+</h3>
 
-            </div>
+</div>
 
-            <div class="text-center">
+<div>
 
-                <p class="text-xs text-slate-500">
+<p class="text-xs text-slate-500">
 
-                    Partial
+Partial
 
-                </p>
+</p>
 
-                <h3 class="text-xl font-bold text-blue-600">
+<h3 class="text-xl font-bold text-blue-600">
 
-                    {{ $partialAccounts }}
+{{ $partialAccounts }}
 
-                </h3>
+</h3>
 
-            </div>
+</div>
 
-            <div class="text-center">
+<div>
 
-                <p class="text-xs text-slate-500">
+<p class="text-xs text-slate-500">
 
-                    Pending
+Pending
 
-                </p>
+</p>
 
-                <h3 class="text-xl font-bold text-yellow-600">
+<h3 class="text-xl font-bold text-yellow-600">
 
-                    {{ $pendingAccounts }}
+{{ $pendingAccounts }}
 
-                </h3>
+</h3>
 
-            </div>
+</div>
 
-        </div>
+</div>
 
-    </div>
+</div>
 
 </x-admin.card>
 
@@ -304,7 +396,6 @@
 
 
 {{-- Student Payment Report --}}
-
 <x-admin.table>
 
 <div class="flex items-center justify-between mb-5">
@@ -326,6 +417,12 @@
 <x-admin.table-heading>
 
 Student
+
+</x-admin.table-heading>
+
+<x-admin.table-heading>
+
+Hostel
 
 </x-admin.table-heading>
 
@@ -380,6 +477,12 @@ Status
 </p>
 
 </div>
+
+</x-admin.table-cell>
+
+<x-admin.table-cell>
+
+{{ $account->allocation->room->hostel->name }}
 
 </x-admin.table-cell>
 
@@ -451,7 +554,7 @@ text="Pending"/>
 
 <tr>
 
-<td colspan="5">
+<td colspan="6">
 
 <x-admin.empty-state
 icon="bi-wallet2"
@@ -470,20 +573,19 @@ message="Student accounts will appear here."/>
 
 </x-admin.table>
 
-{{-- Hostel Occupancy Report --}}
+
 
 <x-admin.table>
 
 <div class="flex items-center justify-between mb-5">
 
-    <h2 class="text-lg font-semibold">
+<h2 class="text-lg font-semibold">
 
-        Hostel Occupancy Report
+Hostel Occupancy Report
 
-    </h2>
+</h2>
 
 </div>
-
 
 <table class="min-w-full">
 
@@ -497,13 +599,11 @@ Hostel
 
 </x-admin.table-heading>
 
-
 <x-admin.table-heading>
 
 Capacity
 
 </x-admin.table-heading>
-
 
 <x-admin.table-heading>
 
@@ -511,13 +611,11 @@ Occupied
 
 </x-admin.table-heading>
 
-
 <x-admin.table-heading>
 
 Available
 
 </x-admin.table-heading>
-
 
 <x-admin.table-heading>
 
@@ -529,28 +627,25 @@ Occupancy
 
 </thead>
 
-
 <tbody>
 
 @forelse($hostels as $hostel)
 
 @php
 
-    $capacity = $hostel->rooms->sum('capacity');
+$capacity = $hostel->rooms->sum('capacity');
 
-    $occupied = $hostel->rooms->sum('occupied');
+$occupied = $hostel->rooms->sum('occupied');
 
-    $available = $capacity - $occupied;
+$available = $capacity - $occupied;
 
-    $rate = $capacity > 0
-        ? round(($occupied / $capacity) * 100)
-        : 0;
+$rate = $capacity > 0
+? round(($occupied/$capacity)*100)
+: 0;
 
 @endphp
 
-
 <tr class="border-b border-slate-100 hover:bg-slate-50">
-
 
 <x-admin.table-cell>
 
@@ -558,13 +653,11 @@ Occupancy
 
 </x-admin.table-cell>
 
-
 <x-admin.table-cell>
 
 {{ $capacity }}
 
 </x-admin.table-cell>
-
 
 <x-admin.table-cell>
 
@@ -576,7 +669,6 @@ Occupancy
 
 </x-admin.table-cell>
 
-
 <x-admin.table-cell>
 
 <span class="font-semibold text-green-600">
@@ -586,7 +678,6 @@ Occupancy
 </span>
 
 </x-admin.table-cell>
-
 
 <x-admin.table-cell>
 
@@ -598,12 +689,12 @@ Occupancy
 
 </span>
 
-
-<div class="w-24 h-2 bg-slate-200 rounded-full overflow-hidden">
+<div class="w-28 h-2 rounded-full bg-slate-200 overflow-hidden">
 
 <div
 class="h-full bg-blue-600"
-style="width: {{ $rate }}%">
+style="width:{{ $rate }}%">
+
 </div>
 
 </div>
@@ -612,9 +703,7 @@ style="width: {{ $rate }}%">
 
 </x-admin.table-cell>
 
-
 </tr>
-
 
 @empty
 
@@ -625,7 +714,7 @@ style="width: {{ $rate }}%">
 <x-admin.empty-state
 icon="bi-building"
 title="No Hostels"
-message="Hostel occupancy data will appear here."/>
+message="Hostel occupancy report will appear here."/>
 
 </td>
 
@@ -633,40 +722,32 @@ message="Hostel occupancy data will appear here."/>
 
 @endforelse
 
-
 </tbody>
 
 </table>
-
 
 </x-admin.table>
 
 
 
 {{-- Recent Allocations --}}
-
-
 <x-admin.table>
-
 
 <div class="flex items-center justify-between mb-5">
 
-<h2 class="text-lg font-semibold">
+    <h2 class="text-lg font-semibold">
 
-Recent Allocations
+        Recent Allocations
 
-</h2>
+    </h2>
 
 </div>
 
-
 <table class="min-w-full">
-
 
 <thead class="bg-slate-50 border-b">
 
 <tr>
-
 
 <x-admin.table-heading>
 
@@ -674,13 +755,11 @@ Student
 
 </x-admin.table-heading>
 
-
 <x-admin.table-heading>
 
 Hostel
 
 </x-admin.table-heading>
-
 
 <x-admin.table-heading>
 
@@ -688,13 +767,11 @@ Room
 
 </x-admin.table-heading>
 
-
 <x-admin.table-heading>
 
-Date
+Allocated On
 
 </x-admin.table-heading>
-
 
 <x-admin.table-heading>
 
@@ -702,21 +779,15 @@ Status
 
 </x-admin.table-heading>
 
-
 </tr>
 
 </thead>
 
-
-
 <tbody>
-
 
 @forelse($recentAllocations as $allocation)
 
-
 <tr class="border-b border-slate-100 hover:bg-slate-50">
-
 
 <x-admin.table-cell>
 
@@ -738,23 +809,17 @@ Status
 
 </x-admin.table-cell>
 
-
-
 <x-admin.table-cell>
 
 {{ $allocation->room->hostel->name }}
 
 </x-admin.table-cell>
 
-
-
 <x-admin.table-cell>
 
-{{ $allocation->room->room_number }}
+Room {{ $allocation->room->room_number }}
 
 </x-admin.table-cell>
-
-
 
 <x-admin.table-cell>
 
@@ -762,17 +827,13 @@ Status
 
 </x-admin.table-cell>
 
-
-
 <x-admin.table-cell>
 
-
-@if($allocation->status == 'Active')
+@if($allocation->status=='Active')
 
 <x-admin.badge
 type="success"
 text="Active"/>
-
 
 @else
 
@@ -780,66 +841,40 @@ text="Active"/>
 type="danger"
 text="Vacated"/>
 
-
 @endif
-
 
 </x-admin.table-cell>
 
-
-
 </tr>
 
-
-
 @empty
-
 
 <tr>
 
 <td colspan="5">
 
-
 <x-admin.empty-state
-
 icon="bi-house-check"
-
 title="No Allocations"
-
-message="Room allocation records will appear here."
-
-/>
-
+message="Room allocations will appear here."/>
 
 </td>
 
-
 </tr>
-
 
 @endforelse
 
-
-
 </tbody>
 
-
 </table>
-
 
 </x-admin.table>
 
 
 
-
-{{-- Recent Payments --}}
-
-
 <x-admin.table>
 
-
 <div class="flex items-center justify-between mb-5">
-
 
 <h2 class="text-lg font-semibold">
 
@@ -847,18 +882,13 @@ Recent Payments
 
 </h2>
 
-
 </div>
-
 
 <table class="min-w-full">
 
-
 <thead class="bg-slate-50 border-b">
 
-
 <tr>
-
 
 <x-admin.table-heading>
 
@@ -866,20 +896,23 @@ Student
 
 </x-admin.table-heading>
 
-
 <x-admin.table-heading>
 
 Amount
 
 </x-admin.table-heading>
 
-
 <x-admin.table-heading>
 
-Method
+Payment Method
 
 </x-admin.table-heading>
 
+<x-admin.table-heading>
+
+Reference
+
+</x-admin.table-heading>
 
 <x-admin.table-heading>
 
@@ -887,39 +920,23 @@ Date
 
 </x-admin.table-heading>
 
-
-
 </tr>
-
 
 </thead>
 
-
-
 <tbody>
-
 
 @forelse($recentPayments as $payment)
 
-
-
 <tr class="border-b border-slate-100 hover:bg-slate-50">
-
-
 
 <x-admin.table-cell>
 
-
-{{ $payment->student->user->name ?? 'Unknown' }}
-
+{{ $payment->student->user->name }}
 
 </x-admin.table-cell>
 
-
-
-
 <x-admin.table-cell>
-
 
 <span class="font-semibold text-green-600">
 
@@ -927,74 +944,49 @@ KSh {{ number_format($payment->amount) }}
 
 </span>
 
-
 </x-admin.table-cell>
 
-
-
-
 <x-admin.table-cell>
-
 
 {{ $payment->payment_method }}
 
-
 </x-admin.table-cell>
-
-
-
 
 <x-admin.table-cell>
 
-
-{{ \Carbon\Carbon::parse($payment->payment_date)->format('d M Y') }}
-
+{{ $payment->transaction_reference ?? '-' }}
 
 </x-admin.table-cell>
 
+<x-admin.table-cell>
 
+{{ \Carbon\Carbon::parse($payment->payment_date)->format('d M Y') }}
+
+</x-admin.table-cell>
 
 </tr>
-
-
 
 @empty
 
-
 <tr>
 
-<td colspan="4">
-
+<td colspan="5">
 
 <x-admin.empty-state
-
 icon="bi-credit-card"
-
 title="No Payments"
-
-message="Recent payments will appear here."
-
-/>
-
+message="Recent payments will appear here."/>
 
 </td>
 
-
 </tr>
-
 
 @endforelse
 
-
-
 </tbody>
-
 
 </table>
 
-
 </x-admin.table>
-
-
 
 @endsection
