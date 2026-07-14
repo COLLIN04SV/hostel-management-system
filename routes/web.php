@@ -113,11 +113,16 @@ Route::middleware(['auth', 'admin'])->group(function () {
     [AllocationController::class, 'getRooms']
    )->name('allocations.rooms');
 
-    Route::post(
-        '/allocations/{allocation}/vacate',
-        [AllocationController::class, 'vacate']
-    )->name('allocations.vacate');
+    Route::get(
+    '/allocations/{allocation}/change-room',
+    [AllocationController::class, 'changeRoomForm']
+    )->name('allocations.change-room.form');
 
+    Route::put(
+    '/allocations/{allocation}/change-room',
+    [AllocationController::class, 'changeRoom']
+    )->name('allocations.change-room');
+    
     Route::get(
     '/admin/notifications',
     [NotificationController::class, 'index']

@@ -254,32 +254,159 @@ class AllocationController extends Controller
         );
 }
 
-    public function vacate(Allocation $allocation)
-    {
-        if ($allocation->status !== 'Active') {
+public function changeRoomForm(Allocation $allocation)
+{
+    if ($allocation->status != 'Active') {
 
-            return back()->with(
-                'error',
-                'Only active allocations can be vacated.'
-            );
+        return back()->with(
+            'error',
+            'Only active allocations can change rooms.'
+        );
 
-        }
-
-        $allocation->update([
-
-            'status' => 'Vacated',
-
-            'vacated_date' => now(),
-
-        ]);
-
-        $allocation->room->decrement('occupied');
-
-        return redirect()
-            ->route('allocations.index')
-            ->with(
-                'success',
-                'Room vacated successfully.'
-            );
     }
+
+    $account = StudentAccount::where(
+        'allocation_id',
+        $allocation->id
+    )->first();
+
+    if (!$account) {
+
+        return back()->with(
+            'error',
+            'Student account not found.'
+        );
+
+    }
+
+    // Only first 14 days after allocation
+
+    if (
+        now()->diffInDays($allocation->allocated_date) > 14
+    ) {
+
+        return back()->with(
+            'error',
+            'Room changes are only allowed during the first 14 days.'
+        );
+
+    }
+
+    $rooms = Room::where(
+            'hostel_id',
+            $allocation->room->hostel_id
+        )
+        ->whereColumn(
+            'occupied',
+            '<',
+            'capacity'
+        )
+        ->where(
+            'id',
+            '!=',
+            $allocation->room_id
+        )
+        ->orderBy('room_number')
+        ->get();
+
+    return view(
+        'admin.allocations.change-room',
+        compact(
+            'allocation',
+            'rooms'
+        )
+    );
+}
+
+public function changeRoom(Request $request, Allocation $allocation)
+{
+    $request->validate([
+
+        'room_id' => 'required|exists:rooms,id'
+
+    ]);
+
+    if ($allocation->status != 'Active') {
+
+        return back()->with(
+            'error',
+            'Only active allocations can change rooms.'
+        );
+
+    }
+
+    if (
+        now()->diffInDays($allocation->allocated_date) > 14
+    ) {
+
+        return back()->with(
+            'error',
+            'Room change period has expired.'
+        );
+
+    }
+
+    $newRoom = Room::findOrFail(
+        $request->room_id
+    );
+
+    if (
+        $newRoom->hostel_id !=
+        $allocation->room->hostel_id
+    ) {
+
+        return back()->with(
+            'error',
+            'Students can only move within the same hostel.'
+        );
+
+    }
+
+    if (
+        $newRoom->occupied >=
+        $newRoom->capacity
+    ) {
+
+        return back()->with(
+            'error',
+            'Selected room is already full.'
+        );
+
+    }
+
+    $oldRoom = $allocation->room;
+
+    $oldRoom->decrement('occupied');
+
+    $newRoom->increment('occupied');
+
+    $allocation->update([
+
+        'room_id' => $newRoom->id
+
+    ]);
+
+    Notification::create([
+
+        'title' => 'Room Changed',
+
+        'message' =>
+            $allocation->student->user->name .
+            ' moved from Room ' .
+            $oldRoom->room_number .
+            ' to Room ' .
+            $newRoom->room_number .
+            '.',
+
+        'type' => 'allocation'
+
+    ]);
+
+    return redirect()
+        ->route('allocations.index')
+        ->with(
+            'success',
+            'Room changed successfully.'
+        );
+}
 }

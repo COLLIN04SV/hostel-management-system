@@ -1,6 +1,6 @@
 @extends('student.layouts.app')
 
-@section('title', 'Payments')
+@section('title', 'My Payments')
 
 @section('student-content')
 
@@ -8,19 +8,43 @@
     $lastPaymentDate = $lastPayment
         ? \Carbon\Carbon::parse($lastPayment->payment_date)->format('d M Y')
         : 'No Payments';
+
+    $account = auth()->user()->student->account;
+
+    $roomFee = $account?->room_fee ?? 0;
+    $balance = $account?->balance ?? 0;
+    $status = $account?->status ?? 'Pending';
+
+    $progress = $roomFee > 0
+        ? round((($roomFee - $balance) / $roomFee) * 100)
+        : 0;
 @endphp
 
 <x-student.section-title
     title="Payments"
-    subtitle="View your payment summary and payment history." />
+    subtitle="Track your hostel fee payments, outstanding balance and payment history."/>
 
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+{{-- Statistics --}}
+
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+
+    <x-student.stat-card
+        title="Room Fee"
+        :value="'KES '.number_format($roomFee)"
+        icon="bi-house-door-fill"
+        color="indigo"/>
 
     <x-student.stat-card
         title="Total Paid"
-        :value="'KES ' . number_format($totalPaid)"
+        :value="'KES '.number_format($totalPaid)"
         icon="bi-cash-stack"
         color="green"/>
+
+    <x-student.stat-card
+        title="Outstanding"
+        :value="'KES '.number_format($balance)"
+        icon="bi-wallet2"
+        color="yellow"/>
 
     <x-student.stat-card
         title="Payments Made"
@@ -28,155 +52,452 @@
         icon="bi-receipt"
         color="blue"/>
 
-    <x-student.stat-card
-        title="Last Payment"
-        :value="$lastPaymentDate"
-        icon="bi-calendar-check"
-        color="indigo"/>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+
+    {{-- Account Summary --}}
+
+    <x-student.card>
+
+        <div class="flex items-center justify-between mb-6">
+
+            <div>
+
+                <h2 class="text-lg font-semibold">
+
+                    Account Summary
+
+                </h2>
+
+                <p class="text-sm text-slate-500">
+
+                    Current financial status
+
+                </p>
+
+            </div>
+
+            <i class="bi bi-wallet2 text-3xl text-indigo-600"></i>
+
+        </div>
+
+        <div class="space-y-5">
+
+            <div class="flex justify-between">
+
+                <span class="text-slate-500">
+
+                    Hostel Fee
+
+                </span>
+
+                <span class="font-bold">
+
+                    KES {{ number_format($roomFee) }}
+
+                </span>
+
+            </div>
+
+            <div class="flex justify-between">
+
+                <span class="text-slate-500">
+
+                    Amount Paid
+
+                </span>
+
+                <span class="font-bold text-green-600">
+
+                    KES {{ number_format($totalPaid) }}
+
+                </span>
+
+            </div>
+
+            <div class="flex justify-between">
+
+                <span class="text-slate-500">
+
+                    Outstanding Balance
+
+                </span>
+
+                <span class="font-bold text-red-600">
+
+                    KES {{ number_format($balance) }}
+
+                </span>
+
+            </div>
+
+            <div class="flex justify-between">
+
+                <span class="text-slate-500">
+
+                    Last Payment
+
+                </span>
+
+                <span class="font-semibold">
+
+                    {{ $lastPaymentDate }}
+
+                </span>
+
+            </div>
+
+            <div class="flex justify-between items-center">
+
+                <span class="text-slate-500">
+
+                    Account Status
+
+                </span>
+
+                @if($status=='Completed')
+
+                    <span class="px-3 py-1 rounded-full bg-green-100 text-green-700 text-sm">
+
+                        Completed
+
+                    </span>
+
+                @elseif($status=='Partial')
+
+                    <span class="px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-sm">
+
+                        Partial
+
+                    </span>
+
+                @else
+
+                    <span class="px-3 py-1 rounded-full bg-yellow-100 text-yellow-700 text-sm">
+
+                        Pending
+
+                    </span>
+
+                @endif
+
+            </div>
+
+        </div>
+
+    </x-student.card>
+
+    {{-- Payment Progress --}}
+
+    <x-student.card>
+
+        <div class="flex items-center justify-between mb-6">
+
+            <div>
+
+                <h2 class="text-lg font-semibold">
+
+                    Payment Progress
+
+                </h2>
+
+                <p class="text-sm text-slate-500">
+
+                    Overall completion
+
+                </p>
+
+            </div>
+
+            <i class="bi bi-graph-up-arrow text-3xl text-green-600"></i>
+
+        </div>
+
+        <div class="mb-4">
+
+            <div class="flex justify-between mb-2">
+
+                <span>
+
+                    Progress
+
+                </span>
+
+                <span class="font-semibold">
+
+                    {{ $progress }}%
+
+                </span>
+
+            </div>
+
+            <div class="w-full h-3 bg-slate-200 rounded-full overflow-hidden">
+
+                <div
+                    class="h-full bg-green-600 rounded-full"
+                    style="width: {{ $progress }}%">
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="grid grid-cols-3 gap-4 mt-6 text-center">
+
+            <div>
+
+                <p class="text-xs text-slate-500">
+
+                    Fee
+
+                </p>
+
+                <h3 class="font-bold">
+
+                    KES {{ number_format($roomFee) }}
+
+                </h3>
+
+            </div>
+
+            <div>
+
+                <p class="text-xs text-slate-500">
+
+                    Paid
+
+                </p>
+
+                <h3 class="font-bold text-green-600">
+
+                    KES {{ number_format($totalPaid) }}
+
+                </h3>
+
+            </div>
+
+            <div>
+
+                <p class="text-xs text-slate-500">
+
+                    Balance
+
+                </p>
+
+                <h3 class="font-bold text-red-600">
+
+                    KES {{ number_format($balance) }}
+
+                </h3>
+
+            </div>
+
+        </div>
+
+    </x-student.card>
 
 </div>
 
+{{-- Payment History --}}
+
 <x-student.card>
 
-    <div class="flex items-center justify-between mb-6">
+<div class="flex items-center justify-between mb-6">
+
+    <div>
 
         <h2 class="text-xl font-semibold">
+
             Payment History
+
         </h2>
+
+        <p class="text-sm text-slate-500">
+
+            All payments made towards your hostel fees
+
+        </p>
 
     </div>
 
-    @if($payments->count())
+</div>
 
-        <div class="overflow-x-auto">
+@if($payments->count())
 
-            <table class="min-w-full divide-y divide-gray-200">
+<div class="overflow-x-auto">
 
-                <thead class="bg-gray-50">
+<table class="min-w-full divide-y divide-slate-200">
 
-                    <tr>
+<thead class="bg-slate-50">
 
-                        <th class="px-4 py-3 text-left">
-                            Receipt
-                        </th>
+<tr>
 
-                        <th class="px-4 py-3 text-left">
-                            Date
-                        </th>
+<th class="px-4 py-3 text-left text-sm font-semibold">
 
-                        <th class="px-4 py-3 text-left">
-                            Amount
-                        </th>
+Receipt #
 
-                        <th class="px-4 py-3 text-left">
-                            Method
-                        </th>
+</th>
 
-                       <th class="px-4 py-3 text-left">
-                          Status
-                        </th>
+<th class="px-4 py-3 text-left text-sm font-semibold">
 
-                       <th class="px-4 py-3 text-center">
-                          Receipt
-                       </th>
+Date
 
-                      
+</th>
 
-                    </tr>
+<th class="px-4 py-3 text-left text-sm font-semibold">
 
-                </thead>
+Amount
 
-                <tbody class="divide-y divide-gray-100 bg-white">
+</th>
 
-                    @foreach($payments as $payment)
+<th class="px-4 py-3 text-left text-sm font-semibold">
 
-                        <tr>
+Method
 
-                            <td class="px-4 py-4">
-                                #{{ $payment->id }}
-                            </td>
+</th>
 
-                            <td class="px-4 py-4">
-                                {{ \Carbon\Carbon::parse($payment->payment_date)->format('d M Y') }}
-                            </td>
+<th class="px-4 py-3 text-left text-sm font-semibold">
 
-                            <td class="px-4 py-4 font-semibold">
-                                KES {{ number_format($payment->amount) }}
-                            </td>
+Status
 
-                            <td class="px-4 py-4">
-                                {{ $payment->payment_method }}
-                            </td>
+</th>
 
-                            <td class="px-4 py-4">
+<th class="px-4 py-3 text-center text-sm font-semibold">
 
-                                @if($payment->status == 'Completed')
+Receipt
 
-                                    <span class="px-3 py-1 rounded-full text-sm bg-green-100 text-green-700">
-                                        Completed
-                                    </span>
+</th>
 
-                                @elseif($payment->status == 'Pending')
+</tr>
 
-                                    <span class="px-3 py-1 rounded-full text-sm bg-yellow-100 text-yellow-700">
-                                        Pending
-                                    </span>
+</thead>
 
-                                @else
+<tbody class="divide-y divide-slate-100 bg-white">
 
-                                    <span class="px-3 py-1 rounded-full text-sm bg-red-100 text-red-700">
-                                        Failed
-                                    </span>
+@foreach($payments as $payment)
 
-                                @endif
+<tr class="hover:bg-slate-50 transition">
 
-                            </td>
+    <td class="px-4 py-4">
 
-                            <td class="px-4 py-4 text-center">
+        <span class="font-semibold">
 
-    <a
-        href="{{ route('student.payments.receipt', $payment->id) }}"
-        class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm">
+            #{{ $payment->id }}
 
-        Download
+        </span>
 
-    </a>
+    </td>
 
-</td>
+    <td class="px-4 py-4">
 
-                        </tr>
+        {{ \Carbon\Carbon::parse($payment->payment_date)->format('d M Y') }}
 
-                    @endforeach
+    </td>
 
-                </tbody>
+    <td class="px-4 py-4">
 
-            </table>
+        <span class="font-semibold text-green-600">
 
-        </div>
+            KES {{ number_format($payment->amount) }}
 
-        <div class="mt-6">
+        </span>
 
-            {{ $payments->links() }}
+    </td>
 
-        </div>
+    <td class="px-4 py-4">
 
-    @else
+        {{ $payment->payment_method }}
 
-        <div class="text-center py-16">
+    </td>
 
-            <i class="bi bi-wallet2 text-5xl text-gray-300"></i>
+    <td class="px-4 py-4">
 
-            <h3 class="mt-4 text-xl font-semibold">
-                No Payments Found
-            </h3>
+        @if($payment->status == 'Completed')
 
-            <p class="mt-2 text-gray-500">
-                Your payment history will appear here once payments are recorded.
-            </p>
+            <span class="px-3 py-1 rounded-full bg-green-100 text-green-700 text-sm">
 
-        </div>
+                Completed
 
-    @endif
+            </span>
+
+        @elseif($payment->status == 'Pending')
+
+            <span class="px-3 py-1 rounded-full bg-yellow-100 text-yellow-700 text-sm">
+
+                Pending
+
+            </span>
+
+        @else
+
+            <span class="px-3 py-1 rounded-full bg-red-100 text-red-700 text-sm">
+
+                Failed
+
+            </span>
+
+        @endif
+
+    </td>
+
+    <td class="px-4 py-4 text-center">
+
+        <a
+            href="{{ route('student.payments.receipt',$payment->id) }}"
+            class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition">
+
+            <i class="bi bi-download"></i>
+
+            Receipt
+
+        </a>
+
+    </td>
+
+</tr>
+
+@endforeach
+
+</tbody>
+
+</table>
+
+</div>
+
+<div class="mt-6">
+
+    {{ $payments->links() }}
+
+</div>
+
+@else
+
+<div class="py-16 text-center">
+
+    <div class="w-20 h-20 mx-auto rounded-full bg-slate-100 flex items-center justify-center mb-5">
+
+        <i class="bi bi-wallet2 text-4xl text-slate-400"></i>
+
+    </div>
+
+    <h3 class="text-xl font-semibold text-slate-700">
+
+        No Payments Yet
+
+    </h3>
+
+    <p class="text-slate-500 mt-2">
+
+        Once your hostel payments are recorded by the administration,
+        they will appear here together with downloadable receipts.
+
+    </p>
+
+</div>
+
+@endif
 
 </x-student.card>
 

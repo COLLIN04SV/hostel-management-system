@@ -37,11 +37,11 @@
         icon="bi-check-circle"
         color="green"/>
 
-    <x-admin.stat-card
-        title="Vacated"
-        :value="$vacatedAllocations"
-        icon="bi-box-arrow-right"
-        color="red"/>
+   <x-admin.stat-card
+    title="Occupied Rooms"
+    :value="$activeAllocations"
+    icon="bi-house-door-fill"
+    color="indigo"/>
 
     <x-admin.stat-card
         title="Available Rooms"
@@ -182,19 +182,9 @@ Actions
 
 <x-admin.table-cell class="text-center">
 
-@if($allocation->status == 'Active')
-
-    <x-admin.badge
-        type="success"
-        text="Active"/>
-
-@else
-
-    <x-admin.badge
-        type="danger"
-        text="Vacated"/>
-
-@endif
+<x-admin.badge
+    type="success"
+    text="Occupied"/>
 
 </x-admin.table-cell>
 
@@ -202,31 +192,15 @@ Actions
 
 <div class="flex items-center justify-center gap-2">
 
-@if($allocation->status == 'Active')
-
-<form
-    method="POST"
-    action="{{ route('allocations.vacate',$allocation->id) }}">
-
-    @csrf
+<a
+    href="{{ route('allocations.change-room', $allocation) }}">
 
     <x-admin.action-button
-        type="submit"
-        color="red"
-        icon="bi-box-arrow-right"
-        title="Vacate"/>
+        color="blue"
+        icon="bi-arrow-left-right"
+        title="Change Room"/>
 
-</form>
-
-@else
-
-<span class="text-xs text-slate-400">
-
-No Actions
-
-</span>
-
-@endif
+</a>
 
 </div>
 

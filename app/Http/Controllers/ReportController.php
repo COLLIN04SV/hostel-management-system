@@ -247,10 +247,10 @@ class ReportController extends Controller
         'allocation.room.hostel'
     ])->latest()->get();
 
-    $completedAccounts = StudentAccount::where(
-        'status',
-        'Completed'
-    )->count();
+    $completedAccounts = StudentAccount::wherein('status',[
+        'Completed',
+        'closed'
+    ])->count();
 
     $partialAccounts = StudentAccount::where(
         'status',

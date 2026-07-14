@@ -6,123 +6,205 @@
 
 <x-student.section-title
     title="Payment Receipts"
-    subtitle="Download all your hostel payment receipts."/>
+    subtitle="Download and keep copies of all hostel payment receipts."/>
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+
+    <x-student.stat-card
+        title="Receipts"
+        :value="$payments->count()"
+        icon="bi-receipt-cutoff"
+        color="blue"/>
+
+    <x-student.stat-card
+        title="Total Paid"
+        :value="'KES '.number_format($payments->sum('amount'))"
+        icon="bi-cash-stack"
+        color="green"/>
+
+    <x-student.stat-card
+        title="Latest Receipt"
+        :value="$payments->first()
+            ? '#'.str_pad($payments->first()->id,6,'0',STR_PAD_LEFT)
+            : 'None'"
+        icon="bi-file-earmark-pdf"
+        color="indigo"/>
+
+</div>
 
 <x-student.card>
 
-    <div class="overflow-x-auto">
+<div class="flex items-center justify-between mb-6">
 
-        <table class="min-w-full">
+    <h2 class="text-xl font-semibold">
 
-            <thead>
+        Receipt History
 
-                <tr class="border-b">
+    </h2>
 
-                    <th class="text-left py-3">
-                        Receipt
-                    </th>
+</div>
 
-                    <th class="text-left py-3">
-                        Date
-                    </th>
+@if($payments->count())
 
-                    <th class="text-left py-3">
-                        Amount
-                    </th>
+<div class="overflow-x-auto">
 
-                    <th class="text-left py-3">
-                        Status
-                    </th>
+<table class="min-w-full divide-y divide-gray-200">
 
-                    <th class="text-center py-3">
-                        Action
-                    </th>
+<thead class="bg-gray-50">
 
-                </tr>
+<tr>
 
-            </thead>
+<th class="px-4 py-3 text-left">
 
-            <tbody>
+Receipt No.
 
-                @forelse($payments as $payment)
+</th>
 
-                <tr class="border-b">
+<th class="px-4 py-3 text-left">
 
-                    <td class="py-4">
-                        #{{ $payment->id }}
-                    </td>
+Payment Date
 
-                    <td>
-                        {{ \Carbon\Carbon::parse($payment->payment_date)->format('d M Y') }}
-                    </td>
+</th>
 
-                    <td>
-                        KES {{ number_format($payment->amount) }}
-                    </td>
+<th class="px-4 py-3 text-left">
 
-                    <td>
+Amount
 
-                        @if($payment->status=='Paid')
+</th>
 
-                            <x-student.badge
-                                type="green"
-                                text="Paid"/>
+<th class="px-4 py-3 text-left">
 
-                        @elseif($payment->status=='Pending')
+Method
 
-                            <x-student.badge
-                                type="yellow"
-                                text="Pending"/>
+</th>
 
-                        @else
+<th class="px-4 py-3 text-left">
 
-                            <x-student.badge
-                                type="red"
-                                text="Failed"/>
+Status
 
-                        @endif
+</th>
 
-                    </td>
+<th class="px-4 py-3 text-center">
 
-                    <td class="text-center">
+Download
 
-                        <a
-                            href="{{ route('student.receipts.download',$payment->id) }}"
-                            class="bg-indigo-600 text-white px-4 py-2 rounded-lg">
+</th>
 
-                            Download
+</tr>
 
-                        </a>
+</thead>
 
-                    </td>
+<tbody class="divide-y divide-gray-100 bg-white">
 
-                </tr>
+@foreach($payments as $payment)
 
-                @empty
+<tr>
 
-                <tr>
+<td class="px-4 py-4 font-semibold text-indigo-600">
 
-                    <td colspan="5" class="text-center py-10 text-gray-500">
+#{{ str_pad($payment->id,6,'0',STR_PAD_LEFT) }}
 
-                        No receipts available.
+</td>
 
-                    </td>
+<td class="px-4 py-4">
 
-                </tr>
+{{ \Carbon\Carbon::parse($payment->payment_date)->format('d M Y') }}
 
-                @endforelse
+</td>
 
-            </tbody>
+<td class="px-4 py-4 font-semibold">
 
-        </table>
+KES {{ number_format($payment->amount) }}
 
-    </div>
+</td>
 
-    <div class="mt-6">
+<td class="px-4 py-4">
 
-        {{ $payments->links() }}
+{{ $payment->payment_method }}
 
-    </div>
+</td>
+
+<td class="px-4 py-4">
+
+@if($payment->status=='Completed')
+
+<span class="px-3 py-1 rounded-full bg-green-100 text-green-700 text-sm">
+
+Completed
+
+</span>
+
+@elseif($payment->status=='Pending')
+
+<span class="px-3 py-1 rounded-full bg-yellow-100 text-yellow-700 text-sm">
+
+Pending
+
+</span>
+
+@else
+
+<span class="px-3 py-1 rounded-full bg-red-100 text-red-700 text-sm">
+
+Failed
+
+</span>
+
+@endif
+
+</td>
+
+<td class="px-4 py-4 text-center">
+
+<a
+href="{{ route('student.receipts.download',$payment->id) }}"
+class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition">
+
+<i class="bi bi-download"></i>
+
+Download
+
+</a>
+
+</td>
+
+</tr>
+
+@endforeach
+
+</tbody>
+
+</table>
+
+</div>
+
+<div class="mt-6">
+
+{{ $payments->links() }}
+
+</div>
+
+@else
+
+<div class="py-16 text-center">
+
+<i class="bi bi-file-earmark-pdf text-6xl text-gray-300"></i>
+
+<h3 class="mt-5 text-xl font-semibold">
+
+No Receipts Available
+
+</h3>
+
+<p class="mt-2 text-gray-500">
+
+Your payment receipts will appear here after your payments have been recorded.
+
+</p>
+
+</div>
+
+@endif
 
 </x-student.card>
 

@@ -10,35 +10,62 @@ use App\Models\Notice;
 
 class DashboardController extends Controller
 {
-    public function index()
-    {
-        $user = Auth::user();
+   public function index()
+{
+    $user = Auth::user();
 
-        $student = \App\Models\Student::where(
-            'user_id',
-            $user->id
-        )->first();
+    $student = Student::where('user_id', $user->id)
+        ->with([
+            'allocation.room.hostel',
+            'account',
+            'applications.hostel'
+        ])
+        ->first();
 
-        $allocation = null;
+    $allocation = $student?->allocation;
 
-        if ($student) {
-            $allocation = \App\Models\Allocation::with(
-                'room.hostel'
-            )
-            ->where('student_id', $student->id)
-            ->where('status', 'Active')
-            ->first();
-        }
+    $account = $student?->account;
 
-        return view(
-            'student.dashboard.index',
-            compact(
-                'user',
-                'student',
-                'allocation'
-            )
-        );
+    $application = $student?->applications()
+        ->latest()
+        ->first();
+
+    $latestNotices = Notice::latest()
+        ->take(3)
+        ->get();
+
+    $recentPayments = $student
+        ? $student->payments()
+            ->latest()
+            ->take(5)
+            ->get()
+        : collect();
+
+    $daysRemaining = null;
+
+    if ($allocation) {
+
+      $daysPassed = $allocation->allocated_date
+    ? $allocation->allocated_date->diffInDays(now())
+    : 0;
+
+        $daysRemaining = max(0, 14 - $daysPassed);
     }
+
+    return view(
+        'student.dashboard.index',
+        compact(
+            'user',
+            'student',
+            'allocation',
+            'account',
+            'application',
+            'latestNotices',
+            'recentPayments',
+            'daysRemaining'
+        )
+    );
+}
 
    public function room()
 {

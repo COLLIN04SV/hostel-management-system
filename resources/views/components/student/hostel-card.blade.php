@@ -47,12 +47,12 @@
         <div>
 
           <p class="text-sm text-gray-500">
-           Available Rooms
-         </p>
+    Available Rooms
+</p>
 
-          <p class="font-semibold">
-             {{ $hostel->rooms->where('occupied', '<', 'capacity')->count() }}
-          </p>
+<p class="font-semibold">
+    {{ $hostel->available_rooms_count }}
+</p>
 
         </div>
 

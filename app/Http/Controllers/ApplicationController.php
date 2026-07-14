@@ -12,6 +12,11 @@ class ApplicationController extends Controller
 {
     public function index(Request $request)
 {
+    $completedApplications = Application::where(
+    'status',
+    'Completed'
+)->count();
+
     $search = $request->search;
 
     $applications = Application::with([
@@ -74,7 +79,8 @@ class ApplicationController extends Controller
             'pendingApplications',
             'approvedApplications',
             'allocatedApplications',
-            'rejectedApplications'
+            'rejectedApplications',
+            'completedApplications'
         )
     );
 }
@@ -143,6 +149,7 @@ class ApplicationController extends Controller
         'Approved',
         'Allocated'
     ])
+    ->latest()
     ->exists();
 
     if ($existingApplication) {
@@ -272,8 +279,13 @@ class ApplicationController extends Controller
         auth()->id()
     )->first();
 
-    $hostels = Hostel::with(['rooms'])
+   $hostels = Hostel::with('rooms')
     ->withCount('rooms')
+    ->withCount([
+        'rooms as available_rooms_count' => function ($query) {
+            $query->whereColumn('occupied', '<', 'capacity');
+        }
+    ])
     ->where('gender', $student->gender)
     ->get();
     
@@ -313,6 +325,7 @@ public function studentStore(Request $request)
     'Approved',
     'Allocated'
 ])
+->latest()
 ->first();
 
 if ($existingApplication) {

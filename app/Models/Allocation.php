@@ -14,6 +14,11 @@ class Allocation extends Model
         'status'
     ];
 
+    protected $casts = [
+        'allocated_date' => 'date',
+        'checkout_date' => 'date',
+    ];
+
     public function student()
     {
         return $this->belongsTo(Student::class);
