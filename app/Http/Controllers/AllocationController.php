@@ -409,4 +409,92 @@ public function changeRoom(Request $request, Allocation $allocation)
             'Room changed successfully.'
         );
 }
+
+public function autoAllocate()
+{
+    $applications = Application::with([
+            'student.user'
+        ])
+        ->where('status', 'Approved')
+        ->orderBy('created_at')
+        ->get();
+
+    $allocated = 0;
+
+    foreach ($applications as $application) {
+
+        // Skip if already allocated
+        if (
+            Allocation::where('student_id', $application->student_id)
+                ->where('status', 'Active')
+                ->exists()
+        ) {
+            continue;
+        }
+
+        // Find first available room in approved hostel
+        $room = Room::where(
+                'hostel_id',
+                $application->hostel_id
+            )
+            ->whereColumn('occupied', '<', 'capacity')
+            ->orderBy('room_number')
+            ->first();
+
+        if (!$room) {
+            continue;
+        }
+
+        // Create allocation
+        $allocation = Allocation::create([
+
+            'student_id'     => $application->student_id,
+            'room_id'        => $room->id,
+            'allocated_date' => now(),
+            'status'         => 'Active',
+
+        ]);
+
+        // Create student account
+        StudentAccount::create([
+
+            'student_id'     => $application->student_id,
+            'allocation_id'  => $allocation->id,
+            'room_fee'       => $room->price,
+            'amount_paid'    => 0,
+            'balance'        => $room->price,
+            'status'         => 'Pending',
+
+        ]);
+
+        // Update application
+        $application->update([
+            'status' => 'Allocated'
+        ]);
+
+        // Increase occupied count
+        $room->increment('occupied');
+
+        // Notification
+        Notification::create([
+
+            'title' => 'Room Allocated',
+
+            'message' =>
+                $application->student->user->name .
+                ' automatically allocated to Room ' .
+                $room->room_number,
+
+            'type' => 'allocation'
+
+        ]);
+
+        $allocated++;
+    }
+
+    return back()->with(
+        'success',
+        $allocated . ' students allocated successfully.'
+    );
+}
 }

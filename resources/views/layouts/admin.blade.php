@@ -26,7 +26,7 @@
 
             <h1 class="text-3xl font-bold">
 
-                HMS
+                <span class="text-indigo-500">OLIVER</span>
 
             </h1>
 

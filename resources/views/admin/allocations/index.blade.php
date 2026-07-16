@@ -12,14 +12,35 @@
     title="Room Allocations"
     subtitle="Manage student room allocations">
 
-    <x-admin.button
-        href="{{ route('allocations.create') }}">
+    <div class="flex gap-3">
 
-        <i class="bi bi-plus-lg mr-2"></i>
+        <x-admin.button
+            href="{{ route('allocations.create') }}">
 
-        Allocate Student
+            <i class="bi bi-plus-lg mr-2"></i>
 
-    </x-admin.button>
+            Allocate Student
+
+        </x-admin.button>
+
+        <form
+            method="POST"
+            action="{{ route('allocations.auto-allocate') }}">
+
+            @csrf
+
+            <button
+                class="inline-flex items-center px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-medium transition">
+
+                <i class="bi bi-magic mr-2"></i>
+
+                Auto Allocate Rooms
+
+            </button>
+
+        </form>
+
+    </div>
 
 </x-admin.page-header>
 
@@ -32,22 +53,24 @@
         color="blue"/>
 
     <x-admin.stat-card
-        title="Active"
+        title="Occupied Rooms"
         :value="$activeAllocations"
-        icon="bi-check-circle"
+        icon="bi-house-door-fill"
         color="green"/>
-
-   <x-admin.stat-card
-    title="Occupied Rooms"
-    :value="$activeAllocations"
-    icon="bi-house-door-fill"
-    color="indigo"/>
 
     <x-admin.stat-card
         title="Available Rooms"
         :value="$availableRooms"
         icon="bi-door-open"
         color="yellow"/>
+
+    <x-admin.stat-card
+        title="Occupancy Rate"
+        :value="$availableRooms + $activeAllocations > 0
+            ? round(($activeAllocations / ($availableRooms + $activeAllocations))*100).'%'
+            : '0%'"
+        icon="bi-bar-chart-fill"
+        color="indigo"/>
 
 </x-admin.stats-grid>
 
@@ -56,7 +79,7 @@
 <x-admin.search-bar
     :action="route('allocations.index')"
     :value="$search"
-    placeholder="Search student, registration number, room or status..." />
+    placeholder="Search student, registration number, hostel or room..." />
 
 <div class="flex items-center justify-between mb-5">
 
@@ -132,79 +155,99 @@ Actions
 
 <tr class="border-b border-slate-100 hover:bg-slate-50 transition">
 
-<x-admin.table-cell>
+    <x-admin.table-cell>
 
-<div class="flex items-center gap-3">
+        <div class="flex items-center gap-3">
 
-<div class="w-10 h-10 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold">
+            <div class="w-10 h-10 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold">
 
-{{ strtoupper(substr($allocation->student->user->name,0,1)) }}
+                {{ strtoupper(substr($allocation->student->user->name,0,1)) }}
 
-</div>
+            </div>
 
-<div>
+            <div>
 
-<p class="font-medium text-slate-800">
+                <p class="font-medium text-slate-800">
 
-{{ $allocation->student->user->name }}
+                    {{ $allocation->student->user->name }}
 
-</p>
+                </p>
 
-<p class="text-xs text-slate-500">
+                <p class="text-xs text-slate-500">
 
-{{ $allocation->student->registration_number }}
+                    {{ $allocation->student->registration_number }}
 
-</p>
+                </p>
 
-</div>
+            </div>
 
-</div>
+        </div>
 
-</x-admin.table-cell>
+    </x-admin.table-cell>
 
-<x-admin.table-cell>
+    <x-admin.table-cell>
 
-{{ $allocation->room->hostel->name }}
+        {{ $allocation->room->hostel->name }}
 
-</x-admin.table-cell>
+    </x-admin.table-cell>
 
-<x-admin.table-cell>
+    <x-admin.table-cell>
 
-{{ $allocation->room->room_number }}
+        <div class="font-semibold">
 
-</x-admin.table-cell>
+            Room {{ $allocation->room->room_number }}
 
-<x-admin.table-cell>
+        </div>
 
-{{ \Carbon\Carbon::parse($allocation->allocated_date)->format('d M Y') }}
+        <div class="text-xs text-slate-500">
 
-</x-admin.table-cell>
+            Floor {{ $allocation->room->floor }}
 
-<x-admin.table-cell class="text-center">
+        </div>
 
-<x-admin.badge
-    type="success"
-    text="Occupied"/>
+    </x-admin.table-cell>
 
-</x-admin.table-cell>
+    <x-admin.table-cell>
 
-<x-admin.table-cell class="text-center">
+        {{ \Carbon\Carbon::parse($allocation->allocated_date)->format('d M Y') }}
 
-<div class="flex items-center justify-center gap-2">
+    </x-admin.table-cell>
 
-<a
-    href="{{ route('allocations.change-room', $allocation) }}">
+    <x-admin.table-cell class="text-center">
 
-    <x-admin.action-button
-        color="blue"
-        icon="bi-arrow-left-right"
-        title="Change Room"/>
+        <x-admin.badge
+            type="success"
+            text="Occupied"/>
 
-</a>
+    </x-admin.table-cell>
 
-</div>
+    <x-admin.table-cell class="text-center">
 
-</x-admin.table-cell>
+        <div class="flex items-center justify-center gap-2">
+
+            <a
+                href="{{ route('allocations.change-room',$allocation) }}">
+
+                <x-admin.action-button
+                    color="blue"
+                    icon="bi-arrow-left-right"
+                    title="Change Room"/>
+
+            </a>
+
+            <a
+                href="{{ route('students.show',$allocation->student_id) }}">
+
+                <x-admin.action-button
+                    color="green"
+                    icon="bi-person"
+                    title="Student Profile"/>
+
+            </a>
+
+        </div>
+
+    </x-admin.table-cell>
 
 </tr>
 
@@ -212,14 +255,14 @@ Actions
 
 <tr>
 
-<td colspan="6">
+    <td colspan="6">
 
-<x-admin.empty-state
-    icon="bi-house"
-    title="No Allocations Found"
-    message="No room allocations match your search."/>
+        <x-admin.empty-state
+            icon="bi-house"
+            title="No Allocations Found"
+            message="No room allocations match your search." />
 
-</td>
+    </td>
 
 </tr>
 
@@ -229,7 +272,25 @@ Actions
 
 </table>
 
-<div class="mt-5 border-t border-slate-200 pt-4">
+<div class="mt-6 flex items-center justify-between border-t border-slate-200 pt-4">
+
+    <p class="text-sm text-slate-500">
+
+        Showing
+
+        <strong>{{ $allocations->firstItem() ?? 0 }}</strong>
+
+        -
+
+        <strong>{{ $allocations->lastItem() ?? 0 }}</strong>
+
+        of
+
+        <strong>{{ $allocations->total() }}</strong>
+
+        active allocations
+
+    </p>
 
     {{ $allocations->links() }}
 

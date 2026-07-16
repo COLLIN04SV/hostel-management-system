@@ -239,6 +239,68 @@ class ApplicationController extends Controller
     );
 }
 
+public function autoApprove()
+{
+    $approved = 0;
+
+    $applications = Application::with([
+        'student',
+        'hostel'
+    ])
+    ->where('status', 'Pending')
+    ->get();
+
+    foreach ($applications as $application) {
+
+        $student = $application->student;
+
+        // Skip students already allocated
+        if (
+            $student->allocations()
+                ->where('status', 'Active')
+                ->exists()
+        ) {
+            continue;
+        }
+
+        // Skip if student already has another approved application
+        if (
+            Application::where('student_id', $student->id)
+                ->where('status', 'Approved')
+                ->where('id', '!=', $application->id)
+                ->exists()
+        ) {
+            continue;
+        }
+
+        // Gender validation
+        if (
+            $student->gender != $application->hostel->gender
+        ) {
+            continue;
+        }
+
+        $application->update([
+            'status' => 'Approved'
+        ]);
+
+        Notification::create([
+            'title'   => 'Application Approved',
+            'message' =>
+                $student->user->name .
+                ' application has been automatically approved.',
+            'type' => 'application'
+        ]);
+
+        $approved++;
+    }
+
+    return back()->with(
+        'success',
+        $approved . ' applications approved automatically.'
+    );
+}
+
     public function reject($id)
 {
     $application = Application::findOrFail($id);

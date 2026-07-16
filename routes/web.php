@@ -108,6 +108,11 @@ Route::middleware(['auth', 'admin'])->group(function () {
     [ApplicationController::class, 'getHostels']
     )->name('applications.hostels');
 
+    Route::post(
+    '/applications/auto-approve',
+    [ApplicationController::class, 'autoApprove']
+    )->name('applications.auto-approve');
+
     Route::get(
     '/allocations/student/{student}/rooms',
     [AllocationController::class, 'getRooms']
@@ -122,6 +127,11 @@ Route::middleware(['auth', 'admin'])->group(function () {
     '/allocations/{allocation}/change-room',
     [AllocationController::class, 'changeRoom']
     )->name('allocations.change-room');
+
+    Route::post(
+    '/allocations/auto-allocate',
+    [AllocationController::class, 'autoAllocate']
+    )->name('allocations.auto-allocate');
     
     Route::get(
     '/admin/notifications',
@@ -247,4 +257,21 @@ Route::middleware('auth')->group(function () {
     '/student/profile/photo',
     [StudentProfileController::class, 'updatePhoto']
     )->name('student.profile.photo');
+
+    // Student Payment routes
+
+    Route::get(
+    '/student/payments',
+    [\App\Http\Controllers\Student\PaymentController::class, 'index']
+    )->name('student.payments');
+
+    Route::post(
+    '/student/payments/pay',
+    [\App\Http\Controllers\Student\PaymentController::class, 'pay']
+    )->name('student.payments.pay');
+
+    Route::get(
+    '/student/payments/{payment}/receipt',
+    [\App\Http\Controllers\Student\PaymentController::class, 'receipt']
+    )->name('student.payments.receipt');
 });

@@ -12,14 +12,39 @@
     title="Applications"
     subtitle="Manage hostel applications">
 
-    <x-admin.button
-        href="{{ route('applications.create') }}">
+    <div class="flex gap-3">
 
-        <i class="bi bi-plus-lg mr-2"></i>
+        {{-- Auto Approve Button --}}
+        <form
+            action="{{ route('applications.auto-approve') }}"
+            method="POST"
+            onsubmit="return confirm('Approve ALL pending hostel applications?')">
 
-        New Application
+            @csrf
 
-    </x-admin.button>
+            <button
+                type="submit"
+                class="inline-flex items-center px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white">
+
+                <i class="bi bi-lightning-charge mr-2"></i>
+
+                Auto Approve Pending
+
+            </button>
+
+        </form>
+
+        {{-- Manual Create --}}
+        <x-admin.button
+            href="{{ route('applications.create') }}">
+
+            <i class="bi bi-plus-lg mr-2"></i>
+
+            New Application
+
+        </x-admin.button>
+
+    </div>
 
 </x-admin.page-header>
 
@@ -93,33 +118,23 @@
 <tr>
 
 <x-admin.table-heading>
-
 Student
-
 </x-admin.table-heading>
 
 <x-admin.table-heading>
-
 Hostel
-
 </x-admin.table-heading>
 
 <x-admin.table-heading>
-
-Date
-
+Application Date
 </x-admin.table-heading>
 
 <x-admin.table-heading class="text-center">
-
 Status
-
 </x-admin.table-heading>
 
 <x-admin.table-heading class="text-center">
-
 Actions
-
 </x-admin.table-heading>
 
 </tr>
@@ -237,6 +252,22 @@ Actions
         title="Reject"/>
 
 </form>
+
+@elseif($application->status == 'Approved')
+
+<span class="text-xs text-emerald-600 font-semibold">
+
+Ready for Allocation
+
+</span>
+
+@elseif($application->status == 'Allocated')
+
+<span class="text-xs text-indigo-600 font-semibold">
+
+Room Allocated
+
+</span>
 
 @else
 
