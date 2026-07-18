@@ -36,6 +36,6 @@ RUN php artisan config:clear || true
 RUN php artisan cache:clear || true
 RUN php artisan view:clear || true
 
-EXPOSE $PORT
+EXPOSE 10000
 
-CMD php artisan serve --host=0.0.0.0 --port=$PORT
+CMD sh -c "php artisan serve --host=0.0.0.0 --port=${PORT:-10000}"
