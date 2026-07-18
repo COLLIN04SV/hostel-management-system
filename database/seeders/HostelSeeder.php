@@ -9,40 +9,60 @@ class HostelSeeder extends Seeder
 {
     public function run(): void
     {
-        Hostel::insert([
-            [
-                'name' => 'Block A',
+        $hostels = [];
+
+        // 3 Male Hostels
+        for ($i = 1; $i <= 3; $i++) {
+
+            $hostels[] = [
+
+                'name' => 'Male Hostel '.$i,
+
                 'gender' => 'Male',
-                'capacity' => 100,
-                'total_rooms' => 20,
+
+                'capacity' => 30,
+
+                'total_rooms' => 15,
+
                 'location' => 'Main Campus',
-                'description' => 'Male students hostel',
+
+                'description' => 'Male students hostel '.$i,
+
                 'status' => 1,
+
                 'created_at' => now(),
+
                 'updated_at' => now(),
-            ],
-            [
-                'name' => 'Block B',
+
+            ];
+        }
+
+        // 3 Female Hostels
+        for ($i = 1; $i <= 3; $i++) {
+
+            $hostels[] = [
+
+                'name' => 'Female Hostel '.$i,
+
                 'gender' => 'Female',
-                'capacity' => 100,
-                'total_rooms' => 20,
+
+                'capacity' => 30,
+
+                'total_rooms' => 15,
+
                 'location' => 'Main Campus',
-                'description' => 'Female students hostel',
+
+                'description' => 'Female students hostel '.$i,
+
                 'status' => 1,
+
                 'created_at' => now(),
+
                 'updated_at' => now(),
-            ],
-            [
-                'name' => 'Block C',
-                'gender' => 'Male',
-                'capacity' => 60,
-                'total_rooms' => 12,
-                'location' => 'Annex Campus',
-                'description' => 'Extension hostel',
-                'status' => 1,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-        ]);
+
+            ];
+        }
+
+        Hostel::insert($hostels);
     }
 }
