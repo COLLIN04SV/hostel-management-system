@@ -23,7 +23,7 @@ use App\Http\Controllers\Student\PaymentController as StudentPaymentController;
 use App\Http\Controllers\Student\ReceiptController as StudentReceiptController;
 
 Route::get('/', function () {
-    return 'Laravel is working!';
+    return view('welcome');
 });
 
 require __DIR__.'/auth.php';
